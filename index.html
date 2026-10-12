@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlayHub – Hraj zdarma online</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo"><span class="logo-icon">🎮</span><span class="logo-text">Play<span>Hub</span></span></a>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Hledat hry..." />
+      </div>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Hraj <span class="gradient-text">zdarma</span> a hned</h1>
+      <p>Nejlepší browser hry na jednom místě.</p>
+    </div>
+  </section>
+  <section class="games-section" id="featured">
+    <div class="container">
+      <h2 class="section-title">🔥 Populární</h2>
+      <div class="games-grid" id="featuredGrid"></div>
+    </div>
+  </section>
+  <section class="games-section" id="all">
+    <div class="container">
+      <h2 class="section-title">Všechny hry</h2>
+      <div class="games-grid" id="gamesGrid"></div>
+    </div>
+  </section>
+  <div class="modal" id="gameModal" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header"><h3 id="modalTitle">Hra</h3><button class="modal-close" id="modalClose">×</button></div>
+      <div class="modal-body"><iframe id="gameFrame" src="" allowfullscreen></iframe></div>
+    </div>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>
