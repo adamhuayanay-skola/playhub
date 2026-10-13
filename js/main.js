@@ -86,7 +86,7 @@ function startPlay(){
   var g=currentGame,d=getDiff();
   if(g.playable&&g.file){
     gameFrame.src=g.file+(g.file.indexOf('?')>=0?'&':'?')+'diff='+d;
-    gameFrame.style.display='block';
+    gameFrame.classList.add('is-playing');
     if(playArea)playArea.hidden=true;
   }
 }
@@ -95,11 +95,16 @@ function openGame(g){
   currentGame=g;
   if(modalTitle)modalTitle.textContent=g.title;
   syncModalDiff();
-  if(gameFrame){gameFrame.src='';gameFrame.removeAttribute('srcdoc');gameFrame.style.display='none'}
+  if(gameFrame){
+    gameFrame.src='';
+    gameFrame.classList.remove('is-playing');
+  }
   if(playArea){
     playArea.hidden=false;
     var dLabel=getDiff()==='easy'?'Easy':(getDiff()==='hard'?'Hard':'Mid');
-    var html='<img class="modal-preview" src="'+(g.img||'')+'" alt=""/>';
+    var html='';
+    if(g.img) html+='<img class="modal-preview" src="'+g.img+'" alt="'+g.title+'" onerror="this.style.display=\'none\'"/>';
+    else html+='<div class="modal-preview" style="display:flex;align-items:center;justify-content:center;font-size:3rem">🎮</div>';
     html+='<p class="modal-desc">'+(g.playable?'Vyber obtížnost a stiskni Hrát':'Katalogová hra — plná verze brzy')+'</p>';
     if(g.playable)html+='<button type="button" class="play-btn" id="startPlayBtn">Hrát · '+dLabel+'</button>';
     playArea.innerHTML=html;
@@ -107,20 +112,21 @@ function openGame(g){
     if(btn)btn.addEventListener('click',startPlay);
   }
   gameModal.hidden=false;
-  gameModal.style.display='flex';
-  document.body.style.overflow='hidden';
+  requestAnimationFrame(function(){ gameModal.classList.add('is-open'); });
+  document.body.classList.add('player-open');
 }
 function closeModal(){
   if(!gameModal)return;
-  gameModal.hidden=true;
-  gameModal.style.display='none';
-  if(gameFrame){gameFrame.src='';gameFrame.style.display='none'}
-  if(playArea){playArea.innerHTML='';playArea.hidden=true}
-  document.body.style.overflow='';
-  currentGame=null;
+  gameModal.classList.remove('is-open');
+  setTimeout(function(){
+    gameModal.hidden=true;
+    if(gameFrame){gameFrame.src='';gameFrame.classList.remove('is-playing')}
+    if(playArea){playArea.innerHTML='';playArea.hidden=true}
+    currentGame=null;
+  }, 220);
+  document.body.classList.remove('player-open');
 }
 if(modalClose)modalClose.addEventListener('click',closeModal);
-if(gameModal){var backdrop=gameModal.querySelector('.modal-backdrop');if(backdrop)backdrop.addEventListener('click',closeModal)}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&gameModal&&!gameModal.hidden)closeModal()});
 if(modalDiff){
   modalDiff.addEventListener('click',function(e){
