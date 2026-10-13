@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlayHub – Hraj zdarma online</title>
+  <meta name="description" content="Hraj zdarma browser hry. Snake, 2048, Tetris a dalsi." />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
@@ -17,17 +19,17 @@
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Hledat hry..." autocomplete="off" />
       </div>
-      <span class="version-badge" title="Verze aplikace">v1.0</span>
+      <span class="version-badge" title="Verze">v1.1</span>
     </div>
   </header>
   <section class="hero">
     <div class="hero-content">
       <h1>Hraj <span class="gradient-text">zdarma</span> a hned</h1>
-      <p>Nejlepší browser hry na jednom místě.</p>
+      <p>Nejlepsi browser hry na jednom miste. Bez stahovani.</p>
       <div class="hero-stats">
         <div class="stat"><span class="stat-num" id="gameCount">40+</span><span class="stat-label">Her</span></div>
         <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Zdarma</span></div>
-        <div class="stat"><span class="stat-num">0</span><span class="stat-label">Instalací</span></div>
+        <div class="stat"><span class="stat-num">0</span><span class="stat-label">Instalaci</span></div>
       </div>
     </div>
   </section>
@@ -35,11 +37,11 @@
     <div class="container">
       <h2 class="section-title">Kategorie</h2>
       <div class="category-pills" id="categoryPills">
-        <button class="pill active" data-cat="all">Vše</button>
+        <button class="pill active" data-cat="all">Vse</button>
         <button class="pill" data-cat="arcade">Arcade</button>
         <button class="pill" data-cat="puzzle">Puzzle</button>
         <button class="pill" data-cat="action">Akce</button>
-        <button class="pill" data-cat="racing">Závody</button>
+        <button class="pill" data-cat="racing">Zavody</button>
         <button class="pill" data-cat="sports">Sport</button>
         <button class="pill" data-cat="strategy">Strategie</button>
         <button class="pill" data-cat="io">.io hry</button>
@@ -48,22 +50,22 @@
   </section>
   <section class="games-section" id="featured">
     <div class="container">
-      <h2 class="section-title">🔥 Populární právě teď</h2>
+      <h2 class="section-title">Populerne prave ted</h2>
       <div class="games-grid" id="featuredGrid"></div>
     </div>
   </section>
   <section class="games-section" id="all">
     <div class="container">
-      <h2 class="section-title">Všechny hry</h2>
+      <h2 class="section-title">Vsechny hry</h2>
       <div class="games-grid" id="gamesGrid"></div>
-      <p class="no-results" id="noResults" hidden>Žádné hry nenalezeny</p>
+      <p class="no-results" id="noResults" hidden>Zadne hry nenalezeny</p>
     </div>
   </section>
   <footer class="footer">
     <div class="container">
       <div class="footer-top">
         <div class="logo"><span class="logo-icon">🎮</span><span class="logo-text">Play<span>Hub</span></span></div>
-        <p>Hry běží přímo v prohlížeči</p>
+        <p>Hry bezi primo v prohlizeci</p>
       </div>
     </div>
   </footer>
