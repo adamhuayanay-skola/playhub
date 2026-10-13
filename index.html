@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlayHub – Hraj zdarma online</title>
-  <meta name="description" content="Hraj zdarma browser hry. Snake, 2048, Tetris a dalsi." />
+  <meta name="description" content="Hraj zdarma browser hry. Snake, 2048, Subway a dalsi. Easy Mid Hard." />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -19,13 +19,18 @@
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Hledat hry..." autocomplete="off" />
       </div>
-      <span class="version-badge" title="Verze">v1.1</span>
+      <div class="diff-group" id="diffGroup" title="Obtiznost">
+        <button class="diff-btn" data-diff="easy">Easy</button>
+        <button class="diff-btn active" data-diff="mid">Mid</button>
+        <button class="diff-btn" data-diff="hard">Hard</button>
+      </div>
+      <span class="version-badge" title="Verze">v1.2</span>
     </div>
   </header>
   <section class="hero">
     <div class="hero-content">
       <h1>Hraj <span class="gradient-text">zdarma</span> a hned</h1>
-      <p>Nejlepsi browser hry na jednom miste. Bez stahovani.</p>
+      <p>Nejlepsi browser hry na jednom miste. Easy · Mid · Hard.</p>
       <div class="hero-stats">
         <div class="stat"><span class="stat-num" id="gameCount">40+</span><span class="stat-label">Her</span></div>
         <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Zdarma</span></div>
@@ -65,7 +70,7 @@
     <div class="container">
       <div class="footer-top">
         <div class="logo"><span class="logo-icon">🎮</span><span class="logo-text">Play<span>Hub</span></span></div>
-        <p>Hry bezi primo v prohlizeci</p>
+        <p>Hry bezi primo v prohlizeci · Easy Mid Hard</p>
       </div>
     </div>
   </footer>
