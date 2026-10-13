@@ -18,7 +18,7 @@
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Hledat hry..." autocomplete="off" />
       </div>
-      <span class="version-badge">v1.3</span>
+      <span class="version-badge">v1.4</span>
     </div>
   </header>
   <section class="hero">
@@ -68,22 +68,19 @@
       </div>
     </div>
   </footer>
-  <div class="modal" id="gameModal" hidden style="display:none">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalTitle">Hra</h3>
-        <div class="modal-diff" id="modalDiff">
-          <button type="button" class="diff-btn" data-diff="easy">Easy</button>
-          <button type="button" class="diff-btn active" data-diff="mid">Mid</button>
-          <button type="button" class="diff-btn" data-diff="hard">Hard</button>
-        </div>
-        <button type="button" class="modal-close" id="modalClose" aria-label="Zavrit">×</button>
+  <div class="player" id="gameModal" hidden>
+    <div class="player-bar">
+      <button type="button" class="player-back" id="modalClose" aria-label="Zpet">← Zpet</button>
+      <h3 class="player-title" id="modalTitle">Hra</h3>
+      <div class="modal-diff" id="modalDiff">
+        <button type="button" class="diff-btn" data-diff="easy">Easy</button>
+        <button type="button" class="diff-btn active" data-diff="mid">Mid</button>
+        <button type="button" class="diff-btn" data-diff="hard">Hard</button>
       </div>
-      <div class="modal-body">
-        <div id="playArea" class="play-area"></div>
-        <iframe id="gameFrame" src="" allowfullscreen style="display:none"></iframe>
-      </div>
+    </div>
+    <div class="player-stage">
+      <div id="playArea" class="play-area"></div>
+      <iframe id="gameFrame" src="" allowfullscreen title="Game"></iframe>
     </div>
   </div>
   <script src="js/main.js"></script>
