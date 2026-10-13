@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PlayHub – Hraj zdarma online</title>
-  <meta name="description" content="Hraj zdarma browser hry. Snake, 2048, Subway a dalsi. Easy Mid Hard." />
+  <meta name="description" content="Hraj zdarma browser hry." />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
@@ -19,18 +18,13 @@
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Hledat hry..." autocomplete="off" />
       </div>
-      <div class="diff-group" id="diffGroup" title="Obtiznost">
-        <button class="diff-btn" data-diff="easy">Easy</button>
-        <button class="diff-btn active" data-diff="mid">Mid</button>
-        <button class="diff-btn" data-diff="hard">Hard</button>
-      </div>
-      <span class="version-badge" title="Verze">v1.2</span>
+      <span class="version-badge">v1.3</span>
     </div>
   </header>
   <section class="hero">
     <div class="hero-content">
       <h1>Hraj <span class="gradient-text">zdarma</span> a hned</h1>
-      <p>Nejlepsi browser hry na jednom miste. Easy · Mid · Hard.</p>
+      <p>Nejlepsi browser hry na jednom miste.</p>
       <div class="hero-stats">
         <div class="stat"><span class="stat-num" id="gameCount">40+</span><span class="stat-label">Her</span></div>
         <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Zdarma</span></div>
@@ -38,28 +32,28 @@
       </div>
     </div>
   </section>
-  <section class="categories" id="categories">
+  <section class="categories">
     <div class="container">
       <h2 class="section-title">Kategorie</h2>
       <div class="category-pills" id="categoryPills">
-        <button class="pill active" data-cat="all">Vse</button>
-        <button class="pill" data-cat="arcade">Arcade</button>
-        <button class="pill" data-cat="puzzle">Puzzle</button>
-        <button class="pill" data-cat="action">Akce</button>
-        <button class="pill" data-cat="racing">Zavody</button>
-        <button class="pill" data-cat="sports">Sport</button>
-        <button class="pill" data-cat="strategy">Strategie</button>
-        <button class="pill" data-cat="io">.io hry</button>
+        <button type="button" class="pill active" data-cat="all">Vse</button>
+        <button type="button" class="pill" data-cat="arcade">Arcade</button>
+        <button type="button" class="pill" data-cat="puzzle">Puzzle</button>
+        <button type="button" class="pill" data-cat="action">Akce</button>
+        <button type="button" class="pill" data-cat="racing">Zavody</button>
+        <button type="button" class="pill" data-cat="sports">Sport</button>
+        <button type="button" class="pill" data-cat="strategy">Strategie</button>
+        <button type="button" class="pill" data-cat="io">.io hry</button>
       </div>
     </div>
   </section>
-  <section class="games-section" id="featured">
+  <section class="games-section">
     <div class="container">
       <h2 class="section-title">Populerne prave ted</h2>
       <div class="games-grid" id="featuredGrid"></div>
     </div>
   </section>
-  <section class="games-section" id="all">
+  <section class="games-section">
     <div class="container">
       <h2 class="section-title">Vsechny hry</h2>
       <div class="games-grid" id="gamesGrid"></div>
@@ -70,18 +64,26 @@
     <div class="container">
       <div class="footer-top">
         <div class="logo"><span class="logo-icon">🎮</span><span class="logo-text">Play<span>Hub</span></span></div>
-        <p>Hry bezi primo v prohlizeci · Easy Mid Hard</p>
+        <p>Hry bezi primo v prohlizeci</p>
       </div>
     </div>
   </footer>
-  <div class="modal" id="gameModal" hidden>
+  <div class="modal" id="gameModal" hidden style="display:none">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="modalTitle">Hra</h3>
-        <button class="modal-close" id="modalClose">×</button>
+        <div class="modal-diff" id="modalDiff">
+          <button type="button" class="diff-btn" data-diff="easy">Easy</button>
+          <button type="button" class="diff-btn active" data-diff="mid">Mid</button>
+          <button type="button" class="diff-btn" data-diff="hard">Hard</button>
+        </div>
+        <button type="button" class="modal-close" id="modalClose" aria-label="Zavrit">×</button>
       </div>
-      <div class="modal-body"><iframe id="gameFrame" src="" allowfullscreen></iframe></div>
+      <div class="modal-body">
+        <div id="playArea" class="play-area"></div>
+        <iframe id="gameFrame" src="" allowfullscreen style="display:none"></iframe>
+      </div>
     </div>
   </div>
   <script src="js/main.js"></script>
