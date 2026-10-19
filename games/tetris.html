@@ -1,0 +1,21 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Tetris</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f172a;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+h1{margin-bottom:.5rem}canvas{background:#1e293b;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.4)}.hint{margin-top:.5rem;color:#94a3b8;font-size:.85rem}
+</style></head><body><h1>Tetris</h1><canvas id="c" width="240" height="400"></canvas><p class="hint">sipky / mezernik</p>
+<script>
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d"),COLS=10,ROWS=20,BS=24;
+const COLORS=["#22d3ee","#3b82f6","#f59e0b","#22c55e","#a855f7","#ef4444","#eab308"];
+const SHAPES=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]],[[0,1,1],[1,1,0]],[[1,1,0],[0,1,1]]];
+let board,piece,x,y,score=0,timer;
+function newPiece(){const t=Math.floor(Math.random()*7);piece=SHAPES[t].map(r=>r.slice());piece.color=COLORS[t];x=3;y=0;if(collide()){clearInterval(timer);alert("Game Over "+score)}}
+function collide(){for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++)if(piece[r][c]&&(board[y+r]&&board[y+r][x+c])!==0)return true;return false}
+function merge(){for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++)if(piece[r][c])board[y+r][x+c]=piece.color}
+function rotate(){const rot=piece[0].map((_,i)=>piece.map(row=>row[i]).reverse());const old=piece;piece=rot;if(collide())piece=old}
+function drop(){y++;if(collide()){y--;merge();sweep();newPiece()}draw()}
+function sweep(){for(let r=ROWS-1;r>=0;r--){if(board[r].every(c=>c)){board.splice(r,1);board.unshift(Array(COLS).fill(0));score+=100;r++}}}
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(board[r][c]){ctx.fillStyle=board[r][c];ctx.fillRect(c*BS,r*BS,BS-1,BS-1)}}
+for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++)if(piece[r][c]){ctx.fillStyle=piece.color;ctx.fillRect((x+c)*BS,(y+r)*BS,BS-1,BS-1)}}
+function init(){board=Array(ROWS).fill(0).map(()=>Array(COLS).fill(0));score=0;newPiece();draw();clearInterval(timer);const params=new URLSearchParams(location.search);const diff=params.get("diff")||"mid";const sp={easy:600,mid:400,hard:200};timer=setInterval(drop,sp[diff]||400)}
+document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){x--;if(collide())x++}if(e.key==="ArrowRight"){x++;if(collide())x--}if(e.key==="ArrowDown")drop();if(e.key==="ArrowUp"||e.key===" "){e.preventDefault();rotate()}draw()});
+init();
+</script></body></html>
