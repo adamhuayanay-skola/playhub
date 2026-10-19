@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Pong</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui;user-select:none;touch-action:none;color:#fff}
+h1{font-size:1.2rem;margin-bottom:.3rem;letter-spacing:.2em}
+.sc{font-size:1.5rem;font-weight:800;margin-bottom:.3rem;font-family:monospace}
+canvas{border-radius:4px;box-shadow:0 0 30px rgba(0,255,100,.15);max-width:96vw}
+.hint{color:#666;font-size:.75rem;margin-top:.4rem}
+</style></head><body>
+<h1>PONG</h1>
+<div class="sc"><span id="p1">0</span> : <span id="p2">0</span></div>
+<canvas id="c" width="560" height="360"></canvas>
+<p class="hint">Mys / dotyk = palka</p>
+<script>
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const params=new URLSearchParams(location.search);
+const ballSpd={easy:3.5,mid:5,hard:7}[params.get("diff")||"mid"]||5;
+const W=560,H=360;
+let p1={y:H/2-35,s:0},p2={y:H/2-35,s:0},ball={x:W/2,y:H/2,vx:ballSpd,vy:ballSpd*0.6},mouseY=H/2;
+function resetBall(dir){ball={x:W/2,y:H/2,vx:dir*ballSpd,vy:(Math.random()-0.5)*ballSpd}}
+function tick(){p1.y=Math.max(0,Math.min(H-70,mouseY-35));const target=ball.y-35;p2.y+=(target-p2.y)*0.08;p2.y=Math.max(0,Math.min(H-70,p2.y));ball.x+=ball.vx;ball.y+=ball.vy;if(ball.y<8||ball.y>H-8)ball.vy*=-1;if(ball.x<28&&ball.y>p1.y&&ball.y<p1.y+70){ball.vx=Math.abs(ball.vx)*1.05;ball.vy+=(ball.y-(p1.y+35))*0.12}if(ball.x>W-28&&ball.y>p2.y&&ball.y<p2.y+70){ball.vx=-Math.abs(ball.vx)*1.05;ball.vy+=(ball.y-(p2.y+35))*0.12}if(ball.x<0){p2.s++;document.getElementById("p2").textContent=p2.s;resetBall(1)}if(ball.x>W){p1.s++;document.getElementById("p1").textContent=p1.s;resetBall(-1)}draw();requestAnimationFrame(tick)}
+function draw(){ctx.fillStyle="#111";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#333";ctx.setLineDash([8,8]);ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#0f0";ctx.fillRect(12,p1.y,10,70);ctx.fillRect(W-22,p2.y,10,70);ctx.beginPath();ctx.arc(ball.x,ball.y,8,0,Math.PI*2);ctx.fill()}
+canvas.addEventListener("pointermove",e=>{const r=canvas.getBoundingClientRect();mouseY=(e.clientY-r.top)*(H/r.height)});tick();
+</script></body></html>

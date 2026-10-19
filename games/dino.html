@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Chrome Dino</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f7f7f7;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui;user-select:none;touch-action:none}
+h1{color:#535353;font-size:1.1rem;margin-bottom:.3rem}
+.sc{color:#535353;font-weight:700;font-size:1rem;margin-bottom:.3rem;font-family:monospace}
+canvas{border-radius:4px;max-width:96vw;background:#f7f7f7}
+.hint{color:#999;font-size:.75rem;margin-top:.4rem}
+</style></head><body>
+<h1>CHROME DINO</h1>
+<div class="sc" id="sc">0</div>
+<canvas id="c" width="600" height="200"></canvas>
+<p class="hint">Mezernik / klik = skok</p>
+<script>
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const scEl=document.getElementById("sc");
+const params=new URLSearchParams(location.search);
+const spd0={easy:5,mid:7,hard:10}[params.get("diff")||"mid"]||7;
+const W=600,H=200,GROUND=160;
+let dino={x:50,y:GROUND-40,vy:0,w:40,h:40,onGround:true},cacti=[],score=0,speed=spd0,running=false,frame=0;
+function reset(){dino={x:50,y:GROUND-40,vy:0,w:40,h:40,onGround:true};cacti=[];score=0;speed=spd0;frame=0;scEl.textContent=0}
+function jump(){if(!running){running=true;reset()}if(dino.onGround){dino.vy=-11;dino.onGround=false}}
+function tick(){if(!running){draw();requestAnimationFrame(tick);return}frame++;score=Math.floor(frame/5);scEl.textContent=score;speed=spd0+frame*0.003;dino.vy+=0.55;dino.y+=dino.vy;if(dino.y+dino.h>=GROUND){dino.y=GROUND-dino.h;dino.vy=0;dino.onGround=true}if(frame%Math.max(40,90-Math.floor(speed*3))===0)cacti.push({x:W,w:18+Math.random()*12,h:30+Math.random()*20});cacti.forEach(c=>c.x-=speed);cacti=cacti.filter(c=>c.x>-40);for(const c of cacti){if(dino.x+dino.w-8>c.x&&dino.x+8<c.x+c.w&&dino.y+dino.h>GROUND-c.h){running=false}}draw();requestAnimationFrame(tick)}
+function draw(){ctx.fillStyle="#f7f7f7";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#535353";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();ctx.fillStyle="#bababa";for(let i=0;i<20;i++){const x=((i*40-frame*speed)%(W+40));ctx.fillRect(x,GROUND+4,3,2)}ctx.fillStyle="#535353";cacti.forEach(c=>{ctx.fillRect(c.x+c.w*0.3,GROUND-c.h,c.w*0.4,c.h);ctx.fillRect(c.x,GROUND-c.h*0.6,c.w*0.35,c.h*0.15);ctx.fillRect(c.x+c.w*0.65,GROUND-c.h*0.75,c.w*0.35,c.h*0.15)});const dy=dino.y;ctx.fillStyle="#535353";ctx.fillRect(dino.x+8,dy+10,24,28);ctx.fillRect(dino.x+20,dy,20,16);ctx.fillStyle="#f7f7f7";ctx.fillRect(dino.x+32,dy+4,4,4);ctx.fillStyle="#535353";const leg=Math.floor(frame/4)%2;if(dino.onGround){ctx.fillRect(dino.x+10,dy+36,8,leg?6:10);ctx.fillRect(dino.x+24,dy+36,8,leg?10:6)}else{ctx.fillRect(dino.x+10,dy+36,8,8);ctx.fillRect(dino.x+24,dy+36,8,8)}ctx.fillRect(dino.x+4,dy+16,8,4);if(!running){ctx.fillStyle="rgba(0,0,0,.15)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#535353";ctx.font="bold 18px system-ui";ctx.textAlign="center";ctx.fillText(score>0?"GAME OVER · "+score:"Stiskni mezernik",W/2,H/2)}}
+document.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump()}});canvas.addEventListener("pointerdown",jump);tick();
+</script></body></html>
