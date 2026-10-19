@@ -53,10 +53,38 @@ const LEVELS=[
 ];
 let player={x:90,y:GROUND-CUBE,vy:0,onGround:true,rot:0,rotTarget:0};
 let obstacles=[],running=false,holding=false,level=null,scrollX=0,totalLen=0,particles=[],bgOffset=0;
-function buildObstacles(lvl){obstacles=[];let x=320;for(const p of lvl.pattern){x+=p.g;if(p.t==="empty")continue;if(p.t==="spike")obstacles.push({x,w:26,h:32,type:"spike"});else if(p.t==="dspike"){obstacles.push({x,w:26,h:32,type:"spike"});obstacles.push({x:x+28,w:26,h:32,type:"spike"})}else if(p.t==="block")obstacles.push({x,w:30,h:p.h||28,type:"block"})}totalLen=x+200}
+function buildObstacles(lvl){obstacles=[];let x=320;for(const p of lvl.pattern){x+=p.g;if(p.t==="empty")continue;if(p.t==="spike")obstacles.push({x,w:26,h:32,type:"spike"});else if(p.t==="dspike"){obstacles.push({x,w:26,h:32,type:"spike"});obstacles.push({x:x+28,w:26,h:32,type:"spike"})}else if(p.t==="block")obstacles.push({x,w:42,h:p.h||28,type:"block"})}totalLen=x+200}
 function reset(lvl){level=lvl;player={x:90,y:GROUND-CUBE,vy:0,onGround:true,rot:0,rotTarget:0};scrollX=0;particles=[];holding=false;buildObstacles(lvl);lvName.textContent=lvl.name;progEl.textContent="0%"}
 function jump(){if(player.onGround&&running){player.vy=JUMP;player.onGround=false;player.rotTarget+=Math.PI/2}}
-function tick(){if(!running)return;const spd=level.speed*diffMod;if(holding&&player.onGround)jump();player.vy+=GRAVITY;player.y+=player.vy;if(player.y+CUBE>=GROUND){player.y=GROUND-CUBE;player.vy=0;if(!player.onGround){player.onGround=true;player.rot=Math.round(player.rot/(Math.PI/2))*(Math.PI/2);player.rotTarget=player.rot}}const rotDiff=player.rotTarget-player.rot;if(Math.abs(rotDiff)>0.01)player.rot+=rotDiff*0.18;else player.rot=player.rotTarget;scrollX+=spd;bgOffset+=spd*0.3;const pct=Math.min(100,Math.floor((scrollX/totalLen)*100));progEl.textContent=pct+"%";if(scrollX>=totalLen){running=false;showWin();return}for(const o of obstacles){const ox=o.x-scrollX;if(ox<-40||ox>W+20)continue;const px=player.x,py=player.y;if(px+CUBE-6>ox+4&&px+4<ox+o.w-4&&py+CUBE>GROUND-o.h+6){die();return}}if(Math.random()<0.5)particles.push({x:player.x+4,y:player.y+CUBE/2+(Math.random()-0.5)*10,vx:-1.5-Math.random(),vy:(Math.random()-0.5)*1.5,life:1,col:level.color});particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.045});particles=particles.filter(p=>p.life>0);draw();requestAnimationFrame(tick)}
+function tick(){if(!running)return;const spd=level.speed*diffMod;if(holding&&player.onGround)jump();
+player.vy+=GRAVITY;player.y+=player.vy;player.onGround=false;
+if(player.y+CUBE>=GROUND){player.y=GROUND-CUBE;player.vy=0;player.onGround=true;player.rot=Math.round(player.rot/(Math.PI/2))*(Math.PI/2);player.rotTarget=player.rot}
+for(const o of obstacles){
+  const ox=o.x-scrollX;
+  if(ox<-50||ox>W+30)continue;
+  const px=player.x,py=player.y;
+  const top=GROUND-o.h;
+  const overlapX=px+CUBE-4>ox+2&&px+4<ox+o.w-2;
+  if(!overlapX)continue;
+  if(o.type==="spike"){
+    if(py+CUBE>top+4){die();return}
+  } else {
+    const feet=py+CUBE;
+    if(player.vy>=0&&feet>=top&&feet<=top+14&&py<top){
+      player.y=top-CUBE;player.vy=0;player.onGround=true;
+      player.rot=Math.round(player.rot/(Math.PI/2))*(Math.PI/2);player.rotTarget=player.rot;
+    } else if(feet>top+12&&py<GROUND-4){
+      die();return;
+    }
+  }
+}
+const rotDiff=player.rotTarget-player.rot;if(Math.abs(rotDiff)>0.01)player.rot+=rotDiff*0.18;else player.rot=player.rotTarget;
+scrollX+=spd;bgOffset+=spd*0.3;
+const pct=Math.min(100,Math.floor((scrollX/totalLen)*100));progEl.textContent=pct+"%";
+if(scrollX>=totalLen){running=false;showWin();return}
+if(Math.random()<0.5)particles.push({x:player.x+4,y:player.y+CUBE/2+(Math.random()-0.5)*10,vx:-1.5-Math.random(),vy:(Math.random()-0.5)*1.5,life:1,col:level.color});
+particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.045});particles=particles.filter(p=>p.life>0);
+draw();requestAnimationFrame(tick)}
 function die(){running=false;for(let i=0;i<20;i++)particles.push({x:player.x+CUBE/2,y:player.y+CUBE/2,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,life:1,col:"#ff2d95"});draw();setTimeout(()=>{ov.innerHTML="<h2>Zkus to znovu</h2><p>"+level.name+" · "+progEl.textContent+"</p><button class=\"lvl\" style=\"justify-content:center;margin-top:.5rem\" onclick=\"startLevel(LEVELS.find(l=>l.id===\'"+level.id+"\'))\"><span class=\"name\">Restart</span></button><button class=\"back-btn\" onclick=\"showMenu()\">← Levely</button>";ov.style.display="flex"},400)}
 function showWin(){ov.innerHTML="<h2>Level Complete!</h2><p>"+level.name+"</p><button class=\"lvl\" style=\"justify-content:center;margin-top:.5rem\" onclick=\"showMenu()\"><span class=\"name\">Dalsi levely</span></button>";ov.style.display="flex"}
 function startLevel(lvl){reset(lvl);ov.style.display="none";running=true;tick()}
