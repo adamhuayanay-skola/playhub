@@ -1,21 +1,50 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Tetris</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f172a;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
-h1{margin-bottom:.5rem}canvas{background:#1e293b;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,.4)}.hint{margin-top:.5rem;color:#94a3b8;font-size:.85rem}
-</style></head><body><h1>Tetris</h1><canvas id="c" width="240" height="400"></canvas><p class="hint">sipky / mezernik</p>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Tetris</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a1a;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;user-select:none;touch-action:none}
+h1{font-size:1.1rem;margin-bottom:.3rem;background:linear-gradient(90deg,#f97316,#eab308,#22c55e,#3b82f6,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+.row{display:flex;gap:1rem;align-items:flex-start}
+canvas{border-radius:8px;box-shadow:0 0 40px rgba(59,130,246,.25)}
+.side{display:flex;flex-direction:column;gap:.6rem;font-size:.85rem;color:#94a3b8}
+.side strong{color:#e2e8f0;font-size:1.2rem}
+.hint{margin-top:.5rem;font-size:.72rem;color:#475569}
+</style>
+</head>
+<body>
+<h1>TETRIS</h1>
+<div class="row">
+<canvas id="c" width="300" height="600"></canvas>
+<div class="side">
+  <div>Skore<br><strong id="sc">0</strong></div>
+  <div>Radky<br><strong id="ln">0</strong></div>
+  <div>Level<br><strong id="lv">1</strong></div>
+</div>
+</div>
+<p class="hint">sipky otaceni hore · spustit dole</p>
 <script>
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d"),COLS=10,ROWS=20,BS=24;
-const COLORS=["#22d3ee","#3b82f6","#f59e0b","#22c55e","#a855f7","#ef4444","#eab308"];
-const SHAPES=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]],[[0,1,1],[1,1,0]],[[1,1,0],[0,1,1]]];
-let board,piece,x,y,score=0,timer;
-function newPiece(){const t=Math.floor(Math.random()*7);piece=SHAPES[t].map(r=>r.slice());piece.color=COLORS[t];x=3;y=0;if(collide()){clearInterval(timer);alert("Game Over "+score)}}
-function collide(){for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++)if(piece[r][c]&&(board[y+r]&&board[y+r][x+c])!==0)return true;return false}
-function merge(){for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++)if(piece[r][c])board[y+r][x+c]=piece.color}
-function rotate(){const rot=piece[0].map((_,i)=>piece.map(row=>row[i]).reverse());const old=piece;piece=rot;if(collide())piece=old}
-function drop(){y++;if(collide()){y--;merge();sweep();newPiece()}draw()}
-function sweep(){for(let r=ROWS-1;r>=0;r--){if(board[r].every(c=>c)){board.splice(r,1);board.unshift(Array(COLS).fill(0));score+=100;r++}}}
-function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(board[r][c]){ctx.fillStyle=board[r][c];ctx.fillRect(c*BS,r*BS,BS-1,BS-1)}}
-for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++)if(piece[r][c]){ctx.fillStyle=piece.color;ctx.fillRect((x+c)*BS,(y+r)*BS,BS-1,BS-1)}}
-function init(){board=Array(ROWS).fill(0).map(()=>Array(COLS).fill(0));score=0;newPiece();draw();clearInterval(timer);const params=new URLSearchParams(location.search);const diff=params.get("diff")||"mid";const sp={easy:600,mid:400,hard:200};timer=setInterval(drop,sp[diff]||400)}
-document.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){x--;if(collide())x++}if(e.key==="ArrowRight"){x++;if(collide())x--}if(e.key==="ArrowDown")drop();if(e.key==="ArrowUp"||e.key===" "){e.preventDefault();rotate()}draw()});
-init();
-</script></body></html>
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const COLS=10,ROWS=20,SZ=30;
+const COLORS={I:["#22d3ee","#06b6d4","#0891b2"],O:["#facc15","#eab308","#ca8a04"],T:["#c084fc","#a855f7","#7e22ce"],S:["#4ade80","#22c55e","#16a34a"],Z:["#f87171","#ef4444","#dc2626"],J:["#60a5fa","#3b82f6","#2563eb"],L:["#fb923c","#f97316","#ea580c"]};
+const SHAPES={I:[[1,1,1,1]],O:[[1,1],[1,1]],T:[[0,1,0],[1,1,1]],S:[[0,1,1],[1,1,0]],Z:[[1,1,0],[0,1,1]],J:[[1,0,0],[1,1,1]],L:[[0,0,1],[1,1,1]]};
+const params=new URLSearchParams(location.search);const diff=params.get("diff")||"mid";
+const BASE={easy:700,mid:450,hard:220};
+let grid=Array.from({length:ROWS},()=>Array(COLS).fill(null));
+let piece=null,score=0,lines=0,level=1,dropMs=BASE[diff]||450,last=0,over=false;
+function newPiece(){const keys=Object.keys(SHAPES);const t=keys[Math.floor(Math.random()*keys.length)];const s=SHAPES[t].map(r=>[...r]);return{type:t,shape:s,x:Math.floor((COLS-s[0].length)/2),y:0}}
+function collides(p,dx=0,dy=0,sh=p.shape){for(let y=0;y<sh.length;y++)for(let x=0;x<sh[y].length;x++){if(!sh[y][x])continue;const nx=p.x+x+dx,ny=p.y+y+dy;if(nx<0||nx>=COLS||ny>=ROWS)return true;if(ny>=0&&grid[ny][nx])return true}return false}
+function merge(){for(let y=0;y<piece.shape.length;y++)for(let x=0;x<piece.shape[y].length;x++){if(piece.shape[y][x]&&piece.y+y>=0)grid[piece.y+y][piece.x+x]=piece.type}}
+function clearLines(){let n=0;for(let y=ROWS-1;y>=0;y--){if(grid[y].every(c=>c)){grid.splice(y,1);grid.unshift(Array(COLS).fill(null));n++;y++}}if(n){lines+=n;score+=[0,100,300,500,800][n]*level;level=Math.floor(lines/10)+1;dropMs=Math.max(80,(BASE[diff]||450)-level*30);document.getElementById("sc").textContent=score;document.getElementById("ln").textContent=lines;document.getElementById("lv").textContent=level}}
+function rotate(){const s=piece.shape;const r=s[0].map((_,i)=>s.map(row=>row[i]).reverse());if(!collides(piece,0,0,r))piece.shape=r}
+function drawBlock(x,y,type,ghost=false){const c=COLORS[type];const px=x*SZ,py=y*SZ;if(ghost){ctx.globalAlpha=0.25;ctx.fillStyle=c[1];ctx.fillRect(px+2,py+2,SZ-4,SZ-4);ctx.globalAlpha=1;return}const g=ctx.createLinearGradient(px,py,px+SZ,py+SZ);g.addColorStop(0,c[0]);g.addColorStop(0.5,c[1]);g.addColorStop(1,c[2]);ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(px+1,py+1,SZ-2,SZ-2,4);ctx.fill();ctx.fillStyle="rgba(255,255,255,0.35)";ctx.fillRect(px+3,py+3,SZ-6,4);ctx.fillStyle="rgba(0,0,0,0.08)";for(let i=0;i<3;i++)for(let j=0;j<3;j++)ctx.fillRect(px+6+i*7,py+8+j*7,5,5);ctx.strokeStyle="rgba(0,0,0,0.3)";ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(px+1,py+1,SZ-2,SZ-2,4);ctx.stroke()}
+function draw(){const bg=ctx.createRadialGradient(150,300,50,150,300,400);bg.addColorStop(0,"#1e3a5f");bg.addColorStop(1,"#0a0a1a");ctx.fillStyle=bg;ctx.fillRect(0,0,300,600);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ctx.strokeStyle="rgba(255,255,255,0.03)";ctx.strokeRect(x*SZ,y*SZ,SZ,SZ);if(grid[y][x])drawBlock(x,y,grid[y][x])}if(piece){let gy=0;while(!collides(piece,0,gy+1))gy++;for(let y=0;y<piece.shape.length;y++)for(let x=0;x<piece.shape[y].length;x++){if(piece.shape[y][x])drawBlock(piece.x+x,piece.y+y+gy,piece.type,true)}for(let y=0;y<piece.shape.length;y++)for(let x=0;x<piece.shape[y].length;x++){if(piece.shape[y][x])drawBlock(piece.x+x,piece.y+y,piece.type)}}if(over){ctx.fillStyle="rgba(0,0,0,.6)";ctx.fillRect(0,0,300,600);ctx.fillStyle="#fff";ctx.font="bold 26px system-ui";ctx.textAlign="center";ctx.fillText("Game Over",150,280);ctx.font="16px system-ui";ctx.fillText("Skore: "+score,150,310)}}
+function loop(ts){if(!over&&ts-last>dropMs){last=ts;if(!collides(piece,0,1))piece.y++;else{merge();clearLines();piece=newPiece();if(collides(piece))over=true}}draw();requestAnimationFrame(loop)}
+document.addEventListener("keydown",e=>{if(over){if(e.key==="Enter"||e.key===" "){grid=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;lines=0;level=1;over=false;piece=newPiece();document.getElementById("sc").textContent=0;return}}if(e.key==="ArrowLeft"&&!collides(piece,-1,0))piece.x--;if(e.key==="ArrowRight"&&!collides(piece,1,0))piece.x++;if(e.key==="ArrowDown"&&!collides(piece,0,1)){piece.y++;score+=1;document.getElementById("sc").textContent=score}if(e.key==="ArrowUp")rotate();e.preventDefault()});
+piece=newPiece();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
