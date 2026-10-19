@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Geometry Dash</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{background:#1a0a2e;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;user-select:none}
+h1{font-size:1.2rem;margin-bottom:.3rem;background:linear-gradient(90deg,#ff2d95,#7c5cfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+.score{font-size:.95rem;color:#a78bfa;margin-bottom:.6rem}canvas{display:block;border-radius:12px;box-shadow:0 0 0 3px rgba(255,45,149,.3),0 20px 50px rgba(0,0,0,.5);max-width:100%;touch-action:none}
+.hint{margin-top:.7rem;font-size:.8rem;color:#64748b}.overlay{position:absolute;inset:0;background:rgba(15,10,30,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;border-radius:12px}
+.overlay button{padding:.7rem 2rem;background:linear-gradient(135deg,#ff2d95,#7c5cfc);border:none;border-radius:999px;color:#fff;font-weight:700;font-size:1rem;cursor:pointer}.wrap{position:relative}
+</style></head><body>
+<h1>Geometry Dash</h1><div class="score">Skore: <strong id="sc">0</strong></div>
+<div class="wrap"><canvas id="c" width="480" height="320"></canvas>
+<div class="overlay" id="ov"><div id="msg">Klik / Mezernik = skok</div><button id="btn">Hrat</button></div></div>
+<p class="hint">Vyhni se spikes</p>
+<script>
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const scEl=document.getElementById("sc"),ov=document.getElementById("ov"),btn=document.getElementById("btn"),msg=document.getElementById("msg");
+const params=new URLSearchParams(location.search);const diff=params.get("diff")||"mid";
+const SPEEDS={easy:3.2,mid:4.5,hard:6.2};let speed=SPEEDS[diff]||4.5;
+let player={x:80,y:240,vy:0,w:28,h:28,onGround:true};let obstacles=[],score=0,running=false,frame=0,groundY=280;
+function spawn(){obstacles.push({x:500,w:28,h:40+Math.random()*30,type:Math.random()>0.5?"spike":"block"})}
+function reset(){player={x:80,y:groundY-28,vy:0,w:28,h:28,onGround:true};obstacles=[];score=0;frame=0;scEl.textContent=0;
+for(let i=0;i<3;i++)obstacles.push({x:350+i*180,w:28,h:35+Math.random()*25,type:Math.random()>0.4?"spike":"block"})}
+function jump(){if(player.onGround&&running){player.vy=-11.5;player.onGround=false}}
+function tick(){if(!running)return;frame++;player.vy+=0.55;player.y+=player.vy;
+if(player.y+player.h>=groundY){player.y=groundY-player.h;player.vy=0;player.onGround=true}
+obstacles.forEach(o=>o.x-=speed);
+if(obstacles.length&&obstacles[0].x<-40){obstacles.shift();score++;scEl.textContent=score;spawn()}
+if(frame%90===0)spawn();
+for(const o of obstacles){const px=player.x,py=player.y,pw=player.w,ph=player.h;
+if(px+pw>o.x+4&&px<o.x+o.w-4&&py+ph>groundY-o.h+4){running=false;msg.textContent="Game Over! "+score;btn.textContent="Znovu";ov.style.display="flex";return}}
+draw();requestAnimationFrame(tick)}
+function draw(){const g=ctx.createLinearGradient(0,0,0,320);g.addColorStop(0,"#1a0a2e");g.addColorStop(1,"#2d1b4e");ctx.fillStyle=g;ctx.fillRect(0,0,480,320);
+ctx.fillStyle="#3b1f5e";ctx.fillRect(0,groundY,480,40);ctx.strokeStyle="#ff2d95";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,groundY);ctx.lineTo(480,groundY);ctx.stroke();
+obstacles.forEach(o=>{if(o.type==="spike"){ctx.fillStyle="#ff2d95";ctx.beginPath();ctx.moveTo(o.x,groundY);ctx.lineTo(o.x+o.w/2,groundY-o.h);ctx.lineTo(o.x+o.w,groundY);ctx.closePath();ctx.fill()}
+else{ctx.fillStyle="#7c5cfc";ctx.fillRect(o.x,groundY-o.h,o.w,o.h)}});
+ctx.fillStyle="#39ff14";ctx.fillRect(player.x,player.y,player.w,player.h);ctx.fillStyle="rgba(255,255,255,.3)";ctx.fillRect(player.x+4,player.y+4,player.w-8,6)}
+btn.onclick=()=>{ov.style.display="none";reset();running=true;tick()};
+document.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump()}});
+canvas.addEventListener("pointerdown",jump);draw();
+</script></body></html>
