@@ -45,15 +45,56 @@ const params=new URLSearchParams(location.search);
 const diffMod={easy:0.85,mid:1,hard:1.2}[params.get("diff")||"mid"]||1;
 const W=560,H=320,GROUND=270,CUBE=28,GRAVITY=0.85,JUMP=-11.2;
 const LEVELS=[
-{id:"stereo",name:"Stereo Madness",color:"#22c55e",ico:"1",diff:"Easy",speed:4.2,pattern:[{t:"empty",g:180},{t:"spike",g:90},{t:"spike",g:70},{t:"empty",g:100},{t:"block",g:80,h:28},{t:"spike",g:60},{t:"empty",g:90},{t:"spike",g:55},{t:"spike",g:55},{t:"spike",g:70},{t:"block",g:100,h:40},{t:"spike",g:50},{t:"empty",g:80},{t:"dspike",g:90},{t:"spike",g:65},{t:"block",g:85,h:28},{t:"spike",g:50},{t:"spike",g:50},{t:"empty",g:110},{t:"block",g:70,h:50},{t:"spike",g:55},{t:"spike",g:60},{t:"empty",g:100},{t:"dspike",g:80},{t:"spike",g:50},{t:"block",g:90,h:28},{t:"spike",g:55},{t:"spike",g:55},{t:"empty",g:120},{t:"spike",g:50},{t:"block",g:70,h:40},{t:"spike",g:50},{t:"dspike",g:80},{t:"spike",g:55},{t:"empty",g:100},{t:"spike",g:45},{t:"spike",g:45},{t:"spike",g:55},{t:"block",g:90,h:28},{t:"empty",g:150}]},
-{id:"backontrack",name:"Back On Track",color:"#3b82f6",ico:"2",diff:"Normal",speed:4.8,pattern:[{t:"empty",g:150},{t:"spike",g:70},{t:"block",g:65,h:28},{t:"spike",g:55},{t:"spike",g:50},{t:"empty",g:80},{t:"dspike",g:70},{t:"spike",g:50},{t:"block",g:75,h:40},{t:"spike",g:45},{t:"spike",g:50},{t:"empty",g:70},{t:"spike",g:45},{t:"spike",g:45},{t:"block",g:60,h:28},{t:"dspike",g:75},{t:"spike",g:50},{t:"empty",g:90},{t:"block",g:55,h:50},{t:"spike",g:45},{t:"spike",g:45},{t:"spike",g:55},{t:"empty",g:80},{t:"dspike",g:60},{t:"block",g:70,h:28},{t:"spike",g:50},{t:"spike",g:45},{t:"empty",g:100},{t:"spike",g:40},{t:"spike",g:40},{t:"block",g:65,h:40},{t:"dspike",g:70},{t:"spike",g:50},{t:"empty",g:90},{t:"spike",g:40},{t:"block",g:55,h:28},{t:"spike",g:45},{t:"spike",g:45},{t:"spike",g:50},{t:"empty",g:140}]},
-{id:"polargeist",name:"Polargeist",color:"#a855f7",ico:"3",diff:"Hard",speed:5.4,pattern:[{t:"empty",g:140},{t:"spike",g:55},{t:"spike",g:45},{t:"block",g:55,h:28},{t:"spike",g:40},{t:"dspike",g:60},{t:"spike",g:40},{t:"spike",g:40},{t:"empty",g:65},{t:"block",g:50,h:40},{t:"spike",g:40},{t:"spike",g:40},{t:"dspike",g:55},{t:"spike",g:40},{t:"block",g:55,h:28},{t:"spike",g:40},{t:"spike",g:40},{t:"spike",g:45},{t:"empty",g:70},{t:"block",g:45,h:55},{t:"spike",g:40},{t:"dspike",g:55},{t:"spike",g:40},{t:"spike",g:40},{t:"empty",g:60},{t:"spike",g:38},{t:"spike",g:38},{t:"block",g:50,h:28},{t:"spike",g:40},{t:"dspike",g:55},{t:"spike",g:40},{t:"block",g:55,h:40},{t:"spike",g:38},{t:"spike",g:38},{t:"spike",g:42},{t:"empty",g:80},{t:"dspike",g:50},{t:"spike",g:38},{t:"block",g:50,h:28},{t:"spike",g:38},{t:"spike",g:40},{t:"empty",g:130}]},
-{id:"dryout",name:"Dry Out",color:"#f59e0b",ico:"4",diff:"Harder",speed:5.8,pattern:[{t:"empty",g:130},{t:"spike",g:50},{t:"block",g:50,h:28},{t:"spike",g:40},{t:"spike",g:38},{t:"dspike",g:55},{t:"spike",g:38},{t:"empty",g:55},{t:"block",g:45,h:45},{t:"spike",g:38},{t:"spike",g:38},{t:"spike",g:42},{t:"dspike",g:50},{t:"block",g:50,h:28},{t:"spike",g:38},{t:"spike",g:38},{t:"empty",g:60},{t:"spike",g:35},{t:"spike",g:35},{t:"block",g:45,h:55},{t:"spike",g:38},{t:"dspike",g:50},{t:"spike",g:35},{t:"spike",g:38},{t:"empty",g:55},{t:"block",g:42,h:28},{t:"spike",g:35},{t:"spike",g:35},{t:"spike",g:40},{t:"dspike",g:50},{t:"block",g:48,h:40},{t:"spike",g:38},{t:"spike",g:35},{t:"spike",g:38},{t:"empty",g:70},{t:"spike",g:35},{t:"dspike",g:48},{t:"block",g:45,h:28},{t:"spike",g:38},{t:"spike",g:35},{t:"spike",g:40},{t:"empty",g:120}]},
-{id:"baseafterbase",name:"Base After Base",color:"#ef4444",ico:"5",diff:"Insane",speed:6.2,pattern:[{t:"empty",g:120},{t:"spike",g:42},{t:"spike",g:36},{t:"block",g:45,h:28},{t:"spike",g:35},{t:"spike",g:35},{t:"dspike",g:48},{t:"spike",g:35},{t:"empty",g:50},{t:"block",g:40,h:48},{t:"spike",g:35},{t:"spike",g:35},{t:"spike",g:38},{t:"dspike",g:45},{t:"block",g:45,h:28},{t:"spike",g:34},{t:"spike",g:34},{t:"spike",g:38},{t:"empty",g:55},{t:"block",g:40,h:58},{t:"spike",g:35},{t:"dspike",g:45},{t:"spike",g:34},{t:"spike",g:34},{t:"empty",g:50},{t:"spike",g:32},{t:"spike",g:32},{t:"block",g:42,h:28},{t:"spike",g:35},{t:"dspike",g:45},{t:"spike",g:34},{t:"block",g:45,h:40},{t:"spike",g:32},{t:"spike",g:32},{t:"spike",g:36},{t:"empty",g:60},{t:"dspike",g:42},{t:"spike",g:32},{t:"block",g:40,h:28},{t:"spike",g:32},{t:"spike",g:32},{t:"spike",g:38},{t:"empty",g:110}]}
-];
+  {id:'stereo',name:'Stereo Madness',color:'#22c55e',ico:'1',diff:'Easy',speed:3.3,pattern:[
+    {t:'empty',g:200},{t:'spike',g:140},{t:'spike',g:140},{t:'empty',g:100},
+    {t:'block',g:120,h:28},{t:'block',g:55,h:42},{t:'block',g:55,h:56},{t:'empty',g:90},
+    {t:'spike',g:130},{t:'empty',g:80},{t:'dspike',g:140},{t:'empty',g:100},
+    {t:'block',g:120,h:28},{t:'spike',g:100},{t:'empty',g:90},
+    {t:'spike',g:135},{t:'spike',g:135},{t:'spike',g:140},{t:'empty',g:100},
+    {t:'block',g:120,h:56},{t:'block',g:55,h:42},{t:'block',g:55,h:28},{t:'spike',g:100},{t:'empty',g:110},
+    {t:'dspike',g:140},{t:'spike',g:130},{t:'empty',g:90},
+    {t:'block',g:120,h:28},{t:'spike',g:110},{t:'spike',g:135},{t:'empty',g:100},
+    {t:'dspike',g:140},{t:'block',g:110,h:42},{t:'spike',g:100},{t:'empty',g:180}
+  ]},
+  {id:'backontrack',name:'Back On Track',color:'#3b82f6',ico:'2',diff:'Normal',speed:3.6,pattern:[
+    {t:'empty',g:180},{t:'spike',g:130},{t:'block',g:110,h:28},{t:'spike',g:100},{t:'empty',g:80},
+    {t:'spike',g:125},{t:'spike',g:125},{t:'empty',g:90},
+    {t:'block',g:110,h:28},{t:'block',g:50,h:42},{t:'spike',g:95},{t:'empty',g:85},
+    {t:'dspike',g:135},{t:'spike',g:120},{t:'empty',g:90},
+    {t:'block',g:110,h:42},{t:'spike',g:100},{t:'spike',g:120},{t:'empty',g:80},
+    {t:'spike',g:120},{t:'block',g:100,h:28},{t:'dspike',g:130},{t:'empty',g:90},
+    {t:'block',g:110,h:56},{t:'block',g:50,h:42},{t:'block',g:50,h:28},{t:'spike',g:100},{t:'empty',g:100},
+    {t:'dspike',g:130},{t:'spike',g:115},{t:'spike',g:120},{t:'empty',g:160}
+  ]},
+  {id:'polargeist',name:'Polargeist',color:'#a855f7',ico:'3',diff:'Hard',speed:3.9,pattern:[
+    {t:'empty',g:160},{t:'spike',g:120},{t:'spike',g:115},{t:'block',g:100,h:28},{t:'spike',g:95},{t:'empty',g:70},
+    {t:'dspike',g:125},{t:'spike',g:110},{t:'empty',g:75},
+    {t:'block',g:100,h:42},{t:'block',g:48,h:56},{t:'spike',g:90},{t:'spike',g:110},{t:'empty',g:70},
+    {t:'dspike',g:120},{t:'block',g:100,h:28},{t:'spike',g:95},{t:'spike',g:110},{t:'empty',g:80},
+    {t:'block',g:100,h:56},{t:'spike',g:90},{t:'dspike',g:120},{t:'empty',g:70},
+    {t:'spike',g:110},{t:'spike',g:105},{t:'block',g:95,h:28},{t:'spike',g:90},{t:'empty',g:80},
+    {t:'dspike',g:120},{t:'block',g:100,h:42},{t:'spike',g:95},{t:'spike',g:110},{t:'empty',g:150}
+  ]},
+  {id:'dryout',name:'Dry Out',color:'#f59e0b',ico:'4',diff:'Harder',speed:4.1,pattern:[
+    {t:'empty',g:150},{t:'spike',g:115},{t:'block',g:95,h:28},{t:'spike',g:90},{t:'spike',g:110},{t:'empty',g:65},
+    {t:'dspike',g:120},{t:'spike',g:105},{t:'empty',g:70},
+    {t:'block',g:95,h:42},{t:'spike',g:90},{t:'spike',g:105},{t:'dspike',g:115},{t:'empty',g:70},
+    {t:'block',g:95,h:56},{t:'spike',g:88},{t:'spike',g:105},{t:'empty',g:65},
+    {t:'spike',g:105},{t:'block',g:90,h:28},{t:'dspike',g:115},{t:'spike',g:100},{t:'empty',g:70},
+    {t:'block',g:95,h:42},{t:'block',g:45,h:28},{t:'spike',g:90},{t:'spike',g:105},{t:'empty',g:140}
+  ]},
+  {id:'baseafterbase',name:'Base After Base',color:'#ef4444',ico:'5',diff:'Insane',speed:4.4,pattern:[
+    {t:'empty',g:140},{t:'spike',g:110},{t:'spike',g:100},{t:'block',g:90,h:28},{t:'spike',g:88},{t:'empty',g:60},
+    {t:'dspike',g:115},{t:'spike',g:100},{t:'spike',g:105},{t:'empty',g:60},
+    {t:'block',g:90,h:42},{t:'spike',g:85},{t:'dspike',g:110},{t:'empty',g:65},
+    {t:'block',g:90,h:56},{t:'spike',g:85},{t:'spike',g:100},{t:'empty',g:60},
+    {t:'dspike',g:110},{t:'block',g:90,h:28},{t:'spike',g:88},{t:'spike',g:100},{t:'empty',g:65},
+    {t:'spike',g:100},{t:'block',g:88,h:42},{t:'dspike',g:110},{t:'spike',g:95},{t:'empty',g:130}
+  ]}
+]
 let player={x:90,y:GROUND-CUBE,vy:0,onGround:true,rot:0,rotTarget:0};
 let obstacles=[],running=false,holding=false,level=null,scrollX=0,totalLen=0,particles=[],bgOffset=0;
-function buildObstacles(lvl){obstacles=[];let x=320;for(const p of lvl.pattern){x+=p.g;if(p.t==="empty")continue;if(p.t==="spike")obstacles.push({x,w:26,h:32,type:"spike"});else if(p.t==="dspike"){obstacles.push({x,w:26,h:32,type:"spike"});obstacles.push({x:x+28,w:26,h:32,type:"spike"})}else if(p.t==="block")obstacles.push({x,w:42,h:p.h||28,type:"block"})}totalLen=x+200}
+function buildObstacles(lvl){obstacles=[];let x=320;for(const p of lvl.pattern){x+=p.g;if(p.t==="empty")continue;if(p.t==="spike")obstacles.push({x,w:26,h:32,type:"spike"});else if(p.t==="dspike"){obstacles.push({x,w:26,h:32,type:"spike"});obstacles.push({x:x+28,w:26,h:32,type:"spike"})}else if(p.t==="block")obstacles.push({x,w:48,h:p.h||28,type:"block"})}totalLen=x+200}
 function reset(lvl){level=lvl;player={x:90,y:GROUND-CUBE,vy:0,onGround:true,rot:0,rotTarget:0};scrollX=0;particles=[];holding=false;buildObstacles(lvl);lvName.textContent=lvl.name;progEl.textContent="0%"}
 function jump(){if(player.onGround&&running){player.vy=JUMP;player.onGround=false;player.rotTarget+=Math.PI/2}}
 function tick(){if(!running)return;const spd=level.speed*diffMod;if(holding&&player.onGround)jump();
