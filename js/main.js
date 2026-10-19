@@ -11,7 +11,7 @@ const GAMES=[
 {id:'dino',title:'Chrome Dino',img:'thumbs/dino.png',category:'arcade',playable:true,file:'games/dino.html',popular:true},
 {id:'geometry',title:'Geometry Dash',img:'thumbs/geometry.png',category:'arcade',playable:true,file:'games/geometry.html',popular:true},
 {id:'minecraft',title:'Minecraft Classic',img:'thumbs/minecraft.png',category:'action',playable:false,popular:true},
-{id:'subway',title:'Subway Surfers',img:'thumbs/subway.png',category:'action',playable:false,popular:true},
+{id:'subway',title:'Subway Rush',img:'thumbs/subway.png',category:'action',playable:true,file:'games/subway.html',popular:true},
 {id:'temple',title:'Temple Run 2',img:'thumbs/temple.png',category:'action',playable:false,popular:true},
 {id:'slope',title:'Slope',img:'thumbs/slope.png',category:'arcade',playable:true,file:'games/slope.html',popular:true},
 {id:'amongus',title:'Among Us',img:'thumbs/amongus.png',category:'action',playable:false,popular:true},
