@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Slope</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a14;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;user-select:none}
+h1{font-size:1.2rem;margin-bottom:.3rem;font-weight:800;background:linear-gradient(90deg,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.score{color:#94a3b8;margin-bottom:.5rem}canvas{border-radius:12px;box-shadow:0 0 0 2px rgba(34,211,238,.25),0 20px 50px rgba(0,0,0,.5);max-width:100%;touch-action:none}
+.hint{margin-top:.6rem;font-size:.8rem;color:#64748b}.overlay{position:absolute;inset:0;background:rgba(10,10,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;border-radius:12px}
+.overlay button{padding:.7rem 2rem;background:linear-gradient(135deg,#22d3ee,#a78bfa);border:none;border-radius:999px;color:#fff;font-weight:700;cursor:pointer}.wrap{position:relative}
+</style></head><body>
+<h1>Slope</h1><div class="score">Skore: <strong id="sc">0</strong></div>
+<div class="wrap"><canvas id="c" width="480" height="320"></canvas>
+<div class="overlay" id="ov"><div id="msg">sipky / A D</div><button id="btn">Hrat</button></div></div>
+<p class="hint">Zustan na draze</p>
+<script>
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const scEl=document.getElementById("sc"),ov=document.getElementById("ov"),btn=document.getElementById("btn"),msg=document.getElementById("msg");
+const params=new URLSearchParams(location.search);const diff=params.get("diff")||"mid";
+const SPEEDS={easy:2.8,mid:4,hard:5.8};let speed=SPEEDS[diff]||4;
+let ball={x:240,y:160,r:14,vx:0},tiles=[],score=0,running=false,keys={};
+function reset(){ball={x:240,y:160,r:14,vx:0};tiles=[];score=0;scEl.textContent=0;for(let i=0;i<12;i++)tiles.push({z:i*80,cx:240+(Math.random()-.5)*40,w:140-i*2})}
+function tick(){if(!running)return;if(keys.ArrowLeft||keys.a)ball.vx-=.6;if(keys.ArrowRight||keys.d)ball.vx+=.6;ball.vx*=.92;ball.x+=ball.vx;
+tiles.forEach(t=>t.z-=speed);if(tiles[0].z<-40){tiles.shift();const last=tiles[tiles.length-1];tiles.push({z:last.z+80,cx:last.cx+(Math.random()-.5)*60,w:Math.max(80,last.w-1)});score++;scEl.textContent=score;speed+=.01}
+const near=tiles.find(t=>Math.abs(t.z-80)<40);if(near){const half=near.w/2;if(ball.x<near.cx-half-ball.r||ball.x>near.cx+half+ball.r){running=false;msg.textContent="Game Over! "+score;btn.textContent="Znovu";ov.style.display="flex";return}}
+ball.x=Math.max(30,Math.min(450,ball.x));draw();requestAnimationFrame(tick)}
+function draw(){ctx.fillStyle="#0a0a14";ctx.fillRect(0,0,480,320);const sorted=[...tiles].sort((a,b)=>b.z-a.z);
+sorted.forEach(t=>{const scale=1/(1+t.z/400),y=80+t.z*.35,w=t.w*scale*1.2,x=t.cx,h=18*scale;ctx.fillStyle=t.z%160<80?"#1e293b":"#334155";ctx.beginPath();ctx.moveTo(x-w/2,y);ctx.lineTo(x+w/2,y);ctx.lineTo(x+w/2*.85,y+h);ctx.lineTo(x-w/2*.85,y+h);ctx.closePath();ctx.fill();ctx.strokeStyle="#22d3ee";ctx.lineWidth=1.5*scale;ctx.stroke()});
+const grd=ctx.createRadialGradient(ball.x-4,ball.y-4,2,ball.x,ball.y,ball.r);grd.addColorStop(0,"#f472b6");grd.addColorStop(1,"#db2777");ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fillStyle=grd;ctx.fill()}
+btn.onclick=()=>{ov.style.display="none";reset();running=true;tick()};
+document.addEventListener("keydown",e=>{keys[e.key]=true;if(["ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault()});
+document.addEventListener("keyup",e=>{keys[e.key]=false});
+let touchX=null;canvas.addEventListener("pointerdown",e=>{touchX=e.clientX});canvas.addEventListener("pointermove",e=>{if(touchX!==null){ball.vx+=(e.clientX-touchX)*.15;touchX=e.clientX}});canvas.addEventListener("pointerup",()=>touchX=null);draw();
+</script></body></html>
