@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Subway Rush</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui;user-select:none;touch-action:none}
+h1{font-size:1.15rem;margin-bottom:.3rem;background:linear-gradient(90deg,#f97316,#ef4444,#eab308);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+.sc{color:#94a3b8;margin-bottom:.3rem}.sc strong{color:#fbbf24}
+canvas{border-radius:12px;box-shadow:0 0 40px rgba(249,115,22,.25);max-width:96vw}
+.hint{color:#475569;font-size:.75rem;margin-top:.4rem}
+</style></head><body>
+<h1>SUBWAY RUSH</h1>
+<div class="sc">Skore: <strong id="sc">0</strong></div>
+<canvas id="c" width="360" height="520"></canvas>
+<p class="hint">sipky / swipe = kolej · hore skok</p>
+<script>
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const scEl=document.getElementById("sc");
+const params=new URLSearchParams(location.search);
+const baseSpd={easy:4,mid:5.5,hard:7.5}[params.get("diff")||"mid"]||5.5;
+const W=360,H=520,LANES=[90,180,270];
+let lane=1,player={y:400,jump:0,vy:0},obstacles=[],coins=[],score=0,speed=baseSpd,running=false,frame=0;
+function reset(){lane=1;player={y:400,jump:0,vy:0};obstacles=[];coins=[];score=0;speed=baseSpd;frame=0;scEl.textContent=0;for(let i=0;i<6;i++)spawn(i*180+400)}
+function spawn(z){const l=Math.floor(Math.random()*3);if(Math.random()>0.4)obstacles.push({lane:l,z,type:Math.random()>0.5?"train":"barrier"});else coins.push({lane:l,z,got:false})}
+function jump(){if(player.jump===0){player.vy=-10;player.jump=1}}
+function start(){if(!running){running=true;reset()}}
+function tick(){if(!running){draw();requestAnimationFrame(tick);return}frame++;speed=baseSpd+frame*0.0015;score=Math.floor(frame/3);scEl.textContent=score;if(player.jump){player.vy+=0.55;player.y+=player.vy;if(player.y>=400){player.y=400;player.vy=0;player.jump=0}}obstacles.forEach(o=>o.z-=speed);coins.forEach(c=>c.z-=speed);obstacles=obstacles.filter(o=>o.z>-50);coins=coins.filter(c=>c.z>-50);if(obstacles.length+coins.length<8){const zs=[...obstacles.map(o=>o.z),...coins.map(c=>c.z),400];spawn(Math.max(...zs)+160+Math.random()*40)}for(const o of obstacles){if(o.lane===lane&&o.z>350&&o.z<430){if(player.jump&&o.type==="barrier")continue;running=false}}coins.forEach(c=>{if(!c.got&&c.lane===lane&&c.z>360&&c.z<420){c.got=true;score+=25;scEl.textContent=score}});draw();requestAnimationFrame(tick)}
+function draw(){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#2d1b4e");g.addColorStop(1,"#1a1a2e");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);for(let i=0;i<3;i++){ctx.strokeStyle="rgba(255,255,255,0.08)";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(LANES[i],0);ctx.lineTo(LANES[i],H);ctx.stroke()}ctx.fillStyle="#2a2a3a";ctx.fillRect(0,440,W,80);ctx.strokeStyle="#fbbf24";ctx.lineWidth=3;LANES.forEach(lx=>{ctx.beginPath();ctx.moveTo(lx-20,440);ctx.lineTo(lx-20,H);ctx.stroke();ctx.beginPath();ctx.moveTo(lx+20,440);ctx.lineTo(lx+20,H);ctx.stroke()});obstacles.forEach(o=>{const scale=0.3+0.7*(o.z/500);if(scale<0.2||scale>1.5)return;const x=LANES[o.lane],y=80+o.z*0.7;if(y>H||y<0)return;const w=50*scale,h=(o.type==="train"?80:40)*scale;if(o.type==="train"){ctx.fillStyle="#ef4444";ctx.fillRect(x-w/2,y-h,w,h);ctx.fillStyle="#fbbf24";ctx.fillRect(x-w/2+4,y-h+8,w-8,12)}else{ctx.fillStyle="#94a3b8";ctx.fillRect(x-w/2,y-h,w,h)}});coins.forEach(c=>{if(c.got)return;const scale=0.3+0.7*(c.z/500);const x=LANES[c.lane],y=80+c.z*0.7;if(y>H||y<0)return;ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(x,y,10*scale,0,Math.PI*2);ctx.fill()});const px=LANES[lane],py=player.y;ctx.fillStyle="rgba(0,0,0,0.3)";ctx.beginPath();ctx.ellipse(px,430,18,6,0,0,Math.PI*2);ctx.fill();ctx.fillStyle="#3b82f6";ctx.fillRect(px-14,py-36,28,36);ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(px,py-44,12,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ef4444";ctx.fillRect(px-10,py-56,20,8);ctx.fillStyle="#1e40af";ctx.fillRect(px-12,py,10,16);ctx.fillRect(px+2,py,10,16);if(!running){ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="bold 22px system-ui";ctx.textAlign="center";ctx.fillText(score>0?"Game Over · "+score:"Klikni pro start",W/2,H/2);ctx.font="14px system-ui";ctx.fillStyle="#94a3b8";ctx.fillText("Beh metrem · vyhybej se vlakum",W/2,H/2+30)}}
+document.addEventListener("keydown",e=>{if(e.code==="ArrowLeft"||e.key==="a"){lane=Math.max(0,lane-1);start()}if(e.code==="ArrowRight"||e.key==="d"){lane=Math.min(2,lane+1);start()}if(e.code==="ArrowUp"||e.code==="Space"){e.preventDefault();start();jump()}});
+let tx=0;canvas.addEventListener("pointerdown",e=>{tx=e.clientX;start()});canvas.addEventListener("pointerup",e=>{const dx=e.clientX-tx;if(dx<-30)lane=Math.max(0,lane-1);else if(dx>30)lane=Math.min(2,lane+1);else jump()});tick();
+</script></body></html>
