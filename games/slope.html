@@ -1,30 +1,33 @@
-<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Slope</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a14;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;user-select:none}
-h1{font-size:1.2rem;margin-bottom:.3rem;font-weight:800;background:linear-gradient(90deg,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.score{color:#94a3b8;margin-bottom:.5rem}canvas{border-radius:12px;box-shadow:0 0 0 2px rgba(34,211,238,.25),0 20px 50px rgba(0,0,0,.5);max-width:100%;touch-action:none}
-.hint{margin-top:.6rem;font-size:.8rem;color:#64748b}.overlay{position:absolute;inset:0;background:rgba(10,10,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;border-radius:12px}
-.overlay button{padding:.7rem 2rem;background:linear-gradient(135deg,#22d3ee,#a78bfa);border:none;border-radius:999px;color:#fff;font-weight:700;cursor:pointer}.wrap{position:relative}
-</style></head><body>
-<h1>Slope</h1><div class="score">Skore: <strong id="sc">0</strong></div>
-<div class="wrap"><canvas id="c" width="480" height="320"></canvas>
-<div class="overlay" id="ov"><div id="msg">sipky / A D</div><button id="btn">Hrat</button></div></div>
-<p class="hint">Zustan na draze</p>
+
+<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/><title>Slope</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#050510;color:#fff;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;user-select:none;touch-action:none}h1{font-size:1.15rem;font-weight:800;margin-bottom:.25rem;background:linear-gradient(90deg,#22d3ee,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.hud{display:flex;gap:1.5rem;margin-bottom:.5rem;font-size:.9rem;color:#94a3b8}.hud strong{color:#e2e8f0}.wrap{position:relative;line-height:0}canvas{display:block;border-radius:14px;box-shadow:0 0 0 2px rgba(34,211,238,.2),0 25px 60px rgba(0,0,0,.6);max-width:100%}.overlay{position:absolute;inset:0;background:rgba(5,5,16,.88);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;border-radius:14px}.overlay h2{font-size:1.4rem;font-weight:800}.overlay p{color:#94a3b8;font-size:.9rem}.overlay button{padding:.75rem 2.2rem;border:none;border-radius:999px;background:linear-gradient(135deg,#22d3ee,#a78bfa);color:#fff;font-weight:700;font-size:1rem;cursor:pointer}.hint{margin-top:.6rem;font-size:.75rem;color:#475569}</style></head><body>
+<h1>SLOPE</h1><div class="hud"><span>Skore: <strong id="sc">0</strong></span><span>Rychlost: <strong id="sp">1</strong></span></div>
+<div class="wrap"><canvas id="c" width="560" height="360"></canvas>
+<div class="overlay" id="ov"><h2 id="msg">Slope</h2><p>sipky / A D · mobil tahni</p><button id="btn">Hrat</button></div></div>
+<p class="hint">Micek se toci podle rychlosti</p>
 <script>
 const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
-const scEl=document.getElementById("sc"),ov=document.getElementById("ov"),btn=document.getElementById("btn"),msg=document.getElementById("msg");
+const scEl=document.getElementById("sc"),spEl=document.getElementById("sp");
+const ov=document.getElementById("ov"),btn=document.getElementById("btn"),msg=document.getElementById("msg");
 const params=new URLSearchParams(location.search);const diff=params.get("diff")||"mid";
-const SPEEDS={easy:2.8,mid:4,hard:5.8};let speed=SPEEDS[diff]||4;
-let ball={x:240,y:160,r:14,vx:0},tiles=[],score=0,running=false,keys={};
-function reset(){ball={x:240,y:160,r:14,vx:0};tiles=[];score=0;scEl.textContent=0;for(let i=0;i<12;i++)tiles.push({z:i*80,cx:240+(Math.random()-.5)*40,w:140-i*2})}
-function tick(){if(!running)return;if(keys.ArrowLeft||keys.a)ball.vx-=.6;if(keys.ArrowRight||keys.d)ball.vx+=.6;ball.vx*=.92;ball.x+=ball.vx;
-tiles.forEach(t=>t.z-=speed);if(tiles[0].z<-40){tiles.shift();const last=tiles[tiles.length-1];tiles.push({z:last.z+80,cx:last.cx+(Math.random()-.5)*60,w:Math.max(80,last.w-1)});score++;scEl.textContent=score;speed+=.01}
-const near=tiles.find(t=>Math.abs(t.z-80)<40);if(near){const half=near.w/2;if(ball.x<near.cx-half-ball.r||ball.x>near.cx+half+ball.r){running=false;msg.textContent="Game Over! "+score;btn.textContent="Znovu";ov.style.display="flex";return}}
-ball.x=Math.max(30,Math.min(450,ball.x));draw();requestAnimationFrame(tick)}
-function draw(){ctx.fillStyle="#0a0a14";ctx.fillRect(0,0,480,320);const sorted=[...tiles].sort((a,b)=>b.z-a.z);
-sorted.forEach(t=>{const scale=1/(1+t.z/400),y=80+t.z*.35,w=t.w*scale*1.2,x=t.cx,h=18*scale;ctx.fillStyle=t.z%160<80?"#1e293b":"#334155";ctx.beginPath();ctx.moveTo(x-w/2,y);ctx.lineTo(x+w/2,y);ctx.lineTo(x+w/2*.85,y+h);ctx.lineTo(x-w/2*.85,y+h);ctx.closePath();ctx.fill();ctx.strokeStyle="#22d3ee";ctx.lineWidth=1.5*scale;ctx.stroke()});
-const grd=ctx.createRadialGradient(ball.x-4,ball.y-4,2,ball.x,ball.y,ball.r);grd.addColorStop(0,"#f472b6");grd.addColorStop(1,"#db2777");ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fillStyle=grd;ctx.fill()}
+const BASE={easy:2.6,mid:3.6,hard:5.0};let speed=BASE[diff]||3.6;
+let ball={x:280,y:200,r:16,vx:0,angle:0,spin:0},tiles=[],score=0,running=false,keys={},particles=[];
+const W=560,H=360;
+function reset(){ball={x:280,y:200,r:16,vx:0,angle:0,spin:0};tiles=[];score=0;speed=BASE[diff]||3.6;particles=[];scEl.textContent=0;spEl.textContent="1.0";for(let i=0;i<16;i++)tiles.push({z:i*70,cx:280+(Math.random()-0.5)*30,w:150-i*1.5,h:22})}
+function spawnParticle(x,y,col){for(let i=0;i<4;i++)particles.push({x,y,vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3,life:1,col})}
+function tick(){if(!running)return;if(keys.ArrowLeft||keys.a||keys.A)ball.vx-=0.55;if(keys.ArrowRight||keys.d||keys.D)ball.vx+=0.55;ball.vx*=0.9;ball.x+=ball.vx;ball.spin=ball.vx*0.12+speed*0.08;ball.angle+=ball.spin;tiles.forEach(t=>t.z-=speed);
+if(tiles[0].z<-50){tiles.shift();const last=tiles[tiles.length-1];const nx=last.cx+(Math.random()-0.5)*70;tiles.push({z:last.z+70,cx:Math.max(100,Math.min(460,nx)),w:Math.max(70,last.w-0.8),h:22});score++;scEl.textContent=score;speed+=0.012;spEl.textContent=(speed/(BASE[diff]||3.6)).toFixed(1)}
+const near=tiles.find(t=>Math.abs(t.z-90)<45);if(near){const scale=1/(1+near.z/500);const half=(near.w*scale*1.15)/2;const edge=12;if(ball.x<near.cx-half-edge||ball.x>near.cx+half+edge){running=false;msg.textContent="Game Over · "+score;btn.textContent="Znovu";ov.style.display="flex";return}if(ball.x<near.cx-half+8)ball.vx+=0.4;if(ball.x>near.cx+half-8)ball.vx-=0.4}ball.x=Math.max(40,Math.min(W-40,ball.x));if(Math.random()<0.3)spawnParticle(ball.x,ball.y+ball.r,"rgba(244,114,182,0.6)");particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=0.04});particles=particles.filter(p=>p.life>0);draw();requestAnimationFrame(tick)}
+function draw(){const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#0a0a1a");bg.addColorStop(1,"#12081f");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);ctx.fillStyle="rgba(255,255,255,0.15)";for(let i=0;i<30;i++){const sx=(i*97+score*3)%W,sy=(i*53)%(H*0.5);ctx.beginPath();ctx.arc(sx,sy,1,0,Math.PI*2);ctx.fill()}
+const sorted=[...tiles].sort((a,b)=>b.z-a.z);sorted.forEach(t=>{const scale=1/(1+t.z/480),y=70+t.z*0.38,w=t.w*scale*1.2,h=t.h*scale,x=t.cx,skew=8*scale;ctx.beginPath();ctx.moveTo(x-w/2,y);ctx.lineTo(x+w/2,y);ctx.lineTo(x+w/2-skew,y+h);ctx.lineTo(x-w/2+skew,y+h);ctx.closePath();const g=ctx.createLinearGradient(x,y,x,y+h);const neon=t.z%140<70;g.addColorStop(0,neon?"#1e293b":"#283548");g.addColorStop(1,neon?"#0f172a":"#1a2332");ctx.fillStyle=g;ctx.fill();ctx.strokeStyle=neon?"rgba(34,211,238,0.7)":"rgba(167,139,250,0.5)";ctx.lineWidth=2*scale;ctx.stroke()});
+particles.forEach(p=>{ctx.globalAlpha=p.life;ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,3*p.life,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
+const r=ball.r,bx=ball.x,by=ball.y;ctx.fillStyle="rgba(0,0,0,0.35)";ctx.beginPath();ctx.ellipse(bx,by+r+4,r*0.9,r*0.35,0,0,Math.PI*2);ctx.fill();
+const grd=ctx.createRadialGradient(bx-r*0.35,by-r*0.4,r*0.1,bx,by,r);grd.addColorStop(0,"#fda4af");grd.addColorStop(0.5,"#f472b6");grd.addColorStop(1,"#9d174d");ctx.beginPath();ctx.arc(bx,by,r,0,Math.PI*2);ctx.fillStyle=grd;ctx.fill();
+ctx.save();ctx.beginPath();ctx.arc(bx,by,r,0,Math.PI*2);ctx.clip();ctx.translate(bx,by);ctx.rotate(ball.angle);ctx.strokeStyle="rgba(255,255,255,0.25)";ctx.lineWidth=3;for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(-r,i*8);ctx.lineTo(r,i*8);ctx.stroke()}ctx.strokeStyle="rgba(255,255,255,0.4)";ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,r*0.95,r*0.35,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+ctx.fillStyle="rgba(255,255,255,0.35)";ctx.beginPath();ctx.ellipse(bx-r*0.3,by-r*0.35,r*0.35,r*0.22,-0.4,0,Math.PI*2);ctx.fill()}
 btn.onclick=()=>{ov.style.display="none";reset();running=true;tick()};
 document.addEventListener("keydown",e=>{keys[e.key]=true;if(["ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault()});
 document.addEventListener("keyup",e=>{keys[e.key]=false});
-let touchX=null;canvas.addEventListener("pointerdown",e=>{touchX=e.clientX});canvas.addEventListener("pointermove",e=>{if(touchX!==null){ball.vx+=(e.clientX-touchX)*.15;touchX=e.clientX}});canvas.addEventListener("pointerup",()=>touchX=null);draw();
+let touchX=null;canvas.addEventListener("pointerdown",e=>{touchX=e.clientX;canvas.setPointerCapture(e.pointerId)});
+canvas.addEventListener("pointermove",e=>{if(touchX!=null){ball.vx+=(e.clientX-touchX)*0.12;touchX=e.clientX}});canvas.addEventListener("pointerup",()=>touchX=null);draw();
 </script></body></html>
