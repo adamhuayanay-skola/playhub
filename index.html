@@ -2,77 +2,85 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PlayHub – Hraj zdarma online</title>
-  <meta name="description" content="Hraj zdarma browser hry." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>PlayHub – Free Online Games</title>
+  <meta name="description" content="Hraj zdarma nejlepší browser hry. Snake, 2048, Tetris, Flappy Bird, Subway Surfers a další." />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <header class="navbar">
     <div class="nav-inner">
-      <a href="index.html" class="logo">
-        <span class="logo-icon">🎮</span>
-        <span class="logo-text">Play<span>Hub</span></span>
+      <a href="index.html" class="logo" aria-label="PlayHub">
+        <span class="logo-mark">P</span>
+        <span class="logo-text">PlayHub</span>
       </a>
       <div class="search-box">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
         <input type="text" id="searchInput" placeholder="Hledat hry..." autocomplete="off" />
       </div>
-      <span class="version-badge">v1.4</span>
+      <span class="version-badge">v1.7</span>
     </div>
   </header>
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Hraj <span class="gradient-text">zdarma</span> a hned</h1>
-      <p>Nejlepsi browser hry na jednom miste.</p>
-      <div class="hero-stats">
-        <div class="stat"><span class="stat-num" id="gameCount">40+</span><span class="stat-label">Her</span></div>
-        <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Zdarma</span></div>
-        <div class="stat"><span class="stat-num">0</span><span class="stat-label">Instalaci</span></div>
+  <main>
+    <div class="cat-bar">
+      <div class="container">
+        <div class="category-pills" id="categoryPills">
+          <button type="button" class="pill active" data-cat="all">Vše</button>
+          <button type="button" class="pill" data-cat="arcade">Arcade</button>
+          <button type="button" class="pill" data-cat="puzzle">Puzzle</button>
+          <button type="button" class="pill" data-cat="action">Akce</button>
+          <button type="button" class="pill" data-cat="racing">Závody</button>
+          <button type="button" class="pill" data-cat="sports">Sport</button>
+          <button type="button" class="pill" data-cat="strategy">Strategie</button>
+          <button type="button" class="pill" data-cat="io">.io</button>
+        </div>
       </div>
     </div>
-  </section>
-  <section class="categories">
-    <div class="container">
-      <h2 class="section-title">Kategorie</h2>
-      <div class="category-pills" id="categoryPills">
-        <button type="button" class="pill active" data-cat="all">Vse</button>
-        <button type="button" class="pill" data-cat="arcade">Arcade</button>
-        <button type="button" class="pill" data-cat="puzzle">Puzzle</button>
-        <button type="button" class="pill" data-cat="action">Akce</button>
-        <button type="button" class="pill" data-cat="racing">Zavody</button>
-        <button type="button" class="pill" data-cat="sports">Sport</button>
-        <button type="button" class="pill" data-cat="strategy">Strategie</button>
-        <button type="button" class="pill" data-cat="io">.io hry</button>
+    <section class="section" id="featured">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Populární právě teď</h2>
+        </div>
+        <div class="games-grid featured-grid" id="featuredGrid"></div>
       </div>
-    </div>
-  </section>
-  <section class="games-section">
-    <div class="container">
-      <h2 class="section-title">Populerne prave ted</h2>
-      <div class="games-grid" id="featuredGrid"></div>
-    </div>
-  </section>
-  <section class="games-section">
-    <div class="container">
-      <h2 class="section-title">Vsechny hry</h2>
-      <div class="games-grid" id="gamesGrid"></div>
-      <p class="no-results" id="noResults" hidden>Zadne hry nenalezeny</p>
-    </div>
-  </section>
+    </section>
+    <section class="section" id="all">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Všechny hry</h2>
+          <span class="game-count" id="gameCount">0</span>
+        </div>
+        <div class="games-grid" id="gamesGrid"></div>
+        <p class="no-results" id="noResults" hidden>Žádné hry nenalezeny</p>
+      </div>
+    </section>
+  </main>
   <footer class="footer">
     <div class="container">
-      <div class="footer-top">
-        <div class="logo"><span class="logo-icon">🎮</span><span class="logo-text">Play<span>Hub</span></span></div>
-        <p>Hry bezi primo v prohlizeci</p>
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo-mark small">P</span>
+          <span>PlayHub</span>
+        </div>
+        <p>Hry běží přímo v prohlížeči · Žádné instalace</p>
       </div>
     </div>
   </footer>
-  <div class="player" id="gameModal" hidden>
+  <div class="player" id="gamePlayer" hidden>
     <div class="player-bar">
-      <button type="button" class="player-back" id="modalClose" aria-label="Zpet">← Zpet</button>
-      <h3 class="player-title" id="modalTitle">Hra</h3>
-      <div class="modal-diff" id="modalDiff">
+      <button type="button" class="player-back" id="playerBack" aria-label="Zpět">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Zpět</span>
+      </button>
+      <h3 class="player-title" id="playerTitle">Hra</h3>
+      <div class="player-diff" id="playerDiff">
         <button type="button" class="diff-btn" data-diff="easy">Easy</button>
         <button type="button" class="diff-btn active" data-diff="mid">Mid</button>
         <button type="button" class="diff-btn" data-diff="hard">Hard</button>
@@ -80,7 +88,7 @@
     </div>
     <div class="player-stage">
       <div id="playArea" class="play-area"></div>
-      <iframe id="gameFrame" src="" allowfullscreen title="Game"></iframe>
+      <iframe id="gameFrame" src="" allowfullscreen title="Hra"></iframe>
     </div>
   </div>
   <script src="js/main.js"></script>
