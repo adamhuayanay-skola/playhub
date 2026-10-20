@@ -1,16 +1,149 @@
-<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Minesweeper</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#c0c0c0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:Tahoma,sans-serif;user-select:none}h1{font-size:1.1rem;margin-bottom:.4rem}.panel{background:#c0c0c0;border:3px solid;border-color:#fff #808080 #808080 #fff;padding:8px}.top{display:flex;justify-content:space-between;padding:4px 8px;border:2px solid;border-color:#808080 #fff #fff #808080;margin-bottom:6px}.lcd{background:#000;color:#f00;font-family:Courier New,monospace;font-size:1.3rem;font-weight:bold;padding:2px 8px;min-width:50px;text-align:center}.face{width:36px;height:36px;font-size:1.3rem;border:3px solid;border-color:#fff #808080 #808080 #fff;background:#c0c0c0;cursor:pointer}.grid{display:grid;border:3px solid;border-color:#808080 #fff #fff #808080}.cell{width:28px;height:28px;border:2px solid;border-color:#fff #808080 #808080 #fff;background:#c0c0c0;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.9rem;cursor:pointer}.cell.open{border:1px solid #808080;background:#bdbdbd}.cell.mine{background:#f00}</style></head><body>
-<h1>Minesweeper</h1><div class="panel"><div class="top"><div class="lcd" id="mines">10</div><button class="face" id="face">🙂</button><div class="lcd" id="timer">000</div></div><div class="grid" id="grid"></div></div>
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Minesweeper</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#008080;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:"MS Sans Serif",Tahoma,sans-serif;user-select:none}
+.window{background:#c0c0c0;border:2px solid;border-color:#dfdfdf #0a0a0a #0a0a0a #dfdfdf;box-shadow:2px 2px 0 #808080;padding:0}
+.titlebar{background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-size:12px;font-weight:bold;padding:3px 6px;display:flex;justify-content:space-between;align-items:center}
+.titlebar .btns{display:flex;gap:2px}
+.titlebar .btn{width:16px;height:14px;background:#c0c0c0;border:1px solid;border-color:#fff #000 #000 #fff;font-size:9px;line-height:12px;text-align:center;color:#000;cursor:default}
+.content{padding:6px}
+.panel{border:3px solid;border-color:#808080 #fff #fff #808080;padding:6px;display:flex;flex-direction:column;gap:6px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border:2px solid;border-color:#808080 #fff #fff #808080;background:#c0c0c0}
+.lcd{background:#000;color:#f00;font-family:"Courier New",monospace;font-size:22px;font-weight:bold;padding:2px 6px;min-width:54px;text-align:right;letter-spacing:2px;border:1px solid #808080;line-height:1.2}
+.face{width:32px;height:32px;border:2px solid;border-color:#fff #808080 #808080 #fff;background:#c0c0c0;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;padding:0}
+.face:active{border-color:#808080 #fff #fff #808080}
+.grid{display:grid;border:3px solid;border-color:#808080 #fff #fff #808080;margin:0 auto}
+.cell{width:24px;height:24px;border:2px solid;border-color:#fff #808080 #808080 #fff;background:#c0c0c0;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;cursor:pointer;font-family:Arial,sans-serif}
+.cell.open{border:1px solid #808080;background:#c0c0c0}
+.cell.boom{background:#f00}
+.diffs{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.diffs button{padding:4px 10px;border:2px solid;border-color:#fff #808080 #808080 #fff;background:#c0c0c0;cursor:pointer;font-size:12px}
+.diffs button:active{border-color:#808080 #fff #fff #808080}
+</style></head><body>
+<div class="window">
+  <div class="titlebar"><span>&#128269; Minesweeper</span><div class="btns"><span class="btn">_</span><span class="btn">&#9633;</span><span class="btn">&#10005;</span></div></div>
+  <div class="content">
+    <div class="panel">
+      <div class="top"><div class="lcd" id="mines">010</div><button class="face" id="face" title="New game">🙂</button><div class="lcd" id="timer">000</div></div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="diffs">
+      <button onclick="setDiff(9,9,10)">Beginner</button>
+      <button onclick="setDiff(16,16,40)">Intermediate</button>
+      <button onclick="setDiff(16,30,99)">Expert</button>
+    </div>
+  </div>
+</div>
 <script>
-const params=new URLSearchParams(location.search);
-const D={easy:{r:8,c:8,m:8},mid:{r:9,c:9,m:12},hard:{r:12,c:12,m:25}}[params.get("diff")||"mid"]||{r:9,c:9,m:12};
-const R=D.r,C=D.c,M=D.m;let board=[],op=[],fg=[],alive=true,started=false,time=0,tim=null;
-const grid=document.getElementById("grid"),face=document.getElementById("face");grid.style.gridTemplateColumns="repeat("+C+",28px)";
-function init(){board=Array.from({length:R},()=>Array(C).fill(0));op=Array.from({length:R},()=>Array(C).fill(false));fg=Array.from({length:R},()=>Array(C).fill(false));alive=true;started=false;time=0;clearInterval(tim);document.getElementById("timer").textContent="000";document.getElementById("mines").textContent=String(M).padStart(2,"0");face.textContent="🙂";render()}
-function place(sr,sc){let p=0;while(p<M){const r=Math.floor(Math.random()*R),c=Math.floor(Math.random()*C);if(board[r][c]===-1||(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1))continue;board[r][c]=-1;p++}for(let r=0;r<R;r++)for(let c=0;c<C;c++){if(board[r][c]===-1)continue;let n=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){const nr=r+dr,nc=c+dc;if(nr>=0&&nr<R&&nc>=0&&nc<C&&board[nr][nc]===-1)n++}board[r][c]=n}}
-const COL=["","#00f","#008000","#f00","#000080","#800000","#008080","#000","#808080"];
-function rev(r,c){if(r<0||r>=R||c<0||c>=C||op[r][c]||fg[r][c])return;op[r][c]=true;if(board[r][c]===0)for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)rev(r+dr,c+dc)}
-function click(r,c){if(!alive||fg[r][c])return;if(!started){started=true;place(r,c);tim=setInterval(()=>{time++;document.getElementById("timer").textContent=String(time).padStart(3,"0")},1000)}if(board[r][c]===-1){alive=false;face.textContent="💀";op.forEach((row,ri)=>row.forEach((_,ci)=>{if(board[ri][ci]===-1)op[ri][ci]=true}));clearInterval(tim);render();return}rev(r,c);render();if(op.flat().filter(Boolean).length===R*C-M){alive=false;face.textContent="😎";clearInterval(tim)}}
-function rc(r,c){if(!alive||op[r][c])return;fg[r][c]=!fg[r][c];document.getElementById("mines").textContent=String(Math.max(0,M-fg.flat().filter(Boolean).length)).padStart(2,"0");render()}
-function render(){grid.innerHTML="";for(let r=0;r<R;r++)for(let c=0;c<C;c++){const d=document.createElement("div");d.className="cell";if(op[r][c]){d.classList.add("open");if(board[r][c]===-1){d.classList.add("mine");d.textContent="💣"}else if(board[r][c]>0){d.textContent=board[r][c];d.style.color=COL[board[r][c]]}}else if(fg[r][c])d.textContent="🚩";d.oncontextmenu=e=>{e.preventDefault();rc(r,c)};d.onclick=()=>click(r,c);grid.appendChild(d)}}face.onclick=init;init();
+let ROWS=9,COLS=9,MINES=10;
+let board=[],opened=[],flagged=[],alive=true,started=false,time=0,timer=null,pressed=false;
+const grid=document.getElementById("grid"),face=document.getElementById("face");
+const COLORS={1:"#0000FF",2:"#008000",3:"#FF0000",4:"#000080",5:"#800000",6:"#008080",7:"#000000",8:"#808080"};
+
+function setDiff(r,c,m){ROWS=r;COLS=c;MINES=m;init()}
+function init(){
+  board=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+  opened=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  flagged=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  alive=true;started=false;time=0;clearInterval(timer);
+  document.getElementById("timer").textContent="000";
+  document.getElementById("mines").textContent=String(MINES).padStart(3,"0");
+  face.textContent="🙂";
+  grid.style.gridTemplateColumns="repeat("+COLS+",24px)";
+  render();
+}
+function placeMines(sr,sc){
+  let p=0;
+  while(p<MINES){
+    const r=Math.floor(Math.random()*ROWS),c=Math.floor(Math.random()*COLS);
+    if(board[r][c]===-1)continue;
+    if(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1)continue;
+    board[r][c]=-1;p++;
+  }
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(board[r][c]===-1)continue;
+    let n=0;
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&board[nr][nc]===-1)n++;
+    }
+    board[r][c]=n;
+  }
+}
+function reveal(r,c){
+  if(r<0||r>=ROWS||c<0||c>=COLS||opened[r][c]||flagged[r][c])return;
+  opened[r][c]=true;
+  if(board[r][c]===0){
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)reveal(r+dr,c+dc);
+  }
+}
+function click(r,c){
+  if(!alive||flagged[r][c]||opened[r][c])return;
+  if(!started){started=true;placeMines(r,c);timer=setInterval(()=>{time=Math.min(999,time+1);document.getElementById("timer").textContent=String(time).padStart(3,"0")},1000)}
+  if(board[r][c]===-1){
+    alive=false;face.textContent="😵";clearInterval(timer);
+    for(let r2=0;r2<ROWS;r2++)for(let c2=0;c2<COLS;c2++){
+      if(board[r2][c2]===-1)opened[r2][c2]=true;
+      if(flagged[r2][c2]&&board[r2][c2]!==-1)opened[r2][c2]=true; // show wrong flags later in render
+    }
+    opened[r][c]=true;
+    render(r,c);return;
+  }
+  reveal(r,c);render();
+  checkWin();
+}
+function checkWin(){
+  let o=0;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(opened[r][c])o++;
+  if(o===ROWS*COLS-MINES){
+    alive=false;face.textContent="😎";clearInterval(timer);
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(board[r][c]===-1)flagged[r][c]=true;
+    document.getElementById("mines").textContent="000";
+    render();
+  }
+}
+function rightClick(r,c){
+  if(!alive||opened[r][c])return;
+  flagged[r][c]=!flagged[r][c];
+  const left=MINES-flagged.flat().filter(Boolean).length;
+  document.getElementById("mines").textContent=String(Math.max(-99,left)).padStart(3,"0").replace(/ /g,"0");
+  if(left<0)document.getElementById("mines").textContent="-"+String(Math.abs(left)).padStart(2,"0");
+  render();
+}
+function render(boomR,boomC){
+  grid.innerHTML="";
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const d=document.createElement("div");
+    d.className="cell";
+    if(opened[r][c]){
+      d.classList.add("open");
+      if(board[r][c]===-1){
+        d.textContent="*";
+        d.style.fontSize="16px";
+        d.style.fontWeight="900";
+        if(r===boomR&&c===boomC)d.classList.add("boom");
+      } else if(board[r][c]>0){
+        d.textContent=board[r][c];
+        d.style.color=COLORS[board[r][c]];
+      }
+      // wrong flag
+      if(flagged[r][c]&&board[r][c]!==-1&&!alive){
+        d.textContent="×";d.style.color="#f00";
+      }
+    } else if(flagged[r][c]){
+      d.textContent="¶";
+      d.style.color="#f00";
+      d.style.fontSize="13px";
+    }
+    d.oncontextmenu=e=>{e.preventDefault();rightClick(r,c)};
+    d.onmousedown=e=>{if(e.button===0&&alive)face.textContent="😮"};
+    d.onmouseup=e=>{if(alive)face.textContent="🙂"};
+    d.onclick=()=>click(r,c);
+    grid.appendChild(d);
+  }
+}
+face.onclick=init;
+init();
 </script></body></html>
