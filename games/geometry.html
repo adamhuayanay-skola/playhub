@@ -33,9 +33,9 @@ const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
 const ov=document.getElementById("ov"),attEl=document.getElementById("att"),pctEl=document.getElementById("pct");
 const params=new URLSearchParams(location.search);
 const diffMod={easy:0.9,mid:1,hard:1.12}[params.get("diff")||"mid"]||1;
-const W=640,H=360,GROUND=300,SZ=32,GRAV=0.62,JUMP=-11.2;
+const W=640,H=360,GROUND=300,SZ=30,GRAV=0.68,JUMP=-9.4;
 const SKINS=[
-{id:"cube",pri:"#7cff4a",sec:"#1a7a20",eye:"#fff",shape:"cube"},
+{id:"cube",pri:"#00ff00",sec:"#009900",eye:"#fff",shape:"cube"},
 {id:"fire",pri:"#ff5a00",sec:"#ffcc00",eye:"#fff",shape:"fire"},
 {id:"ice",pri:"#00d4ff",sec:"#0066aa",eye:"#fff",shape:"ice"},
 {id:"cat",pri:"#ff9ecd",sec:"#e91e8c",eye:"#fff",shape:"cat"},
@@ -46,7 +46,7 @@ const SKINS=[
 ]
 let skinI=+(localStorage.getItem("gdSkin")||0)%8,attempts=+(localStorage.getItem("gdAtt")||1);
 const LEVELS=[
-{id:"stereo",name:"Stereo Madness",col:"#4a9eff",diff:"Easy",spd:3.5,bg:["#1a3a6e","#0d1b3a"],pattern:[{t:"e",g:220},{t:"s",g:150},{t:"s",g:150},{t:"e",g:120},{t:"b",g:130,h:32},{t:"b",g:60,h:48},{t:"b",g:60,h:64},{t:"e",g:100},{t:"s",g:140},{t:"e",g:90},{t:"d",g:150},{t:"e",g:110},{t:"b",g:130,h:32},{t:"s",g:110},{t:"e",g:100},{t:"s",g:145},{t:"s",g:145},{t:"s",g:150},{t:"e",g:110},{t:"b",g:130,h:64},{t:"b",g:60,h:48},{t:"b",g:60,h:32},{t:"s",g:110},{t:"e",g:120},{t:"d",g:150},{t:"s",g:140},{t:"e",g:100},{t:"b",g:130,h:32},{t:"s",g:120},{t:"s",g:145},{t:"e",g:110},{t:"d",g:150},{t:"b",g:120,h:48},{t:"s",g:110},{t:"e",g:200}]},
+{id:"stereo",name:"Stereo Madness",col:"#4a9eff",diff:"Easy",spd:3.2,bg:["#1a3a6e","#0d1b3a"],pattern:[{t:"e",g:220},{t:"s",g:150},{t:"s",g:150},{t:"e",g:120},{t:"b",g:130,h:32},{t:"b",g:60,h:48},{t:"b",g:60,h:64},{t:"e",g:100},{t:"s",g:140},{t:"e",g:90},{t:"d",g:150},{t:"e",g:110},{t:"b",g:130,h:32},{t:"s",g:110},{t:"e",g:100},{t:"s",g:145},{t:"s",g:145},{t:"s",g:150},{t:"e",g:110},{t:"b",g:130,h:64},{t:"b",g:60,h:48},{t:"b",g:60,h:32},{t:"s",g:110},{t:"e",g:120},{t:"d",g:150},{t:"s",g:140},{t:"e",g:100},{t:"b",g:130,h:32},{t:"s",g:120},{t:"s",g:145},{t:"e",g:110},{t:"d",g:150},{t:"b",g:120,h:48},{t:"s",g:110},{t:"e",g:200}]},
 {id:"back",name:"Back On Track",col:"#5b8def",diff:"Normal",spd:3.8,bg:["#1a2a5e","#0a1028"],pattern:[{t:"e",g:200},{t:"s",g:140},{t:"b",g:120,h:32},{t:"s",g:110},{t:"e",g:90},{t:"s",g:135},{t:"s",g:135},{t:"e",g:100},{t:"b",g:120,h:32},{t:"b",g:58,h:48},{t:"s",g:105},{t:"e",g:95},{t:"d",g:145},{t:"s",g:130},{t:"e",g:100},{t:"b",g:120,h:48},{t:"s",g:110},{t:"s",g:130},{t:"e",g:90},{t:"s",g:130},{t:"b",g:110,h:32},{t:"d",g:140},{t:"e",g:100},{t:"b",g:120,h:64},{t:"b",g:58,h:48},{t:"b",g:58,h:32},{t:"s",g:110},{t:"e",g:110},{t:"d",g:140},{t:"s",g:125},{t:"s",g:130},{t:"e",g:180}]},
 {id:"polar",name:"Polargeist",col:"#9b59b6",diff:"Hard",spd:4.1,bg:["#2a1a4e","#120828"],pattern:[{t:"e",g:180},{t:"s",g:130},{t:"s",g:125},{t:"b",g:110,h:32},{t:"s",g:105},{t:"e",g:80},{t:"d",g:135},{t:"s",g:120},{t:"e",g:85},{t:"b",g:110,h:48},{t:"b",g:55,h:64},{t:"s",g:100},{t:"s",g:120},{t:"e",g:80},{t:"d",g:130},{t:"b",g:110,h:32},{t:"s",g:105},{t:"s",g:120},{t:"e",g:90},{t:"b",g:110,h:64},{t:"s",g:100},{t:"d",g:130},{t:"e",g:80},{t:"s",g:120},{t:"s",g:115},{t:"b",g:105,h:32},{t:"s",g:100},{t:"e",g:90},{t:"d",g:130},{t:"b",g:110,h:48},{t:"s",g:105},{t:"s",g:120},{t:"e",g:170}]},
 {id:"dry",name:"Dry Out",col:"#e67e22",diff:"Harder",spd:4.3,bg:["#3a2a1a","#1a1008"],pattern:[{t:"e",g:170},{t:"s",g:125},{t:"b",g:105,h:32},{t:"s",g:100},{t:"s",g:120},{t:"e",g:75},{t:"d",g:130},{t:"s",g:115},{t:"e",g:80},{t:"b",g:105,h:48},{t:"s",g:100},{t:"s",g:115},{t:"d",g:125},{t:"e",g:80},{t:"b",g:105,h:64},{t:"s",g:98},{t:"s",g:115},{t:"e",g:75},{t:"s",g:115},{t:"b",g:100,h:32},{t:"d",g:125},{t:"s",g:110},{t:"e",g:80},{t:"b",g:105,h:48},{t:"b",g:52,h:32},{t:"s",g:100},{t:"s",g:115},{t:"e",g:160}]},
