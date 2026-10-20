@@ -43,7 +43,7 @@ const ov=document.getElementById("ov");
 const lvName=document.getElementById("lvName"),progEl=document.getElementById("prog");
 const params=new URLSearchParams(location.search);
 const diffMod={easy:0.85,mid:1,hard:1.2}[params.get("diff")||"mid"]||1;
-const W=560,H=320,GROUND=270,CUBE=28,GRAVITY=0.85,JUMP=-11.2;
+const W=560,H=320,GROUND=268,CUBE=30,GRAVITY=0.58, JUMP=-13.8;
 const LEVELS=[
   {id:'stereo',name:'Stereo Madness',color:'#22c55e',ico:'1',diff:'Easy',speed:3.3,pattern:[
     {t:'empty',g:200},{t:'spike',g:140},{t:'spike',g:140},{t:'empty',g:100},
