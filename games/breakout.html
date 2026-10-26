@@ -1,32 +1,13 @@
-<!DOCTYPE html>
-<html lang="cs"><head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
-<title>Breakout</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0f0f1a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui;user-select:none;touch-action:none}
-h1{font-size:1.15rem;margin-bottom:.3rem;background:linear-gradient(90deg,#f43f5e,#f97316,#eab308);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
-.sc{color:#94a3b8;margin-bottom:.3rem}.sc strong{color:#fff}
-canvas{border-radius:8px;box-shadow:0 0 40px rgba(244,63,94,.2);max-width:96vw}
-.hint{color:#475569;font-size:.75rem;margin-top:.4rem}
-</style></head><body>
-<h1>BREAKOUT</h1>
-<div class="sc">Skore: <strong id="sc">0</strong></div>
-<canvas id="c" width="480" height="360"></canvas>
-<p class="hint">Mys / dotyk = palka</p>
+<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/><title>Breakout</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f0f1a;font-family:system-ui,sans-serif;color:#fff;user-select:none;touch-action:none}h1{font-size:1.3rem;font-weight:800;margin-bottom:6px}.sc{font-weight:700;margin-bottom:8px;color:#a5b4fc}canvas{border-radius:8px;box-shadow:0 0 0 2px #1e293b,0 16px 40px rgba(0,0,0,.4);max-width:96vw}.hint{margin-top:8px;color:#64748b;font-size:.75rem}</style></head><body>
+<h1>BREAKOUT</h1><div class="sc">Score: <span id="sc">0</span></div><canvas id="c" width="480" height="560"></canvas><p class="hint">Mys / touch = padlo</p>
 <script>
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
-const scEl=document.getElementById("sc");
-const params=new URLSearchParams(location.search);
-const spd={easy:3.2,mid:4.5,hard:6.2}[params.get("diff")||"mid"]||4.5;
-const W=480,H=360,COLS=10,ROWS=5;
-const COLORS=["#ef4444","#f97316","#eab308","#22c55e","#3b82f6"];
-let paddle={x:W/2-40,w:80,h:12},ball={x:W/2,y:H-40,vx:spd,vy:-spd,r:7};
-let bricks=[],score=0,running=false,lives=3;
-function build(){bricks=[];for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)bricks.push({x:c*46+12,y:r*22+40,w:42,h:16,col:COLORS[r],alive:true})}
-function reset(){ball={x:W/2,y:H-40,vx:spd*(Math.random()>.5?1:-1),vy:-spd,r:7};paddle.x=W/2-40}
-function start(){if(!running){running=true;score=0;lives=3;scEl.textContent=0;build();reset()}}
-function tick(){if(running){ball.x+=ball.vx;ball.y+=ball.vy;if(ball.x<ball.r||ball.x>W-ball.r)ball.vx*=-1;if(ball.y<ball.r)ball.vy*=-1;if(ball.y>H){lives--;if(lives<=0){running=false}else reset()}if(ball.y+ball.r>H-24&&ball.y<H-10&&ball.x>paddle.x&&ball.x<paddle.x+paddle.w){ball.vy=-Math.abs(ball.vy);ball.vx=(ball.x-(paddle.x+paddle.w/2))/20}bricks.forEach(b=>{if(!b.alive)return;if(ball.x>b.x&&ball.x<b.x+b.w&&ball.y-ball.r<b.y+b.h&&ball.y+ball.r>b.y){b.alive=false;ball.vy*=-1;score+=10;scEl.textContent=score}});if(bricks.every(b=>!b.alive)){build();ball.vx*=1.1;ball.vy*=1.1}}draw();requestAnimationFrame(tick)}
-function draw(){ctx.fillStyle="#0f0f1a";ctx.fillRect(0,0,W,H);bricks.forEach(b=>{if(!b.alive)return;ctx.fillStyle=b.col;ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle="rgba(255,255,255,.25)";ctx.fillRect(b.x+2,b.y+2,b.w-4,4)});ctx.fillStyle="#f472b6";ctx.fillRect(paddle.x,H-22,paddle.w,paddle.h);ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#f472b6";for(let i=0;i<lives;i++){ctx.beginPath();ctx.arc(20+i*16,18,5,0,Math.PI*2);ctx.fill()}if(!running){ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="bold 22px system-ui";ctx.textAlign="center";ctx.fillText(score>0?"Game Over · "+score:"Klikni pro start",W/2,H/2)}}
-canvas.addEventListener("pointermove",e=>{const r=canvas.getBoundingClientRect();paddle.x=Math.max(0,Math.min(W-paddle.w,(e.clientX-r.left)*(W/r.width)-paddle.w/2))});canvas.addEventListener("pointerdown",start);document.addEventListener("keydown",e=>{if(e.code==="Space"){e.preventDefault();start()}});build();tick();
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");const W=480,H=560;
+const COLORS=["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#a855f7"];
+let paddle,ball,bricks,score=0,run=false,lives=3;
+function build(){bricks=[];for(let r=0;r<6;r++)for(let c=0;c<10;c++)bricks.push({x:8+c*47,y:40+r*22,w:44,h:18,c:COLORS[r],on:true})}
+function reset(){paddle={x:W/2-40,w:80,h:12};ball={x:W/2,y:H-50,vx:4,vy:-5,r:7};score=0;lives=3;build();run=false;document.getElementById("sc").textContent=0}
+function tick(){if(run){ball.x+=ball.vx;ball.y+=ball.vy;if(ball.x<ball.r||ball.x>W-ball.r)ball.vx*=-1;if(ball.y<ball.r)ball.vy*=-1;if(ball.y>H){lives--;if(lives<=0)run=false;else{ball={x:W/2,y:H-50,vx:4,vy:-5,r:7};run=false}}if(ball.y+ball.r>H-30&&ball.x>paddle.x&&ball.x<paddle.x+paddle.w){ball.vy=-Math.abs(ball.vy);ball.vx=(ball.x-(paddle.x+paddle.w/2))*0.15}bricks.forEach(b=>{if(!b.on)return;if(ball.x>b.x&&ball.x<b.x+b.w&&ball.y-ball.r<b.y+b.h&&ball.y+ball.r>b.y){b.on=false;ball.vy*=-1;score+=10;document.getElementById("sc").textContent=score}});if(bricks.every(b=>!b.on)){build();ball.vy*=1.05}}ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);bricks.forEach(b=>{if(!b.on)return;ctx.fillStyle=b.c;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,3);ctx.fill()});ctx.fillStyle="#e2e8f0";ctx.beginPath();ctx.roundRect(paddle.x,H-28,paddle.w,paddle.h,4);ctx.fill();ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#94a3b8";ctx.font="14px system-ui";ctx.fillText("Lives "+lives,12,24);if(!run){ctx.fillStyle="rgba(0,0,0,.4)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="bold 20px system-ui";ctx.textAlign="center";ctx.fillText(lives<=0?"Game Over · klikni":"Klikni pro start",W/2,H/2);ctx.textAlign="left"}requestAnimationFrame(tick)}
+canvas.addEventListener("pointermove",e=>{const r=canvas.getBoundingClientRect();paddle.x=Math.max(0,Math.min(W-paddle.w,(e.clientX-r.left)*(W/r.width)-paddle.w/2))});
+canvas.addEventListener("pointerdown",()=>{if(!run){if(lives<=0)reset();run=true}});reset();requestAnimationFrame(tick);
 </script></body></html>
