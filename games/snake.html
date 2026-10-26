@@ -1,50 +1,18 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
-<title>Snake</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#2d5a27;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui,sans-serif;user-select:none;touch-action:none}
-.top{display:flex;align-items:center;gap:1.2rem;padding:.5rem 1rem;width:min(400px,96vw);justify-content:space-between}
-.stat{display:flex;align-items:center;gap:.35rem;font-weight:700;color:#fff;font-size:1.1rem}
-.stat span.ico{font-size:1.3rem}
-canvas{border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.35);max-width:96vw}
-.hint{color:rgba(255,255,255,.6);font-size:.75rem;margin-top:.5rem}
-</style>
-</head>
-<body>
-<div class="top">
-  <div class="stat"><span class="ico">🍎</span><span id="sc">0</span></div>
-  <div class="stat"><span class="ico">🏆</span><span id="hi">0</span></div>
-</div>
-<canvas id="c" width="400" height="400"></canvas>
-<p class="hint">Sipky / swipe</p>
+<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/><title>Snake</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0c1222;font-family:system-ui,sans-serif;color:#e2e8f0;user-select:none;touch-action:none}h1{font-size:1.4rem;font-weight:800;margin-bottom:8px;background:linear-gradient(90deg,#4ade80,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.hud{display:flex;gap:20px;margin-bottom:10px;font-weight:700}.hud span{background:rgba(255,255,255,.06);padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.08)}canvas{border-radius:12px;box-shadow:0 0 0 3px #1e293b,0 20px 50px rgba(0,0,0,.5);max-width:96vw;background:#0f172a}.hint{margin-top:10px;color:#64748b;font-size:.75rem}</style></head><body>
+<h1>SNAKE</h1><div class="hud"><span>Score: <b id="sc">0</b></span><span>Best: <b id="hi">0</b></span></div>
+<canvas id="c" width="400" height="400"></canvas><p class="hint">Sipky / WASD · swipe</p>
 <script>
 const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
 const scEl=document.getElementById("sc"),hiEl=document.getElementById("hi");
 const params=new URLSearchParams(location.search);
-const diff=params.get("diff")||"mid";
-const SPEEDS={easy:160,mid:110,hard:70};
-const CELL=20,COLS=20,ROWS=20;
-let snake=[{x:8,y:10},{x:7,y:10},{x:6,y:10}],dir={x:1,y:0},nextDir={x:1,y:0};
-let apple={x:14,y:10},score=0,hi=+(localStorage.getItem("snakeHi")||0),alive=true;
-hiEl.textContent=hi;
-function placeApple(){do{apple={x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)}}while(snake.some(s=>s.x===apple.x&&s.y===apple.y))}
-function reset(){snake=[{x:8,y:10},{x:7,y:10},{x:6,y:10}];dir={x:1,y:0};nextDir={x:1,y:0};score=0;scEl.textContent=0;alive=true;placeApple()}
-function step(){if(!alive)return;dir=nextDir;const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.x>=COLS||h.y<0||h.y>=ROWS||snake.some(s=>s.x===h.x&&s.y===h.y)){alive=false;if(score>hi){hi=score;localStorage.setItem("snakeHi",hi);hiEl.textContent=hi}setTimeout(reset,900);return}snake.unshift(h);if(h.x===apple.x&&h.y===apple.y){score++;scEl.textContent=score;placeApple()}else snake.pop()}
-function draw(){for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ctx.fillStyle=(x+y)%2===0?"#8fce6b":"#7bc45a";ctx.fillRect(x*CELL,y*CELL,CELL,CELL)}const ax=apple.x*CELL+CELL/2,ay=apple.y*CELL+CELL/2;ctx.beginPath();ctx.arc(ax,ay+1,9,0,Math.PI*2);ctx.fillStyle="#e74c3c";ctx.fill();ctx.beginPath();ctx.arc(ax-3,ay-2,3,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,.35)";ctx.fill();ctx.fillStyle="#27ae60";ctx.fillRect(ax-1,ay-12,3,5);ctx.beginPath();ctx.ellipse(ax+4,ay-11,5,3,0.4,0,Math.PI*2);ctx.fill();
-for(let i=snake.length-1;i>=1;i--){const s=snake[i],p=snake[i-1];const cx=s.x*CELL+CELL/2,cy=s.y*CELL+CELL/2;const px=p.x*CELL+CELL/2,py=p.y*CELL+CELL/2;ctx.strokeStyle="#2980b9";ctx.lineWidth=18;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,py);ctx.stroke();ctx.strokeStyle="#5dade2";ctx.lineWidth=14;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(px,py);ctx.stroke()}
-const head=snake[0];const hx=head.x*CELL+CELL/2,hy=head.y*CELL+CELL/2;const hg=ctx.createRadialGradient(hx-3,hy-3,2,hx,hy,11);hg.addColorStop(0,"#5dade2");hg.addColorStop(1,"#2471a3");ctx.beginPath();ctx.arc(hx,hy,11,0,Math.PI*2);ctx.fillStyle=hg;ctx.fill();
-let ex1,ey1,ex2,ey2;if(dir.x===1){ex1=4;ey1=-3;ex2=4;ey2=3}else if(dir.x===-1){ex1=-4;ey1=-3;ex2=-4;ey2=3}else if(dir.y===-1){ex1=-3;ey1=-4;ex2=3;ey2=-4}else{ex1=-3;ey1=4;ex2=3;ey2=4}
-ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(hx+ex1,hy+ey1,4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(hx+ex2,hy+ey2,4,0,Math.PI*2);ctx.fill();
-ctx.fillStyle="#1a1a2e";const ppx=dir.x*1.2,ppy=dir.y*1.2;ctx.beginPath();ctx.arc(hx+ex1+ppx,hy+ey1+ppy,2.2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(hx+ex2+ppx,hy+ey2+ppy,2.2,0,Math.PI*2);ctx.fill();
-if(!alive){ctx.fillStyle="rgba(0,0,0,.4)";ctx.fillRect(0,0,400,400);ctx.fillStyle="#fff";ctx.font="bold 28px system-ui";ctx.textAlign="center";ctx.fillText("Game Over",200,190);ctx.font="16px system-ui";ctx.fillText("Skore: "+score,200,220)}requestAnimationFrame(draw)}
-document.addEventListener("keydown",e=>{const k=e.key;if(k==="ArrowUp"&&dir.y===0)nextDir={x:0,y:-1};if(k==="ArrowDown"&&dir.y===0)nextDir={x:0,y:1};if(k==="ArrowLeft"&&dir.x===0)nextDir={x:-1,y:0};if(k==="ArrowRight"&&dir.x===0)nextDir={x:1,y:0};e.preventDefault()});
-let tx,ty;canvas.addEventListener("touchstart",e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
-canvas.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>Math.abs(dy)){if(dx>20&&dir.x===0)nextDir={x:1,y:0};if(dx<-20&&dir.x===0)nextDir={x:-1,y:0}}else{if(dy>20&&dir.y===0)nextDir={x:0,y:1};if(dy<-20&&dir.y===0)nextDir={x:0,y:-1}}});
-setInterval(step,SPEEDS[diff]||110);draw();
-</script>
-</body>
-</html>
+const spd={easy:140,mid:100,hard:65}[params.get("diff")||"mid"]||100;
+const N=20,S=20;let snake,dir,next,food,score=0,hi=+(localStorage.getItem("snakeHi")||0),run=false,dead=false;hiEl.textContent=hi;
+function reset(){snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir={x:1,y:0};next={x:1,y:0};score=0;scEl.textContent=0;food=place();run=true;dead=false}
+function place(){let p;do{p={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(s=>s.x===p.x&&s.y===p.y));return p}
+function tick(){if(!run){draw();return}dir=next;const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(s=>s.x===h.x&&s.y===h.y)){dead=true;run=false;if(score>hi){hi=score;localStorage.setItem("snakeHi",hi);hiEl.textContent=hi}draw();return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score++;scEl.textContent=score;food=place()}else snake.pop();draw()}
+function draw(){ctx.fillStyle="#0f172a";ctx.fillRect(0,0,400,400);for(let i=0;i<N;i++)for(let j=0;j<N;j++)if((i+j)%2===0){ctx.fillStyle="rgba(255,255,255,0.02)";ctx.fillRect(i*S,j*S,S,S)}ctx.shadowColor="#f43f5e";ctx.shadowBlur=12;ctx.fillStyle="#f43f5e";ctx.beginPath();ctx.arc(food.x*S+S/2,food.y*S+S/2,S*0.35,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;snake.forEach((s,i)=>{const t=i/snake.length;ctx.fillStyle=`hsl(${150+t*40},90%,${55-t*15}%)`;const pad=i===0?1:2;ctx.beginPath();ctx.roundRect(s.x*S+pad,s.y*S+pad,S-pad*2,S-pad*2,i===0?6:4);ctx.fill();if(i===0){ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s.x*S+S/2-dir.y*4+dir.x*3,s.y*S+S/2+dir.x*4+dir.y*3,2.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(s.x*S+S/2+dir.y*4+dir.x*3,s.y*S+S/2-dir.x*4+dir.y*3,2.5,0,Math.PI*2);ctx.fill()}});if(!run&&!dead){ctx.fillStyle="rgba(0,0,0,.45)";ctx.fillRect(0,0,400,400);ctx.fillStyle="#fff";ctx.font="bold 22px system-ui";ctx.textAlign="center";ctx.fillText("Tap / sipka = start",200,200)}if(dead){ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,0,400,400);ctx.fillStyle="#f43f5e";ctx.font="bold 26px system-ui";ctx.textAlign="center";ctx.fillText("Game Over",200,185);ctx.fillStyle="#fff";ctx.font="16px system-ui";ctx.fillText("Score "+score+" · tap to retry",200,215)}}
+document.addEventListener("keydown",e=>{const k=e.key;if(["ArrowUp","w","W"].includes(k)&&dir.y===0)next={x:0,y:-1};if(["ArrowDown","s","S"].includes(k)&&dir.y===0)next={x:0,y:1};if(["ArrowLeft","a","A"].includes(k)&&dir.x===0)next={x:-1,y:0};if(["ArrowRight","d","D"].includes(k)&&dir.x===0)next={x:1,y:0};if(!run)reset()});
+let tx,ty;canvas.addEventListener("pointerdown",e=>{tx=e.clientX;ty=e.clientY;if(!run)reset()});canvas.addEventListener("pointerup",e=>{const dx=e.clientX-tx,dy=e.clientY-ty;if(Math.abs(dx)<20&&Math.abs(dy)<20)return;if(Math.abs(dx)>Math.abs(dy)){if(dx>0&&dir.x===0)next={x:1,y:0};if(dx<0&&dir.x===0)next={x:-1,y:0}}else{if(dy>0&&dir.y===0)next={x:0,y:1};if(dy<0&&dir.y===0)next={x:0,y:-1}}});
+draw();setInterval(tick,spd);
+</script></body></html>
