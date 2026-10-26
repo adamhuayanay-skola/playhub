@@ -1,26 +1,11 @@
-# PlayHub
+# Retro Hry
 
-Moderní webová stránka s online hrami ve stylu **Poki**.
+Klasicke hry s **vylepsenym vzhledem** – skolni projekt.
 
-**Live demo:** https://adamhuayanay-skola.github.io/playhub/  
-**Repozitář:** https://github.com/adamhuayanay-skola/playhub
+**Live:** https://adamhuayanay-skola.github.io/playhub/
 
-## O projektu
-Školní projekt – vlastní herní hub v prohlížeči (HTML, CSS, JavaScript).  
-Hry běží přímo na stránce, bez instalace.
+## Hry
+Snake, Tetris, Pong, Breakout, 2048, Minesweeper, Flappy Bird, Chrome Dino, Memory, Tic Tac Toe, Stack, Geometry Dash, Slope, Subway Rush
 
-## Hratelné hry
-- Snake, 2048, Tetris, Flappy Bird
-- Pong, Breakout, Minesweeper, Memory Match
-- Tic Tac Toe, Chrome Dino
-- Geometry Dash (zjednodušená verze)
-- Subway Surfers styl, Slope, Stack Ball
-
-## Technologie
-- HTML5 + CSS3 (glassmorphism / moderní UI)
-- Vanilla JavaScript
-- Canvas pro hry
-- GitHub Pages
-
-## Spuštění
-Stačí otevřít live odkaz výše, nebo naklonovat repo a otevřít `index.html`.
+## Tech
+HTML · CSS · JavaScript · Canvas · GitHub Pages

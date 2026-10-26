@@ -3,38 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>PlayHub – Online hry zdarma</title>
-  <meta name="description" content="PlayHub – moderní stránka s browser hrami. Snake, 2048, Tetris, Geometry Dash a další." />
+  <title>Retro Hry – klasicke hry v modernim baleni</title>
+  <meta name="description" content="Retro Hry – klasicke arcade a puzzle hry s vylepsenym vzhledem. Snake, Tetris, Pong, Breakout, 2048 a dalsi." />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   <header class="navbar">
     <div class="nav-inner">
-      <a href="index.html" class="logo" aria-label="PlayHub">
-        <span class="logo-mark">P</span>
-        <span class="logo-text">PlayHub</span>
+      <a href="index.html" class="logo" aria-label="Retro Hry">
+        <span class="logo-mark">R</span>
+        <span class="logo-text">RETRO HRY</span>
       </a>
       <div class="search-box">
         <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
           <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
         </svg>
-        <input type="text" id="searchInput" placeholder="Hledat hry..." autocomplete="off" />
+        <input type="text" id="searchInput" placeholder="Hledat retro hry..." autocomplete="off" />
       </div>
-      <span class="version-badge">v3.0</span>
+      <span class="version-badge">v4.0</span>
     </div>
   </header>
 
   <div class="hero">
     <div class="hero-card">
-      <h1>Hraj <span>online hry</span> zdarma</h1>
-      <p>Moderní herní hub ve stylu Poki. Vyber si hru a spusť ji rovnou v prohlížeči – bez instalace.</p>
+      <h1>RETRO HRY<br/><span>vylepsene klasiky</span></h1>
+      <p>Klasicke hry, ktere znas – ale s hezcsím vzhledem nez puvodni. Hraj rovnou v prohlizeci, bez instalace.</p>
       <div class="hero-stats">
-        <span class="hero-stat">14+ hratelných her</span>
-        <span class="hero-stat">Funguje v Chrome</span>
-        <span class="hero-stat">Školní projekt</span>
+        <span class="hero-stat">Arcade klasiky</span>
+        <span class="hero-stat">Moderni grafika</span>
+        <span class="hero-stat">Skolni projekt</span>
       </div>
     </div>
   </div>
@@ -43,13 +40,10 @@
     <div class="cat-bar">
       <div class="container">
         <div class="category-pills" id="categoryPills">
-          <button type="button" class="pill active" data-cat="all">Vše</button>
+          <button type="button" class="pill active" data-cat="all">Vse</button>
           <button type="button" class="pill" data-cat="arcade">Arcade</button>
           <button type="button" class="pill" data-cat="puzzle">Puzzle</button>
-          <button type="button" class="pill" data-cat="action">Akce</button>
-          <button type="button" class="pill" data-cat="racing">Závody</button>
           <button type="button" class="pill" data-cat="strategy">Strategie</button>
-          <button type="button" class="pill" data-cat="io">.io</button>
         </div>
       </div>
     </div>
@@ -57,7 +51,7 @@
     <section class="section" id="featured">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Populární právě teď</h2>
+          <h2 class="section-title">Nejhranejsi klasiky</h2>
         </div>
         <div class="games-grid featured-grid" id="featuredGrid"></div>
       </div>
@@ -66,11 +60,11 @@
     <section class="section" id="all">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Všechny hry</h2>
+          <h2 class="section-title">Vsechny retro hry</h2>
           <span class="game-count" id="gameCount">0</span>
         </div>
         <div class="games-grid" id="gamesGrid"></div>
-        <p class="no-results" id="noResults" hidden>Žádné hry nenalezeny</p>
+        <p class="no-results" id="noResults" hidden>Zadna hra nenalezena</p>
       </div>
     </section>
   </main>
@@ -79,12 +73,12 @@
     <div class="container">
       <div class="footer-inner">
         <div class="footer-brand">
-          <span class="logo-mark small">P</span>
-          <span>PlayHub</span>
+          <span class="logo-mark small">R</span>
+          <span>Retro Hry</span>
         </div>
-        <p>Školní projekt · inspirace Poki · hry běží v prohlížeči</p>
+        <p>Skolni projekt · klasicke hry s vylepsenym vzhledem</p>
         <p style="margin-top:8px">
-          <a href="https://github.com/adamhuayanay-skola/playhub" target="_blank" rel="noopener" style="color:#a5b4fc">GitHub</a>
+          <a href="https://github.com/adamhuayanay-skola/playhub" target="_blank" rel="noopener" style="color:#ff2d95">GitHub</a>
         </p>
       </div>
     </div>
@@ -92,11 +86,11 @@
 
   <div class="player" id="gamePlayer" hidden>
     <div class="player-bar">
-      <button type="button" class="player-back" id="playerBack" aria-label="Zpět">
+      <button type="button" class="player-back" id="playerBack" aria-label="Zpet">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
-        <span>Zpět</span>
+        <span>Zpet</span>
       </button>
       <h3 class="player-title" id="playerTitle">Hra</h3>
       <div class="player-diff" id="playerDiff">
