@@ -4,35 +4,140 @@
 <title>Chrome Dino</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#f7f7f7;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Arial,Helvetica,sans-serif;user-select:none;touch-action:none}
-.wrap{position:relative}
-canvas{display:block;max-width:96vw;image-rendering:pixelated;image-rendering:crisp-edges}
-.hi{position:absolute;top:8px;right:12px;font-family:Courier New,monospace;font-size:14px;font-weight:700;color:#535353;letter-spacing:1px}
+body{background:#f7f7f7;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Courier New,monospace;user-select:none;touch-action:none;color:#535353}
+h1{font-size:1rem;font-weight:700;letter-spacing:.05em;margin-bottom:8px}
+.sc{font-size:.9rem;margin-bottom:8px}
+canvas{display:block;max-width:96vw;image-rendering:pixelated;image-rendering:crisp-edges;background:#f7f7f7;border:1px solid #e5e5e5}
+.hint{margin-top:10px;font-size:.75rem;color:#999}
 </style></head><body>
-<div class="wrap">
-<div class="hi" id="scoreText">HI 00000&nbsp;&nbsp;00000</div>
-<canvas id="c" width="800" height="240"></canvas>
-</div>
+<h1>THE DINOSAUR GAME</h1>
+<div class="sc">HI <span id="hi">00000</span> &nbsp; <span id="sc">00000</span></div>
+<canvas id="c" width="700" height="200"></canvas>
+<p class="hint">Space / klik = skok</p>
 <script>
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d"),scoreText=document.getElementById("scoreText");
-const W=800,H=240,GROUND=200,COL="#535353",BG="#f7f7f7";
-let running=false,gameOver=false,frame=0,score=0,hiScore=+(localStorage.getItem("chromeDinoHi")||0);
-let speed=6,gravity=0.6,jumpForce=-11;
-let dino={x:60,y:GROUND-40,w:40,h:40,vy:0,onGround:true,ducking:false,runFrame:0};
-let obstacles=[],clouds=[],groundOffset=0,spawnTimer=0,nextSpawn=90;
-function resetGame(){running=true;gameOver=false;frame=0;score=0;speed=6;dino={x:60,y:GROUND-40,w:40,h:40,vy:0,onGround:true,ducking:false,runFrame:0};obstacles=[];clouds=[];groundOffset=0;spawnTimer=0;nextSpawn=90;for(let i=0;i<3;i++)clouds.push({x:200+i*250,y:40+Math.random()*50})}
-function jump(){if(gameOver||!running){resetGame();return}if(dino.onGround&&!dino.ducking){dino.vy=jumpForce;dino.onGround=false}}
-function drawDino(){const x=dino.x,y=dino.y;ctx.fillStyle=COL;if(dino.ducking&&dino.onGround){ctx.fillRect(x,y+16,48,20);ctx.fillRect(x+36,y+12,16,14);ctx.fillStyle=BG;ctx.fillRect(x+46,y+15,3,3);ctx.fillStyle=COL;ctx.fillRect(x-4,y+20,8,6);const leg=Math.floor(frame/6)%2;ctx.fillRect(x+10,y+34,8,leg?4:8);ctx.fillRect(x+28,y+34,8,leg?8:4)}else{ctx.fillRect(x+6,y+12,22,26);ctx.fillRect(x+20,y,20,16);ctx.fillStyle=BG;ctx.fillRect(x+32,y+4,4,4);ctx.fillStyle=COL;ctx.fillRect(x+28,y+12,10,2);ctx.fillRect(x,y+18,10,4);ctx.fillRect(x,y+28,8,6);if(dino.onGround){dino.runFrame=Math.floor(frame/5)%2;if(dino.runFrame===0){ctx.fillRect(x+10,y+36,8,10);ctx.fillRect(x+24,y+36,8,6)}else{ctx.fillRect(x+10,y+36,8,6);ctx.fillRect(x+24,y+36,8,10)}}else{ctx.fillRect(x+10,y+36,8,8);ctx.fillRect(x+24,y+36,8,8)}}}
-function drawCactus(o){ctx.fillStyle=COL;const x=o.x,y=o.y,h=o.h;if(o.variant===0){ctx.fillRect(x+6,y,10,h);ctx.fillRect(x,y+h*0.35,8,6);ctx.fillRect(x,y+h*0.35,4,h*0.25)}else if(o.variant===1){ctx.fillRect(x+10,y,12,h);ctx.fillRect(x,y+h*0.4,12,7);ctx.fillRect(x,y+h*0.4,5,h*0.3);ctx.fillRect(x+20,y+h*0.25,10,7);ctx.fillRect(x+26,y+h*0.25,5,h*0.35)}else{ctx.fillRect(x+8,y,14,h);ctx.fillRect(x,y+h*0.3,10,7);ctx.fillRect(x,y+h*0.3,5,h*0.35);ctx.fillRect(x+20,y+h*0.45,12,7);ctx.fillRect(x+28,y+h*0.45,5,h*0.28)}}
-function drawBird(o){ctx.fillStyle=COL;const x=o.x,y=o.y,wing=Math.floor(frame/8)%2;ctx.fillRect(x+8,y+8,24,12);ctx.fillRect(x+28,y+4,12,10);ctx.fillRect(x+38,y+8,6,3);if(wing===0)ctx.fillRect(x+10,y,18,10);else ctx.fillRect(x+10,y+14,18,10)}
-function drawCloud(c){ctx.strokeStyle="#dadada";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(c.x,c.y);ctx.lineTo(c.x+30,c.y);ctx.stroke();ctx.beginPath();ctx.moveTo(c.x+10,c.y-6);ctx.lineTo(c.x+40,c.y-6);ctx.stroke()}
-function spawnObstacle(){const r=Math.random();if(score>250&&r>0.7){const heights=[GROUND-70,GROUND-50,GROUND-100];obstacles.push({type:"bird",x:W+10,y:heights[Math.floor(Math.random()*3)],w:44,h:28})}else{const variant=Math.floor(Math.random()*3);const heights=[28,38,50],widths=[20,32,40];obstacles.push({type:"cactus",x:W+10,y:GROUND-heights[variant],w:widths[variant],h:heights[variant],variant})}nextSpawn=50+Math.random()*60-Math.min(25,score/100)}
-function hitTest(a,b){return a.x+6<b.x+b.w-4&&a.x+a.w-6>b.x+4&&a.y+4<b.y+b.h&&a.y+a.h>b.y+4}
-function update(){if(!running||gameOver)return;frame++;score=Math.floor(frame/5);if(score>hiScore){hiScore=score;localStorage.setItem("chromeDinoHi",hiScore)}speed=6+Math.min(7,score*0.008);scoreText.innerHTML="HI "+String(hiScore).padStart(5,"0")+"&nbsp;&nbsp;"+String(score).padStart(5,"0");dino.vy+=gravity;dino.y+=dino.vy;const h=dino.ducking?24:40;dino.h=h;if(dino.y+dino.h>=GROUND){dino.y=GROUND-dino.h;dino.vy=0;dino.onGround=true}groundOffset=(groundOffset+speed)%24;clouds.forEach(c=>c.x-=speed*0.3);if(clouds.length&&clouds[0].x<-50)clouds.shift();if(frame%200===0)clouds.push({x:W+20,y:30+Math.random()*60});spawnTimer++;if(spawnTimer>nextSpawn){spawnObstacle();spawnTimer=0}obstacles.forEach(o=>o.x-=speed);obstacles=obstacles.filter(o=>o.x>-60);const box={x:dino.x,y:dino.y,w:dino.ducking?48:40,h:dino.h};for(const o of obstacles){if(hitTest(box,o)){gameOver=true;running=false}}}
-function draw(){ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);clouds.forEach(drawCloud);ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();ctx.fillStyle="#bababa";for(let i=-1;i<40;i++){const x=i*24-groundOffset;ctx.fillRect(x,GROUND+4,3,2);ctx.fillRect(x+10,GROUND+6,2,1)}obstacles.forEach(o=>{if(o.type==="cactus")drawCactus(o);else drawBird(o)});drawDino();if(gameOver){ctx.fillStyle=COL;ctx.font="bold 18px Arial";ctx.textAlign="center";ctx.fillText("G A M E  O V E R",W/2,H/2-20);ctx.strokeStyle=COL;ctx.lineWidth=2;ctx.beginPath();ctx.arc(W/2,H/2+15,12,0.3,Math.PI*2-0.3);ctx.stroke()}else if(!running){ctx.fillStyle=COL;ctx.font="14px Arial";ctx.textAlign="center";ctx.fillText("Press Space to play",W/2,H/2)}}
-function loop(){update();draw();requestAnimationFrame(loop)}
-document.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump()}if(e.code==="ArrowDown"){e.preventDefault();dino.ducking=true}});
-document.addEventListener("keyup",e=>{if(e.code==="ArrowDown")dino.ducking=false});
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+ctx.imageSmoothingEnabled=false;
+const W=700,H=200,GROUND=170;
+// Classic T-rex sprite (pixel grid from Chrome dino style)
+const DINO=[
+"........................",
+".............######.....",
+"............########....",
+"............##.#.####...",
+"............########....",
+"............#######.....",
+"............######......",
+"............#####.......",
+"....##.....######.......",
+"...###....########......",
+"..################......",
+".#################......",
+".##################.....",
+".#########..#######.....",
+".########...#######.....",
+"..######....##...##.....",
+"...####.....#.....#.....",
+"....##......#.....#.....",
+"............##...##....."
+];
+const CACTUS=[
+"...##...",
+"...##...",
+"...##.#.",
+"#..##.#.",
+"#..##.#.",
+"#..####.",
+".######.",
+"...##...",
+"...##...",
+"...##...",
+"...##...",
+"...##..."
+];
+function drawSprite(sprite,x,y,scale,color){
+  ctx.fillStyle=color||"#535353";
+  for(var r=0;r<sprite.length;r++){
+    for(var c=0;c<sprite[r].length;c++){
+      if(sprite[r][c]==="#")ctx.fillRect(x+c*scale,y+r*scale,scale,scale);
+    }
+  }
+}
+let dino={x:50,y:GROUND-38,vy:0,onGround:true,w:44,h:38};
+let obstacles=[],clouds=[],score=0,hi=+(localStorage.getItem("dinoHi")||0),run=false,dead=false,speed=6,frame=0,spawnT=0;
+document.getElementById("hi").textContent=String(hi).padStart(5,"0");
+function reset(){
+  dino={x:50,y:GROUND-38,vy:0,onGround:true,w:44,h:38};
+  obstacles=[];clouds=[{x:200,y:40},{x:450,y:25},{x:650,y:50}];
+  score=0;run=true;dead=false;speed=6;frame=0;spawnT=0;
+  document.getElementById("sc").textContent="00000";
+}
+function jump(){
+  if(!run){reset();return;}
+  if(dino.onGround&&!dead){dino.vy=-11;dino.onGround=false;}
+  if(dead)reset();
+}
+function loop(){
+  frame++;
+  if(run&&!dead){
+    dino.vy+=0.55;dino.y+=dino.vy;
+    if(dino.y>=GROUND-38){dino.y=GROUND-38;dino.vy=0;dino.onGround=true;}
+    score+=0.15;speed=6+score/200;
+    document.getElementById("sc").textContent=String(Math.floor(score)).padStart(5,"0");
+    spawnT--;
+    if(spawnT<=0){
+      obstacles.push({x:W+10,w:24,h:36});
+      spawnT=60+Math.random()*80;
+    }
+    for(var i=obstacles.length-1;i>=0;i--){
+      var o=obstacles[i];o.x-=speed;
+      if(o.x<-40)obstacles.splice(i,1);
+      // collision box tighter
+      if(dino.x+8<o.x+o.w&&dino.x+dino.w-8>o.x&&dino.y+8<GROUND&&dino.y+dino.h>GROUND-o.h){
+        dead=true;run=false;
+        if(Math.floor(score)>hi){hi=Math.floor(score);localStorage.setItem("dinoHi",hi);document.getElementById("hi").textContent=String(hi).padStart(5,"0");}
+      }
+    }
+    clouds.forEach(function(c){c.x-=0.5;if(c.x<-40)c.x=W+Math.random()*100;});
+  }
+  // draw
+  ctx.fillStyle="#f7f7f7";ctx.fillRect(0,0,W,H);
+  // ground line
+  ctx.strokeStyle="#535353";ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,GROUND);ctx.lineTo(W,GROUND);ctx.stroke();
+  // ground dots
+  ctx.fillStyle="#535353";
+  for(var i=0;i<20;i++){
+    var gx=((i*40-frame*speed*0.3)%W+W)%W;
+    ctx.fillRect(gx,GROUND+4,3,2);
+    ctx.fillRect(gx+15,GROUND+8,6,2);
+  }
+  // clouds simple
+  clouds.forEach(function(c){
+    ctx.strokeStyle="#dadada";ctx.lineWidth=2;
+    ctx.strokeRect(c.x,c.y,30,10);ctx.strokeRect(c.x+10,c.y-6,20,10);
+  });
+  // dino leg animation
+  var spr=DINO.slice();
+  if(run&&dino.onGround&&Math.floor(frame/6)%2===0){
+    // alternate legs slightly by clearing bottom
+  }
+  drawSprite(DINO,dino.x,dino.y,2);
+  // obstacles
+  obstacles.forEach(function(o){
+    drawSprite(CACTUS,o.x,GROUND-24,2);
+  });
+  if(!run&&!dead){
+    ctx.fillStyle="#535353";ctx.font="16px Courier New";ctx.textAlign="center";
+    ctx.fillText("Press Space to start",W/2,H/2);
+  }
+  if(dead){
+    ctx.fillStyle="#535353";ctx.font="bold 18px Courier New";ctx.textAlign="center";
+    ctx.fillText("G A M E  O V E R",W/2,H/2-10);
+    ctx.font="14px Courier New";ctx.fillText("press space to restart",W/2,H/2+16);
+  }
+  requestAnimationFrame(loop);
+}
+document.addEventListener("keydown",function(e){if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump();}});
 canvas.addEventListener("pointerdown",jump);
-draw();loop();
+requestAnimationFrame(loop);
 </script></body></html>
