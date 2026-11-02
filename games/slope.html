@@ -4,163 +4,138 @@
 <title>Slope</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:#050510;font-family:system-ui,sans-serif;color:#fff;user-select:none;touch-action:none;overflow:hidden;
-}
-h1{font-size:1.15rem;font-weight:900;letter-spacing:.2em;color:#22d3ee;text-shadow:0 0 18px #22d3ee;margin-bottom:6px}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#030308;font-family:system-ui,sans-serif;color:#fff;user-select:none;touch-action:none;overflow:hidden}
+h1{font-size:1.1rem;font-weight:900;letter-spacing:.25em;color:#22d3ee;text-shadow:0 0 16px #22d3ee;margin-bottom:6px}
 .sc{font-size:1.5rem;font-weight:800;margin-bottom:8px}
-canvas{border-radius:10px;box-shadow:0 0 50px rgba(34,211,238,.12);max-width:96vw;background:#000;cursor:none}
+canvas{border-radius:10px;box-shadow:0 0 40px rgba(34,211,238,.12);max-width:96vw;cursor:none}
 .hint{margin-top:10px;color:#555;font-size:.75rem}
 </style></head><body>
 <h1>SLOPE</h1>
 <div class="sc" id="sc">0</div>
 <canvas id="c" width="480" height="640"></canvas>
-<p class="hint">← → / A D · mys = ovladani</p>
+<p class="hint">A D / sipky · mys</p>
 <script>
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+(function(){
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
 const scEl=document.getElementById("sc");
 const W=480,H=640;
 const params=new URLSearchParams(location.search);
-const baseSpeed={easy:0.18,mid:0.28,hard:0.4}[params.get("diff")||"mid"]||0.28;
+const baseSp={easy:4.2,mid:6,hard:8.5}[params.get("diff")||"mid"]||6;
 
-// 3D projection: world Z goes forward (into screen), Y is height, X is left-right
-// Camera looks down the slope
-const FOV=280;
-const CAM_Y=80;
-const CAM_Z=-40;
+// Classic Slope feel: you roll DOWN the screen (toward bottom).
+// Far platform = near TOP of screen (small), near platform = toward BOTTOM (large).
+let ball={x:0,z:0,vx:0};
+let spd=baseSp, run=false, dead=false, score=0;
+let plats=[];
+let keys={L:false,R:false};
+let mouseN=0; // -1..1
 
-let ball={x:0,y:12,z:0,vx:0};
-let speed=baseSpeed;
-let run=false,dead=false,score=0;
-let platforms=[]; // {z, x, w, h} platform slabs
-let keys={left:false,right:false};
-let mouseX=0;
-
-function project(x,y,z){
-  // relative to camera
-  var rz=z-CAM_Z;
-  if(rz<5)rz=5;
-  var scale=FOV/rz;
-  return {
-    x:W/2+x*scale,
-    y:H*0.35-(y-CAM_Y)*scale+(z*0.15),
-    s:scale
-  };
+function proj(x,y,z){
+  // z increases as we go forward; map so larger z appears LOWER on screen
+  var depth=z-ball.z+40; // relative depth ahead of ball
+  if(depth<8)depth=8;
+  var scale=220/depth;
+  // horizon near top
+  var screenY=90+depth*1.35;
+  return {x:W/2+x*scale, y:screenY-y*scale, s:scale, depth:depth};
 }
 
-function makePlatforms(){
-  platforms=[];
-  // continuous path of 3D blocks going forward
-  var z=0;
-  var x=0;
-  for(var i=0;i<40;i++){
-    var w=90+Math.random()*50;
-    // slight zigzag
-    if(i>3)x+=(Math.random()-0.5)*40;
-    x=Math.max(-80,Math.min(80,x));
-    platforms.push({z:z,x:x,w:w,len:55,fall:false});
-    // occasional gap or red hazard
-    if(i>5&&Math.random()<0.25){
-      platforms.push({z:z+28,x:x+(Math.random()>0.5?50:-50),w:40,len:30,fall:true});
+function gen(){
+  plats=[];
+  var z=0,x=0;
+  for(var i=0;i<50;i++){
+    if(i>2)x+=(Math.random()-0.5)*35;
+    x=Math.max(-70,Math.min(70,x));
+    var w=100+Math.random()*40;
+    plats.push({z:z,x:x,w:w,len:48,bad:false});
+    if(i>6&&Math.random()<0.22){
+      plats.push({z:z+20,x:x+(Math.random()>0.5?45:-45),w:36,len:28,bad:true});
     }
-    z+=50;
+    z+=46;
   }
 }
 
 function reset(){
-  ball={x:0,y:12,z:10,vx:0};
-  speed=baseSpeed;
-  run=true;dead=false;score=0;
-  scEl.textContent="0";
-  makePlatforms();
+  ball={x:0,z:5,vx:0};spd=baseSp;run=true;dead=false;score=0;scEl.textContent="0";gen();
 }
 
-function platformAt(z){
-  // find platform under ball z
-  for(var i=0;i<platforms.length;i++){
-    var p=platforms[i];
+function under(z){
+  for(var i=0;i<plats.length;i++){
+    var p=plats[i];
     if(z>=p.z&&z<=p.z+p.len)return p;
   }
   return null;
 }
 
+function drawPlat(p){
+  var yTop=8,yBot=0;
+  var z0=p.z,z1=p.z+p.len;
+  var x0=p.x-p.w/2,x1=p.x+p.w/2;
+  var a=proj(x0,yTop,z0),b=proj(x1,yTop,z0),c=proj(x1,yTop,z1),d=proj(x0,yTop,z1);
+  var a2=proj(x0,yBot,z0),b2=proj(x1,yBot,z0),c2=proj(x1,yBot,z1),d2=proj(x0,yBot,z1);
+  if(a.depth>520)return;
+
+  // side
+  ctx.fillStyle="rgba(0,0,0,.4)";
+  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(d.x,d.y);ctx.lineTo(d2.x,d2.y);ctx.lineTo(a2.x,a2.y);ctx.closePath();ctx.fill();
+  // front
+  ctx.fillStyle=p.bad?"#7f1d1d":"#1e293b";
+  ctx.beginPath();ctx.moveTo(d.x,d.y);ctx.lineTo(c.x,c.y);ctx.lineTo(c2.x,c2.y);ctx.lineTo(d2.x,d2.y);ctx.closePath();ctx.fill();
+  // top
+  ctx.fillStyle=p.bad?"#ef4444":"#334155";
+  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(c.x,c.y);ctx.lineTo(d.x,d.y);ctx.closePath();ctx.fill();
+  // edge glow
+  ctx.strokeStyle=p.bad?"#fca5a5":"#22d3ee";
+  ctx.lineWidth=Math.max(1,a.s*0.05);ctx.globalAlpha=0.85;
+  ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(c.x,c.y);ctx.lineTo(d.x,d.y);ctx.closePath();ctx.stroke();
+  ctx.globalAlpha=1;
+}
+
 function loop(){
   if(run&&!dead){
-    // controls
-    if(keys.left)ball.vx-=0.35;
-    if(keys.right)ball.vx+=0.35;
-    // mouse influence
-    var targetVx=(mouseX-W/2)/40;
-    ball.vx+=(targetVx-ball.vx)*0.08;
-    ball.vx*=0.92;
+    if(keys.L)ball.vx-=0.4;
+    if(keys.R)ball.vx+=0.4;
+    ball.vx+=(mouseN*5-ball.vx)*0.06;
+    ball.vx*=0.9;
     ball.x+=ball.vx;
-    ball.z+=speed*60*0.016*10; // move forward
-    speed+=0.00015;
-    score=Math.floor(ball.z/10);
+    ball.z+=spd*0.35;
+    spd+=0.0012;
+    score=Math.floor(ball.z/8);
     scEl.textContent=String(score);
 
-    var p=platformAt(ball.z);
-    if(!p){
-      // fell off
+    var p=under(ball.z);
+    if(!p||p.bad||ball.x<p.x-p.w/2+10||ball.x>p.x+p.w/2-10){
       dead=true;run=false;
-    }else{
-      // stay on top of block
-      ball.y=12;
-      // fall if on hazard or off edges
-      var half=p.w/2;
-      if(ball.x<p.x-half+8||ball.x>p.x+half-8){
-        dead=true;run=false;
-      }
-      if(p.fall){
-        dead=true;run=false;
-      }
     }
-    // extend platforms
-    var last=platforms[platforms.length-1];
-    if(last&&ball.z>last.z-400){
-      var x=last.x+(Math.random()-0.5)*50;
-      x=Math.max(-90,Math.min(90,x));
-      var w=80+Math.random()*55;
-      platforms.push({z:last.z+50,x:x,w:w,len:55,fall:false});
-      if(Math.random()<0.2){
-        platforms.push({z:last.z+75,x:x+(Math.random()>0.5?55:-55),w:35,len:28,fall:true});
-      }
+
+    var last=plats[plats.length-1];
+    if(last&&ball.z>last.z-350){
+      var x=last.x+(Math.random()-0.5)*45;
+      x=Math.max(-75,Math.min(75,x));
+      plats.push({z:last.z+46,x:x,w:90+Math.random()*45,len:48,bad:false});
+      if(Math.random()<0.2)plats.push({z:last.z+70,x:x+(Math.random()>0.5?50:-50),w:34,len:26,bad:true});
     }
-    // cleanup far behind
-    platforms=platforms.filter(function(p){return p.z+p.len>ball.z-80;});
+    plats=plats.filter(function(p){return p.z+p.len>ball.z-30;});
   }
 
-  // DRAW
-  ctx.fillStyle="#050510";ctx.fillRect(0,0,W,H);
-  // starfield
-  ctx.fillStyle="rgba(255,255,255,.15)";
-  for(var i=0;i<40;i++){
-    var sx=(i*97+score*2)%W,sy=(i*53)%H;
-    ctx.fillRect(sx,sy,2,2);
-  }
+  ctx.fillStyle="#030308";ctx.fillRect(0,0,W,H);
+  // stars
+  ctx.fillStyle="rgba(255,255,255,.12)";
+  for(var i=0;i<30;i++)ctx.fillRect((i*89+score)%W,(i*47)%90,2,2);
 
-  // draw platforms from far to near (painter)
-  var sorted=platforms.slice().sort(function(a,b){return (b.z)-(a.z);});
-  for(var i=0;i<sorted.length;i++){
-    var p=sorted[i];
-    if(p.z+p.len<ball.z-20)continue;
-    if(p.z>ball.z+500)continue;
-    drawBlock(p);
-  }
+  var sorted=plats.slice().sort(function(a,b){return b.z-a.z;});
+  for(var i=0;i<sorted.length;i++)drawPlat(sorted[i]);
 
-  // ball
-  var bp=project(ball.x,ball.y,ball.z);
-  var br=Math.max(6,12*bp.s/FOV*40);
-  // shadow
-  ctx.fillStyle="rgba(0,0,0,.4)";
-  ctx.beginPath();ctx.ellipse(bp.x,bp.y+br*0.6,br*1.1,br*0.35,0,0,Math.PI*2);ctx.fill();
-  // ball gradient
-  var grd=ctx.createRadialGradient(bp.x-br*0.3,bp.y-br*0.3,1,bp.x,bp.y,br);
-  grd.addColorStop(0,"#f87171");grd.addColorStop(0.6,"#ef4444");grd.addColorStop(1,"#991b1b");
-  ctx.fillStyle=grd;
-  ctx.beginPath();ctx.arc(bp.x,bp.y,br,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle="rgba(255,255,255,.35)";ctx.lineWidth=2;ctx.stroke();
+  // ball near bottom of visible path
+  var bp=proj(ball.x,10,ball.z+2);
+  var r=Math.max(8,Math.min(22,bp.s*0.9));
+  ctx.fillStyle="rgba(0,0,0,.35)";
+  ctx.beginPath();ctx.ellipse(bp.x,bp.y+r*0.5,r*1.2,r*0.35,0,0,Math.PI*2);ctx.fill();
+  var grd=ctx.createRadialGradient(bp.x-r*0.3,bp.y-r*0.3,1,bp.x,bp.y,r);
+  grd.addColorStop(0,"#fca5a5");grd.addColorStop(1,"#dc2626");
+  ctx.fillStyle=grd;ctx.beginPath();ctx.arc(bp.x,bp.y,r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="rgba(255,255,255,.4)";ctx.lineWidth=2;ctx.stroke();
 
   if(!run&&!dead){
     ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,W,H);
@@ -170,79 +145,25 @@ function loop(){
   if(dead){
     ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,0,W,H);
     ctx.fillStyle="#f87171";ctx.font="bold 28px system-ui";ctx.textAlign="center";
-    ctx.fillText("Game Over",W/2,H/2-16);
-    ctx.fillStyle="#fff";ctx.font="16px system-ui";
-    ctx.fillText("Score "+score+" · klikni znovu",W/2,H/2+16);
+    ctx.fillText("Game Over",W/2,H/2-12);
+    ctx.fillStyle="#fff";ctx.font="16px system-ui";ctx.fillText("Score "+score+" · klikni",W/2,H/2+18);
   }
   requestAnimationFrame(loop);
 }
 
-function drawBlock(p){
-  // 3D box: top face + front + side
-  var y0=0,y1=18; // block thickness
-  var z0=p.z,z1=p.z+p.len;
-  var x0=p.x-p.w/2,x1=p.x+p.w/2;
-
-  var tl=project(x0,y1,z0);
-  var tr=project(x1,y1,z0);
-  var bl=project(x0,y1,z1);
-  var br=project(x1,y1,z1);
-  var tl2=project(x0,y0,z0);
-  var tr2=project(x1,y0,z0);
-  var bl2=project(x0,y0,z1);
-  var br2=project(x1,y0,z1);
-
-  // skip if behind camera weird
-  if(tl.s<=0||tr.s<=0)return;
-
-  var col=p.fall?"#dc2626":"#1e293b";
-  var colTop=p.fall?"#f87171":"#334155";
-  var edge=p.fall?"#fca5a5":"#22d3ee";
-
-  // left side
-  ctx.fillStyle="rgba(0,0,0,.35)";
-  ctx.beginPath();
-  ctx.moveTo(tl.x,tl.y);ctx.lineTo(bl.x,bl.y);ctx.lineTo(bl2.x,bl2.y);ctx.lineTo(tl2.x,tl2.y);
-  ctx.closePath();ctx.fill();
-
-  // front face
-  ctx.fillStyle=col;
-  ctx.beginPath();
-  ctx.moveTo(bl.x,bl.y);ctx.lineTo(br.x,br.y);ctx.lineTo(br2.x,br2.y);ctx.lineTo(bl2.x,bl2.y);
-  ctx.closePath();ctx.fill();
-
-  // top face
-  ctx.fillStyle=colTop;
-  ctx.beginPath();
-  ctx.moveTo(tl.x,tl.y);ctx.lineTo(tr.x,tr.y);ctx.lineTo(br.x,br.y);ctx.lineTo(bl.x,bl.y);
-  ctx.closePath();ctx.fill();
-
-  // cyan grid lines on top
-  ctx.strokeStyle=edge;ctx.lineWidth=Math.max(1,tl.s*0.04);
-  ctx.globalAlpha=0.7;
-  ctx.beginPath();
-  ctx.moveTo(tl.x,tl.y);ctx.lineTo(tr.x,tr.y);ctx.lineTo(br.x,br.y);ctx.lineTo(bl.x,bl.y);ctx.closePath();
-  ctx.stroke();
-  // center line
-  var tm=project(p.x,y1,z0);var bm=project(p.x,y1,z1);
-  ctx.beginPath();ctx.moveTo(tm.x,tm.y);ctx.lineTo(bm.x,bm.y);ctx.stroke();
-  ctx.globalAlpha=1;
-}
-
 document.addEventListener("keydown",function(e){
-  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=true;
-  if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=true;
-  if(e.code==="Space"){if(!run||dead)reset();}
+  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.L=true;
+  if(e.code==="ArrowRight"||e.code==="KeyD")keys.R=true;
 });
 document.addEventListener("keyup",function(e){
-  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=false;
-  if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=false;
+  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.L=false;
+  if(e.code==="ArrowRight"||e.code==="KeyD")keys.R=false;
 });
 canvas.addEventListener("pointermove",function(e){
   var r=canvas.getBoundingClientRect();
-  mouseX=(e.clientX-r.left)*(W/r.width);
+  mouseN=((e.clientX-r.left)/r.width)*2-1;
 });
 canvas.addEventListener("pointerdown",function(){if(!run||dead)reset();});
-
 requestAnimationFrame(loop);
+})();
 </script></body></html>

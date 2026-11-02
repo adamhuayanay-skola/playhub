@@ -6,8 +6,8 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;font-family:system-ui,sans-serif;color:#fff;user-select:none;touch-action:none}
 h1{font-size:1.3rem;font-weight:800;margin-bottom:6px}
-.sc{font-size:1.6rem;font-weight:800;margin-bottom:10px;color:#a5b4fc}
-canvas{border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.45);max-width:96vw;cursor:pointer}
+.sc{font-size:1.8rem;font-weight:800;margin-bottom:10px;color:#a5b4fc}
+canvas{border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.45);max-width:96vw;cursor:pointer;background:#1e1b4b}
 .hint{margin-top:10px;color:#64748b;font-size:.75rem}
 </style></head><body>
 <h1>STACK</h1>
@@ -15,89 +15,123 @@ canvas{border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.45);max-width:96vw;
 <canvas id="c" width="360" height="520"></canvas>
 <p class="hint">Klik / Space = polozit blok</p>
 <script>
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
-const W=360,H=520,BH=34;
-let stack=[],cur=null,dir=1,score=0,run=false,speed=2.8,gameOver=false;
-function hue(i){return "hsl("+((i*32)%360)+",75%,58%)";}
-function start(){
-  stack=[{x:W/2-55,w:110,y:H-50}];
-  cur={x:20,w:110,y:H-50-BH-4,vx:speed};
-  dir=1;score=0;run=true;gameOver=false;speed=2.8;
-  document.getElementById("sc").textContent="0";
+(function(){
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+const scEl=document.getElementById("sc");
+const W=360,H=520,BH=32;
+let stack=[], moving=null, score=0, playing=false, over=false, spd=3;
+
+function color(i){return "hsl("+((i*37)%360)+",78%,55%)";}
+
+function startGame(){
+  stack=[{x:W/2-50, y:H-60, w:100}];
+  spd=3;
+  score=0;
+  scEl.textContent="0";
+  over=false;
+  playing=true;
+  spawnMoving();
 }
-function place(){
-  if(gameOver){start();return;}
-  if(!run){start();return;}
-  if(!cur)return;
+
+function spawnMoving(){
   var prev=stack[stack.length-1];
-  var left=Math.max(cur.x,prev.x);
-  var right=Math.min(cur.x+cur.w,prev.x+prev.w);
-  var nw=right-left;
-  if(nw<8){
-    // miss - game over
-    run=false;gameOver=true;cur=null;return;
-  }
-  // successful place
-  stack.push({x:left,w:nw,y:cur.y});
-  score++;
-  document.getElementById("sc").textContent=String(score);
-  speed=Math.min(6.5,2.8+score*0.12);
-  dir*=-1;
-  var ny=cur.y-BH-4;
-  cur={x:dir>0?-nw:W,w:nw,y:ny,vx:dir*speed};
-  // scroll world down if too high
-  if(ny<100){
-    var shift=100-ny;
-    for(var i=0;i<stack.length;i++)stack[i].y+=shift;
-    cur.y+=shift;
-    // remove blocks below screen
-    stack=stack.filter(function(b){return b.y<H+20;});
+  var w=prev.w;
+  var y=prev.y-BH-3;
+  // start from left or right alternating
+  var fromLeft=(score%2===0);
+  moving={
+    x: fromLeft ? -w : W,
+    y: y,
+    w: w,
+    vx: fromLeft ? spd : -spd
+  };
+  // scroll if too high
+  if(y<80){
+    var dy=80-y;
+    for(var i=0;i<stack.length;i++)stack[i].y+=dy;
+    moving.y+=dy;
+    stack=stack.filter(function(b){return b.y<H+40;});
   }
 }
-function loop(){
-  if(run&&cur){
-    cur.x+=cur.vx;
-    if(cur.x+cur.w>W+30){cur.vx=-Math.abs(speed);}
-    if(cur.x<-30){cur.vx=Math.abs(speed);}
+
+function drop(){
+  if(over){startGame();return;}
+  if(!playing){startGame();return;}
+  if(!moving)return;
+
+  var prev=stack[stack.length-1];
+  var left=Math.max(moving.x, prev.x);
+  var right=Math.min(moving.x+moving.w, prev.x+prev.w);
+  var newW=right-left;
+
+  if(newW<6){
+    // miss
+    playing=false;
+    over=true;
+    moving=null;
+    return;
   }
-  // bg
+
+  // success - add block and continue
+  stack.push({x:left, y:moving.y, w:newW});
+  score+=1;
+  scEl.textContent=String(score);
+  spd=Math.min(7, 3+score*0.15);
+  moving=null;
+  spawnMoving();
+}
+
+function tick(){
+  if(playing&&moving){
+    moving.x+=moving.vx;
+    if(moving.x+moving.w>W+40)moving.vx=-Math.abs(spd);
+    if(moving.x<-40)moving.vx=Math.abs(spd);
+  }
+
+  // draw
   var g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,"#1e1b4b");g.addColorStop(1,"#0f172a");
+  g.addColorStop(0,"#312e81");g.addColorStop(1,"#0f172a");
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  // stacked blocks
+
   for(var i=0;i<stack.length;i++){
     var b=stack[i];
-    ctx.fillStyle=hue(i);
-    roundRect(ctx,b.x,b.y,b.w,BH,6);ctx.fill();
-    ctx.fillStyle="rgba(255,255,255,.22)";ctx.fillRect(b.x+4,b.y+3,b.w-8,6);
+    ctx.fillStyle=color(i);
+    rr(b.x,b.y,b.w,BH,5);ctx.fill();
+    ctx.fillStyle="rgba(255,255,255,.2)";ctx.fillRect(b.x+3,b.y+2,b.w-6,5);
   }
-  // current moving block
-  if(cur){
-    ctx.globalAlpha=0.95;
-    ctx.fillStyle=hue(stack.length);
-    roundRect(ctx,cur.x,cur.y,cur.w,BH,6);ctx.fill();
-    ctx.fillStyle="rgba(255,255,255,.25)";ctx.fillRect(cur.x+4,cur.y+3,cur.w-8,6);
-    ctx.globalAlpha=1;
+  if(moving){
+    ctx.fillStyle=color(stack.length);
+    rr(moving.x,moving.y,moving.w,BH,5);ctx.fill();
+    ctx.fillStyle="rgba(255,255,255,.25)";ctx.fillRect(moving.x+3,moving.y+2,moving.w-6,5);
   }
-  if(!run&&!gameOver){
-    ctx.fillStyle="rgba(0,0,0,.4)";ctx.fillRect(0,0,W,H);
+
+  if(!playing&&!over){
+    ctx.fillStyle="rgba(0,0,0,.45)";ctx.fillRect(0,0,W,H);
     ctx.fillStyle="#fff";ctx.font="bold 22px system-ui";ctx.textAlign="center";
     ctx.fillText("Klikni pro start",W/2,H/2);
   }
-  if(gameOver){
+  if(over){
     ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,W,H);
-    ctx.fillStyle="#fff";ctx.font="bold 24px system-ui";ctx.textAlign="center";
-    ctx.fillText("Game Over",W/2,H/2-12);
-    ctx.font="16px system-ui";ctx.fillText("Score "+score+" · klikni znovu",W/2,H/2+18);
+    ctx.fillStyle="#fff";ctx.font="bold 26px system-ui";ctx.textAlign="center";
+    ctx.fillText("Game Over",W/2,H/2-14);
+    ctx.font="16px system-ui";ctx.fillText("Score "+score,W/2,H/2+16);
+    ctx.fillText("klikni znovu",W/2,H/2+40);
   }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(tick);
 }
-function roundRect(ctx,x,y,w,h,r){
+
+function rr(x,y,w,h,r){
   ctx.beginPath();
-  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
-document.addEventListener("keydown",function(e){if(e.code==="Space"){e.preventDefault();place();}});
-canvas.addEventListener("pointerdown",place);
-requestAnimationFrame(loop);
+
+canvas.addEventListener("pointerdown",function(e){e.preventDefault();drop();});
+document.addEventListener("keydown",function(e){
+  if(e.code==="Space"){e.preventDefault();drop();}
+});
+requestAnimationFrame(tick);
+})();
 </script></body></html>
