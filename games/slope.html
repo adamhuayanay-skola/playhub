@@ -1,19 +1,248 @@
-<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/><title>Slope</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a12;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:system-ui;user-select:none;touch-action:none;color:#fff;overflow:hidden}h1{font-size:1.2rem;font-weight:900;letter-spacing:.2em;margin-bottom:.3rem;color:#00e5ff;text-shadow:0 0 20px #00e5ff}.sc{font-size:1.4rem;font-weight:800;margin-bottom:.3rem}canvas{border-radius:8px;box-shadow:0 0 40px rgba(0,229,255,.15);max-width:96vw}.hint{color:#555;font-size:.75rem;margin-top:.4rem}</style></head><body>
-<h1>SLOPE</h1><div class="sc" id="sc">0</div><canvas id="c" width="480" height="640"></canvas><p class="hint">&larr; &rarr; / A D</p>
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Slope</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#050510;font-family:system-ui,sans-serif;color:#fff;user-select:none;touch-action:none;overflow:hidden;
+}
+h1{font-size:1.15rem;font-weight:900;letter-spacing:.2em;color:#22d3ee;text-shadow:0 0 18px #22d3ee;margin-bottom:6px}
+.sc{font-size:1.5rem;font-weight:800;margin-bottom:8px}
+canvas{border-radius:10px;box-shadow:0 0 50px rgba(34,211,238,.12);max-width:96vw;background:#000;cursor:none}
+.hint{margin-top:10px;color:#555;font-size:.75rem}
+</style></head><body>
+<h1>SLOPE</h1>
+<div class="sc" id="sc">0</div>
+<canvas id="c" width="480" height="640"></canvas>
+<p class="hint">← → / A D · mys = ovladani</p>
 <script>
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d"),scEl=document.getElementById("sc");
-const params=new URLSearchParams(location.search);
-const baseSpd={easy:3.5,mid:5,hard:7}[params.get("diff")||"mid"]||5;
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const scEl=document.getElementById("sc");
 const W=480,H=640;
-let ball={x:0,z:0,vx:0,r:14},speed=baseSpd,run=false,score=0,frame=0,tiles=[],reds=[];
-function reset(){ball={x:0,z:0,vx:0,r:14};speed=baseSpd;score=0;frame=0;tiles=[];reds=[];for(let i=0;i<20;i++)addTile(i*80)}
-function addTile(z){const w=140+Math.random()*80,xOff=(Math.random()-.5)*60;tiles.push({z,w,x:xOff});if(Math.random()>0.7&&z>200)reds.push({z:z+30,x:xOff+(Math.random()-.5)*w*0.5,w:30+Math.random()*25})}
-function start(){if(!run){run=true;reset()}}
-function project(x,z){const scale=220/(220+z);return{x:W/2+x*scale,y:H*0.15+z*0.55*scale+(1-scale)*200,s:scale}}
-function tick(){if(!run){draw();requestAnimationFrame(tick);return}frame++;speed=baseSpd+frame*0.001;score=Math.floor(frame/3);scEl.textContent=score;ball.z+=speed;ball.x+=ball.vx;ball.vx*=0.92;while(tiles.length&&tiles[0].z<ball.z-50)tiles.shift();while(reds.length&&reds[0].z<ball.z-50)reds.shift();if(tiles.length<18)addTile(tiles[tiles.length-1].z+80);let onTile=false;for(const t of tiles){if(Math.abs(t.z-ball.z)<45&&Math.abs(ball.x-t.x)<t.w/2-8)onTile=true}for(const r of reds){if(Math.abs(r.z-ball.z)<25&&Math.abs(ball.x-r.x)<r.w/2+ball.r)run=false}if(!onTile&&ball.z>100)run=false;draw();requestAnimationFrame(tick)}
-function draw(){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0d0221");g.addColorStop(0.5,"#1a0a3e");g.addColorStop(1,"#0a0a12");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.fillStyle="rgba(255,255,255,.3)";for(let i=0;i<30;i++){ctx.fillRect((i*97+frame*0.1)%W,(i*53)%(H*0.4),2,2)}const sorted=[...tiles].sort((a,b)=>b.z-a.z);sorted.forEach(t=>{const rel=t.z-ball.z;if(rel<-30||rel>600)return;const bl=project(t.x-t.w/2,rel),br=project(t.x+t.w/2,rel),fl=project(t.x-t.w/2,rel+70),fr=project(t.x+t.w/2,rel+70);const tg=ctx.createLinearGradient(0,bl.y,0,fl.y);tg.addColorStop(0,"#1a237e");tg.addColorStop(1,"#0d47a1");ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(bl.x,bl.y);ctx.lineTo(br.x,br.y);ctx.lineTo(fr.x,fr.y);ctx.lineTo(fl.x,fl.y);ctx.closePath();ctx.fill();ctx.strokeStyle="#00e5ff";ctx.globalAlpha=0.5+0.3*bl.s;ctx.lineWidth=2*bl.s;ctx.shadowColor="#00e5ff";ctx.shadowBlur=8;ctx.beginPath();ctx.moveTo(bl.x,bl.y);ctx.lineTo(br.x,br.y);ctx.stroke();ctx.beginPath();ctx.moveTo(fl.x,fl.y);ctx.lineTo(fr.x,fr.y);ctx.stroke();ctx.shadowBlur=0;ctx.globalAlpha=1});reds.forEach(r=>{const rel=r.z-ball.z;if(rel<-20||rel>500)return;const p=project(r.x,rel);ctx.fillStyle="#ff1744";ctx.shadowColor="#ff1744";ctx.shadowBlur=12;ctx.fillRect(p.x-r.w/2*p.s,p.y-25*p.s,r.w*p.s,25*p.s);ctx.shadowBlur=0});const bp=project(ball.x,0),br=ball.r*(0.9+bp.s*0.3);ctx.fillStyle="rgba(0,0,0,.35)";ctx.beginPath();ctx.ellipse(bp.x,bp.y+br*0.7,br*1.1,br*0.35,0,0,Math.PI*2);ctx.fill();const bg=ctx.createRadialGradient(bp.x-br*0.3,bp.y-br*0.3,br*0.1,bp.x,bp.y,br);bg.addColorStop(0,"#fff");bg.addColorStop(0.4,"#00e5ff");bg.addColorStop(1,"#006680");ctx.fillStyle=bg;ctx.shadowColor="#00e5ff";ctx.shadowBlur=15;ctx.beginPath();ctx.arc(bp.x,bp.y,br,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;if(!run){ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#00e5ff";ctx.font="bold 26px system-ui";ctx.textAlign="center";ctx.fillText(score>0?"CRASHED":"SLOPE",W/2,H/2-15);ctx.fillStyle="#fff";ctx.font="14px system-ui";ctx.fillText(score>0?"Score: "+score:"Click to start",W/2,H/2+15)}}
-document.addEventListener("keydown",e=>{if(e.code==="ArrowLeft"||e.key==="a"){ball.vx-=1.2;start()}if(e.code==="ArrowRight"||e.key==="d"){ball.vx+=1.2;start()}});
-canvas.addEventListener("pointermove",e=>{if(!run)return;const r=canvas.getBoundingClientRect();ball.vx=((e.clientX-r.left)/r.width-0.5)*3});
-canvas.addEventListener("pointerdown",start);tick();
+const params=new URLSearchParams(location.search);
+const baseSpeed={easy:0.18,mid:0.28,hard:0.4}[params.get("diff")||"mid"]||0.28;
+
+// 3D projection: world Z goes forward (into screen), Y is height, X is left-right
+// Camera looks down the slope
+const FOV=280;
+const CAM_Y=80;
+const CAM_Z=-40;
+
+let ball={x:0,y:12,z:0,vx:0};
+let speed=baseSpeed;
+let run=false,dead=false,score=0;
+let platforms=[]; // {z, x, w, h} platform slabs
+let keys={left:false,right:false};
+let mouseX=0;
+
+function project(x,y,z){
+  // relative to camera
+  var rz=z-CAM_Z;
+  if(rz<5)rz=5;
+  var scale=FOV/rz;
+  return {
+    x:W/2+x*scale,
+    y:H*0.35-(y-CAM_Y)*scale+(z*0.15),
+    s:scale
+  };
+}
+
+function makePlatforms(){
+  platforms=[];
+  // continuous path of 3D blocks going forward
+  var z=0;
+  var x=0;
+  for(var i=0;i<40;i++){
+    var w=90+Math.random()*50;
+    // slight zigzag
+    if(i>3)x+=(Math.random()-0.5)*40;
+    x=Math.max(-80,Math.min(80,x));
+    platforms.push({z:z,x:x,w:w,len:55,fall:false});
+    // occasional gap or red hazard
+    if(i>5&&Math.random()<0.25){
+      platforms.push({z:z+28,x:x+(Math.random()>0.5?50:-50),w:40,len:30,fall:true});
+    }
+    z+=50;
+  }
+}
+
+function reset(){
+  ball={x:0,y:12,z:10,vx:0};
+  speed=baseSpeed;
+  run=true;dead=false;score=0;
+  scEl.textContent="0";
+  makePlatforms();
+}
+
+function platformAt(z){
+  // find platform under ball z
+  for(var i=0;i<platforms.length;i++){
+    var p=platforms[i];
+    if(z>=p.z&&z<=p.z+p.len)return p;
+  }
+  return null;
+}
+
+function loop(){
+  if(run&&!dead){
+    // controls
+    if(keys.left)ball.vx-=0.35;
+    if(keys.right)ball.vx+=0.35;
+    // mouse influence
+    var targetVx=(mouseX-W/2)/40;
+    ball.vx+=(targetVx-ball.vx)*0.08;
+    ball.vx*=0.92;
+    ball.x+=ball.vx;
+    ball.z+=speed*60*0.016*10; // move forward
+    speed+=0.00015;
+    score=Math.floor(ball.z/10);
+    scEl.textContent=String(score);
+
+    var p=platformAt(ball.z);
+    if(!p){
+      // fell off
+      dead=true;run=false;
+    }else{
+      // stay on top of block
+      ball.y=12;
+      // fall if on hazard or off edges
+      var half=p.w/2;
+      if(ball.x<p.x-half+8||ball.x>p.x+half-8){
+        dead=true;run=false;
+      }
+      if(p.fall){
+        dead=true;run=false;
+      }
+    }
+    // extend platforms
+    var last=platforms[platforms.length-1];
+    if(last&&ball.z>last.z-400){
+      var x=last.x+(Math.random()-0.5)*50;
+      x=Math.max(-90,Math.min(90,x));
+      var w=80+Math.random()*55;
+      platforms.push({z:last.z+50,x:x,w:w,len:55,fall:false});
+      if(Math.random()<0.2){
+        platforms.push({z:last.z+75,x:x+(Math.random()>0.5?55:-55),w:35,len:28,fall:true});
+      }
+    }
+    // cleanup far behind
+    platforms=platforms.filter(function(p){return p.z+p.len>ball.z-80;});
+  }
+
+  // DRAW
+  ctx.fillStyle="#050510";ctx.fillRect(0,0,W,H);
+  // starfield
+  ctx.fillStyle="rgba(255,255,255,.15)";
+  for(var i=0;i<40;i++){
+    var sx=(i*97+score*2)%W,sy=(i*53)%H;
+    ctx.fillRect(sx,sy,2,2);
+  }
+
+  // draw platforms from far to near (painter)
+  var sorted=platforms.slice().sort(function(a,b){return (b.z)-(a.z);});
+  for(var i=0;i<sorted.length;i++){
+    var p=sorted[i];
+    if(p.z+p.len<ball.z-20)continue;
+    if(p.z>ball.z+500)continue;
+    drawBlock(p);
+  }
+
+  // ball
+  var bp=project(ball.x,ball.y,ball.z);
+  var br=Math.max(6,12*bp.s/FOV*40);
+  // shadow
+  ctx.fillStyle="rgba(0,0,0,.4)";
+  ctx.beginPath();ctx.ellipse(bp.x,bp.y+br*0.6,br*1.1,br*0.35,0,0,Math.PI*2);ctx.fill();
+  // ball gradient
+  var grd=ctx.createRadialGradient(bp.x-br*0.3,bp.y-br*0.3,1,bp.x,bp.y,br);
+  grd.addColorStop(0,"#f87171");grd.addColorStop(0.6,"#ef4444");grd.addColorStop(1,"#991b1b");
+  ctx.fillStyle=grd;
+  ctx.beginPath();ctx.arc(bp.x,bp.y,br,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="rgba(255,255,255,.35)";ctx.lineWidth=2;ctx.stroke();
+
+  if(!run&&!dead){
+    ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,W,H);
+    ctx.fillStyle="#fff";ctx.font="bold 22px system-ui";ctx.textAlign="center";
+    ctx.fillText("Klikni pro start",W/2,H/2);
+  }
+  if(dead){
+    ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,0,W,H);
+    ctx.fillStyle="#f87171";ctx.font="bold 28px system-ui";ctx.textAlign="center";
+    ctx.fillText("Game Over",W/2,H/2-16);
+    ctx.fillStyle="#fff";ctx.font="16px system-ui";
+    ctx.fillText("Score "+score+" · klikni znovu",W/2,H/2+16);
+  }
+  requestAnimationFrame(loop);
+}
+
+function drawBlock(p){
+  // 3D box: top face + front + side
+  var y0=0,y1=18; // block thickness
+  var z0=p.z,z1=p.z+p.len;
+  var x0=p.x-p.w/2,x1=p.x+p.w/2;
+
+  var tl=project(x0,y1,z0);
+  var tr=project(x1,y1,z0);
+  var bl=project(x0,y1,z1);
+  var br=project(x1,y1,z1);
+  var tl2=project(x0,y0,z0);
+  var tr2=project(x1,y0,z0);
+  var bl2=project(x0,y0,z1);
+  var br2=project(x1,y0,z1);
+
+  // skip if behind camera weird
+  if(tl.s<=0||tr.s<=0)return;
+
+  var col=p.fall?"#dc2626":"#1e293b";
+  var colTop=p.fall?"#f87171":"#334155";
+  var edge=p.fall?"#fca5a5":"#22d3ee";
+
+  // left side
+  ctx.fillStyle="rgba(0,0,0,.35)";
+  ctx.beginPath();
+  ctx.moveTo(tl.x,tl.y);ctx.lineTo(bl.x,bl.y);ctx.lineTo(bl2.x,bl2.y);ctx.lineTo(tl2.x,tl2.y);
+  ctx.closePath();ctx.fill();
+
+  // front face
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.moveTo(bl.x,bl.y);ctx.lineTo(br.x,br.y);ctx.lineTo(br2.x,br2.y);ctx.lineTo(bl2.x,bl2.y);
+  ctx.closePath();ctx.fill();
+
+  // top face
+  ctx.fillStyle=colTop;
+  ctx.beginPath();
+  ctx.moveTo(tl.x,tl.y);ctx.lineTo(tr.x,tr.y);ctx.lineTo(br.x,br.y);ctx.lineTo(bl.x,bl.y);
+  ctx.closePath();ctx.fill();
+
+  // cyan grid lines on top
+  ctx.strokeStyle=edge;ctx.lineWidth=Math.max(1,tl.s*0.04);
+  ctx.globalAlpha=0.7;
+  ctx.beginPath();
+  ctx.moveTo(tl.x,tl.y);ctx.lineTo(tr.x,tr.y);ctx.lineTo(br.x,br.y);ctx.lineTo(bl.x,bl.y);ctx.closePath();
+  ctx.stroke();
+  // center line
+  var tm=project(p.x,y1,z0);var bm=project(p.x,y1,z1);
+  ctx.beginPath();ctx.moveTo(tm.x,tm.y);ctx.lineTo(bm.x,bm.y);ctx.stroke();
+  ctx.globalAlpha=1;
+}
+
+document.addEventListener("keydown",function(e){
+  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=true;
+  if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=true;
+  if(e.code==="Space"){if(!run||dead)reset();}
+});
+document.addEventListener("keyup",function(e){
+  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=false;
+  if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=false;
+});
+canvas.addEventListener("pointermove",function(e){
+  var r=canvas.getBoundingClientRect();
+  mouseX=(e.clientX-r.left)*(W/r.width);
+});
+canvas.addEventListener("pointerdown",function(){if(!run||dead)reset();});
+
+requestAnimationFrame(loop);
 </script></body></html>
