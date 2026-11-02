@@ -3,34 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Retro Hry – klasicke hry v modernim baleni</title>
-  <meta name="description" content="Retro Hry – klasicke arcade a puzzle hry s vylepsenym vzhledem. Snake, Tetris, Pong, Breakout, 2048 a dalsi." />
-  <link rel="stylesheet" href="css/style.css" />
+  <title>Retro Hry – klasicke hry moderně</title>
+  <meta name="description" content="Retro Hry – Snake, Tetris, Pong a dalsi klasiky s modernim vzhledem." />
+  <link rel="stylesheet" href="css/style.css?v=5" />
 </head>
 <body>
   <header class="navbar">
     <div class="nav-inner">
-      <a href="index.html" class="logo" aria-label="Retro Hry">
+      <a href="index.html" class="logo">
         <span class="logo-mark">R</span>
-        <span class="logo-text">RETRO HRY</span>
+        <span class="logo-text">Retro <span>Hry</span></span>
       </a>
       <div class="search-box">
-        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
-        </svg>
-        <input type="text" id="searchInput" placeholder="Hledat retro hry..." autocomplete="off" />
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="text" id="searchInput" placeholder="Hledat hry..." autocomplete="off" />
       </div>
-      <span class="version-badge">v4.0</span>
+      <span class="version-badge">v5.0</span>
     </div>
   </header>
 
   <div class="hero">
     <div class="hero-card">
-      <h1>RETRO HRY<br/><span>vylepsene klasiky</span></h1>
-      <p>Klasicke hry, ktere znas – ale s hezcsím vzhledem nez puvodni. Hraj rovnou v prohlizeci, bez instalace.</p>
+      <h1>Hraj <span>retro klasiky</span></h1>
+      <p>Snake, Tetris, Pong a dalsi – s modernim vzhledem. Spust primo v prohlizeci.</p>
       <div class="hero-stats">
-        <span class="hero-stat">Arcade klasiky</span>
-        <span class="hero-stat">Moderni grafika</span>
+        <span class="hero-stat">14 her</span>
+        <span class="hero-stat">Bez instalace</span>
         <span class="hero-stat">Skolni projekt</span>
       </div>
     </div>
@@ -47,51 +45,35 @@
         </div>
       </div>
     </div>
-
-    <section class="section" id="featured">
+    <section class="section">
       <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">Nejhranejsi klasiky</h2>
-        </div>
-        <div class="games-grid featured-grid" id="featuredGrid"></div>
+        <div class="section-head"><h2 class="section-title">Popuarni</h2></div>
+        <div class="games-grid" id="featuredGrid"></div>
       </div>
     </section>
-
-    <section class="section" id="all">
+    <section class="section">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Vsechny retro hry</h2>
+          <h2 class="section-title">Vsechny hry</h2>
           <span class="game-count" id="gameCount">0</span>
         </div>
         <div class="games-grid" id="gamesGrid"></div>
-        <p class="no-results" id="noResults" hidden>Zadna hra nenalezena</p>
+        <p class="no-results" id="noResults" hidden>Nic nenalezeno</p>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="container">
-      <div class="footer-inner">
-        <div class="footer-brand">
-          <span class="logo-mark small">R</span>
-          <span>Retro Hry</span>
-        </div>
-        <p>Skolni projekt · klasicke hry s vylepsenym vzhledem</p>
-        <p style="margin-top:8px">
-          <a href="https://github.com/adamhuayanay-skola/playhub" target="_blank" rel="noopener" style="color:#ff2d95">GitHub</a>
-        </p>
-      </div>
+    <div class="footer-inner">
+      <div class="footer-brand"><span class="logo-mark small">R</span> Retro Hry</div>
+      <p>Skolni projekt · klasicke hry s modernim vzhledem</p>
+      <p style="margin-top:8px"><a href="https://github.com/adamhuayanay-skola/playhub" style="color:#a78bfa">GitHub</a></p>
     </div>
   </footer>
 
   <div class="player" id="gamePlayer" hidden>
     <div class="player-bar">
-      <button type="button" class="player-back" id="playerBack" aria-label="Zpet">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        <span>Zpet</span>
-      </button>
+      <button type="button" class="player-back" id="playerBack">Zpet</button>
       <h3 class="player-title" id="playerTitle">Hra</h3>
       <div class="player-diff" id="playerDiff">
         <button type="button" class="diff-btn" data-diff="easy">Easy</button>
@@ -104,7 +86,6 @@
       <iframe id="gameFrame" src="" allowfullscreen title="Hra"></iframe>
     </div>
   </div>
-
-  <script src="js/main.js?v=731a968"></script>
+  <script src="js/main.js?v=5"></script>
 </body>
 </html>
