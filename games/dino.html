@@ -6,129 +6,215 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f7f7f7;font-family:Courier New,monospace;user-select:none;touch-action:none;color:#535353}
-.hud{width:min(700px,96vw);display:flex;justify-content:flex-end;gap:18px;font:bold 15px Courier New,monospace;margin-bottom:6px}
+.hud{width:min(700px,96vw);display:flex;justify-content:flex-end;gap:16px;font:bold 14px Courier New,monospace;margin-bottom:4px;letter-spacing:1px}
 canvas{display:block;width:min(700px,96vw);image-rendering:pixelated;image-rendering:crisp-edges;background:#f7f7f7;cursor:pointer}
 .hint{margin-top:10px;font-size:12px;color:#999}
 </style></head><body>
 <div class="hud"><span>HI <b id="hi">00000</b></span><span id="sc">00000</span></div>
 <canvas id="c" width="700" height="200"></canvas>
-<p class="hint">SPACE / TAP = jump · v4</p>
+<p class="hint">SPACE / TAP = jump</p>
 <script>
 (function(){
 const canvas=document.getElementById("c");
 const ctx=canvas.getContext("2d");
 ctx.imageSmoothingEnabled=false;
-const W=700,H=200,G=170;
+const W=700,H=200,G=175;
 const C="#535353";
 
-/*
-  Authentic Chrome offline T-Rex silhouette (facing RIGHT).
-  Drawn as filled rects at pixel size 3 for clarity.
-*/
-function drawTrex(x,y,frame,dead){
-  var s=3;
+// Official Chrome-like HORIZONTAL runner (44x47 style, scale 2)
+// Based on Chromium offline T-Rex silhouette – long body, head right, tail left
+const RUN1=[
+".................####...........",
+"...............########.........",
+"..............##########........",
+"..............##.#.######.......",
+"..............##########........",
+"..............#########.........",
+"..............########..........",
+"..............######............",
+"...##........######.............",
+"...###......########............",
+"...##################...........",
+"...###################..........",
+"...####################.........",
+"...##########..########.........",
+"...#########....#######.........",
+"....#######.....#######.........",
+".....####.......##...##.........",
+"......##........##...##.........",
+"................##...##.........",
+"................#.....#........."
+];
+const RUN2=[
+".................####...........",
+"...............########.........",
+"..............##########........",
+"..............##.#.######.......",
+"..............##########........",
+"..............#########.........",
+"..............########..........",
+"..............######............",
+"...##........######.............",
+"...###......########............",
+"...##################...........",
+"...###################..........",
+"...####################.........",
+"...##########..########.........",
+"...#########....#######.........",
+"....#######.....#######.........",
+".....####......##....##.........",
+"......##.......##.....#.........",
+"...............#......#.........",
+"...............#................"
+];
+const JUMP=[
+".................####...........",
+"...............########.........",
+"..............##########........",
+"..............##.#.######.......",
+"..............##########........",
+"..............#########.........",
+"..............########..........",
+"..............######............",
+"...##........######.............",
+"...###......########............",
+"...##################...........",
+"...###################..........",
+"...####################.........",
+"...##########..########.........",
+"...#########....#######.........",
+"....#######.....#######.........",
+".....####.......#######.........",
+"......##........##...##.........",
+"................##...##.........",
+"................................"
+];
+const DEAD=[
+".................####...........",
+"...............########.........",
+"..............##########........",
+"..............#.#.#.#####.......",
+"..............##########........",
+"..............#########.........",
+"..............########..........",
+"..............######............",
+"...##........######.............",
+"...###......########............",
+"...##################...........",
+"...###################..........",
+"...####################.........",
+"...##########..########.........",
+"...#########....#######.........",
+"....#######.....#######.........",
+".....####.......##...##.........",
+"......##........##...##.........",
+"................##...##.........",
+"................#.....#........."
+];
+const CACT1=[
+"..##..",
+"..##..",
+"..###.",
+"..##.#",
+"#.##.#",
+"#.###.",
+".###..",
+"..##..",
+"..##..",
+"..##..",
+"..##..",
+"..##.."
+];
+const CACT2=[
+"...##...",
+"...##...",
+"...##.#.",
+".#.##.#.",
+".#.####.",
+".####...",
+"..##....",
+"..##.#..",
+"..##.#..",
+"..####..",
+"...##...",
+"...##...",
+"...##...",
+"...##...",
+"...##..."
+];
+
+function blit(rows,x,y,s){
   ctx.fillStyle=C;
-  function p(px,py,w,h){ctx.fillRect(x+px*s,y+py*s,(w||1)*s,(h||1)*s);}
-
-  // HEAD (top-right)
-  p(12,0,8,1);p(11,1,10,1);p(11,2,10,1);p(11,3,10,1);p(11,4,9,1);p(11,5,7,1);
-  // eye (hole) - leave white
-  ctx.fillStyle="#f7f7f7";p(16,2,2,2);
-  ctx.fillStyle=C;
-  // jaw / mouth line
-  p(11,6,6,1);
-
-  // NECK + BODY
-  p(10,6,4,1);p(9,7,6,1);p(7,8,9,1);p(6,9,11,1);p(5,10,13,1);
-  p(4,11,14,1);p(4,12,14,1);p(4,13,13,1);p(5,14,11,1);
-
-  // SMALL ARM
-  p(8,11,3,1);p(10,12,2,1);
-
-  // TAIL (left)
-  p(0,10,4,1);p(1,11,3,1);p(2,12,2,1);p(1,9,3,1);p(0,8,2,1);
-
-  // LEGS
-  if(dead){
-    p(7,15,3,1);p(7,16,2,1);p(7,17,2,1);p(7,18,3,1);
-    p(12,15,3,1);p(13,16,2,1);p(13,17,2,1);p(13,18,3,1);
-  }else if(frame===0){ // jump - both tucked
-    p(8,15,3,1);p(8,16,2,1);p(8,17,1,1);
-    p(12,15,3,1);p(13,16,2,1);p(14,17,1,1);
-  }else if(frame===1){
-    // left leg forward, right back
-    p(7,15,3,1);p(7,16,2,1);p(6,17,2,1);p(5,18,3,1);
-    p(12,15,3,1);p(13,16,2,1);p(14,17,1,1);
-  }else{
-    // right leg forward
-    p(8,15,3,1);p(9,16,2,1);p(10,17,1,1);
-    p(11,15,3,1);p(11,16,2,1);p(11,17,2,1);p(11,18,3,1);
+  for(var r=0;r<rows.length;r++){
+    var line=rows[r];
+    for(var c=0;c<line.length;c++){
+      if(line[c]==="#")ctx.fillRect(x+c*s,y+r*s,s,s);
+    }
   }
 }
-
-function drawCactus(x,y,big){
-  var s=3;
-  ctx.fillStyle=C;
-  function p(px,py,w,h){ctx.fillRect(x+px*s,y+py*s,(w||1)*s,(h||1)*s);}
-  if(big){
-    p(3,0,2,12);p(0,3,2,4);p(1,6,4,1);p(6,2,2,5);p(5,6,3,1);p(3,12,2,2);
-  }else{
-    p(2,0,2,9);p(0,2,2,3);p(1,4,3,1);p(2,9,2,1);
-  }
-}
-
 function pad5(n){return ("00000"+Math.floor(Math.max(0,n))).slice(-5);}
-var hi=+(localStorage.getItem("dinoHi4")||0);
+
+var hi=+(localStorage.getItem("dinoHiOrig")||0);
 document.getElementById("hi").textContent=pad5(hi);
 
-var dY=0,dV=0,onG=true,obs=[],clouds=[],dots=[];
+var dY=0,dV=0,onG=true,obs=[],clouds=[],bits=[];
 var score=0,spd=6.5,frame=0,spawn=80,run=false,dead=false,blink=0;
 
 function reset(){
   dY=0;dV=0;onG=true;obs=[];
-  clouds=[{x:200,y:40},{x:420,y:55},{x:620,y:30}];
-  dots=[];for(var i=0;i<28;i++)dots.push({x:i*32,o:(i%3)*3});
+  clouds=[{x:180,y:36},{x:400,y:52},{x:600,y:28}];
+  bits=[];for(var i=0;i<30;i++)bits.push({x:i*28,y:G+3+(i%3)*3});
   score=0;spd=6.5;frame=0;spawn=70;run=true;dead=false;blink=0;
   document.getElementById("sc").textContent="00000";
 }
 function jump(){
   if(!run||dead){reset();return;}
-  if(onG){dV=-11;onG=false;}
+  if(onG){dV=-10.8;onG=false;}
 }
 
 function loop(){
   frame++;
   if(run&&!dead){
-    dV+=0.65;dY+=dV;
+    dV+=0.62;dY+=dV;
     if(dY>=0){dY=0;dV=0;onG=true;}
     score+=0.2;spd=6.5+Math.min(7,score/120);
     document.getElementById("sc").textContent=pad5(score);
     spawn--;
-    if(spawn<=0){obs.push({x:W+10,big:Math.random()>0.5});spawn=48+Math.random()*55-Math.min(18,score/40);}
-    for(var i=obs.length-1;i>=0;i--){obs[i].x-=spd;if(obs[i].x<-40)obs.splice(i,1);}
-    dots.forEach(function(d){d.x-=spd;if(d.x<-10)d.x+=900;});
-    clouds.forEach(function(c){c.x-=0.4;if(c.x<-50){c.x=W+30;c.y=25+Math.random()*40;}});
+    if(spawn<=0){
+      obs.push({x:W+16,big:Math.random()>0.5});
+      spawn=50+Math.random()*55-Math.min(18,score/40);
+    }
+    for(var i=obs.length-1;i>=0;i--){obs[i].x-=spd;if(obs[i].x<-50)obs.splice(i,1);}
+    bits.forEach(function(b){b.x-=spd;if(b.x<-12)b.x+=840;});
+    clouds.forEach(function(c){c.x-=0.4;if(c.x<-50){c.x=W+40;c.y=24+Math.random()*40;}});
 
-    var bx=48,by=G-52+dY,bw=48,bh=52;
+    var bx=48,by=G-40+dY,bw=42,bh=40;
     for(var i=0;i<obs.length;i++){
-      var o=obs[i],ox=o.x+4,oy=G-(o.big?42:28),ow=o.big?24:16,oh=o.big?42:28;
-      if(bx+12<ox+ow&&bx+bw-14>ox&&by+10<oy+oh&&by+bh>oy){
+      var o=obs[i],ox=o.x+2,oy=G-(o.big?40:28),ow=o.big?22:14,oh=o.big?40:28;
+      if(bx+10<ox+ow&&bx+bw-12>ox&&by+8<oy+oh&&by+bh>oy){
         dead=true;run=false;
-        if(Math.floor(score)>hi){hi=Math.floor(score);localStorage.setItem("dinoHi4",hi);document.getElementById("hi").textContent=pad5(hi);}
+        if(Math.floor(score)>hi){hi=Math.floor(score);localStorage.setItem("dinoHiOrig",hi);document.getElementById("hi").textContent=pad5(hi);}
       }
     }
   }
 
   ctx.fillStyle="#f7f7f7";ctx.fillRect(0,0,W,H);
   ctx.fillStyle="#dadada";
-  clouds.forEach(function(c){ctx.fillRect(c.x,c.y,36,9);ctx.fillRect(c.x+8,c.y-7,24,10);});
-  ctx.strokeStyle=C;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,G);ctx.lineTo(W,G);ctx.stroke();
-  ctx.fillStyle=C;dots.forEach(function(d){ctx.fillRect(d.x,G+3+d.o,5,2);});
+  clouds.forEach(function(c){
+    ctx.fillRect(c.x,c.y,40,10);ctx.fillRect(c.x+12,c.y-8,26,12);
+  });
+  ctx.strokeStyle=C;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(0,G);ctx.lineTo(W,G);ctx.stroke();
+  ctx.fillStyle=C;
+  bits.forEach(function(b){ctx.fillRect(b.x,b.y,4,2);});
 
-  obs.forEach(function(o){drawCactus(o.x,G-(o.big?42:28),o.big);});
+  obs.forEach(function(o){
+    if(o.big)blit(CACT2,o.x,G-30,2.5);
+    else blit(CACT1,o.x,G-24,2.5);
+  });
 
-  var fr=dead?0:(!onG?0:((Math.floor(frame/5)%2)+1));
-  drawTrex(42,G-55+dY,fr,dead);
+  var spr=dead?DEAD:(!onG?JUMP:((Math.floor(frame/5)%2)?RUN2:RUN1));
+  blit(spr,40,G-40+dY,2);
 
   if(!run&&!dead){
     blink++;
