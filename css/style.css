@@ -181,3 +181,14 @@ body::before{
 .footer-inner{color:var(--muted);font-size:.85rem}
 .footer-brand{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;color:var(--text);font-weight:700}
 .logo-mark.small{width:28px;height:28px;font-size:.85rem;border-radius:8px;color:#fff}
+
+
+/* safety v12 */
+.games-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+.game-card { display: block !important; background: #1e293b; border-radius: 14px; overflow: hidden; cursor: pointer; color: #fff; min-height: 120px; }
+.game-thumb { width: 100%; background: #0f172a; }
+.game-info { padding: 10px 12px; }
+.game-title { font-weight: 700; font-size: 0.95rem; }
+.game-badge { font-size: 0.7rem; opacity: 0.8; }
+.section { display: block !important; padding: 20px 0; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
