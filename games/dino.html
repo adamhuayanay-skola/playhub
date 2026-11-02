@@ -5,11 +5,10 @@
 <title>Chrome Dino</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;background:#f7f7f7;overflow:hidden}
-body{display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Arial,Helvetica,sans-serif;user-select:none;touch-action:none;color:#535353}
-.hud{width:min(700px,96vw);display:flex;justify-content:flex-end;gap:16px;font:bold 14px Courier New,monospace;margin-bottom:4px;letter-spacing:1px}
-canvas{display:block;width:min(700px,96vw);height:auto;image-rendering:pixelated;image-rendering:crisp-edges;background:#f7f7f7;cursor:pointer}
-.hint{margin-top:10px;font-size:12px;color:#999;font-family:Courier New,monospace}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f7f7f7;font-family:Courier New,monospace;user-select:none;touch-action:none;color:#535353}
+.hud{width:min(700px,96vw);display:flex;justify-content:flex-end;gap:18px;font:bold 15px Courier New,monospace;margin-bottom:6px;letter-spacing:1px}
+canvas{display:block;width:min(700px,96vw);image-rendering:pixelated;image-rendering:crisp-edges;background:#f7f7f7;cursor:pointer;border:1px solid #eee}
+.hint{margin-top:10px;font-size:12px;color:#999}
 </style></head><body>
 <div class="hud"><span>HI <b id="hi">00000</b></span><span id="sc">00000</span></div>
 <canvas id="c" width="700" height="200"></canvas>
@@ -19,274 +18,187 @@ canvas{display:block;width:min(700px,96vw);height:auto;image-rendering:pixelated
 const canvas=document.getElementById("c");
 const ctx=canvas.getContext("2d");
 ctx.imageSmoothingEnabled=false;
-const W=700,H=200,G=175;
+const W=700,H=200,G=172;
+const COL="#535353";
 
-// Official-style sprites (1 = pixel), scaled x2 when drawing
-// T-Rex run frame A
-const DINO_RUN1=[
-"0000000000111110",
-"0000000001111111",
-"0000000001101011",
-"0000000001111111",
-"0000000001111110",
-"0000000001111000",
-"0000000001111110",
-"1000000011111000",
-"1100000111111100",
-"1110001111111110",
-"1111011111111110",
-"1111111111111110",
-"0111111111111110",
-"0011111111111100",
-"0001111111111000",
-"0000111110011000",
-"0000011100011000",
-"0000011000011000",
-"0000011000010000",
-"0000010000010000"
+// Classic Chrome T-rex shape (side view, facing right)
+// Rows from top: head with eye, body, legs, tail behind
+function makeDino(legMode){
+  // 25 wide x 22 tall-ish
+  var rows=[
+    ".....................####..",
+    "...................#######.",
+    "...................##.#.###",
+    "...................########",
+    "...................#######.",
+    "...................######..",
+    "...................####....",
+    "............##...######....",
+    "...........###..########...",
+    "..........################.",
+    ".........#################.",
+    ".........##################",
+    ".........#########..######.",
+    ".........########....#####.",
+    "..........######.....####..",
+    "...........####......####..",
+    "............##.......##.#..",
+    ".....................##....",
+    ".....................##...."
+  ];
+  // leg frames
+  if(legMode===1){
+    rows[15]="...........####......##....";
+    rows[16]="............##......##.....";
+    rows[17]="...................##......";
+    rows[18]="...................#.......";
+  }else if(legMode===2){
+    rows[15]="...........####....##......";
+    rows[16]="............##.....##......";
+    rows[17]=".............#.....#.......";
+    rows[18]=".............#.............";
+  }else if(legMode===0){ // jump both legs back
+    rows[15]="...........####....####....";
+    rows[16]="............##......##.....";
+    rows[17]=".............#.......#.....";
+    rows[18]="...........................";
+  }
+  return rows;
+}
+
+const CACTUS=[
+  "..##..",
+  "..##..",
+  "..##.#",
+  "#.##.#",
+  "#.####",
+  ".###..",
+  "..##..",
+  "..##..",
+  "..##..",
+  "..##..",
+  "..##.."
 ];
-const DINO_RUN2=[
-"0000000000111110",
-"0000000001111111",
-"0000000001101011",
-"0000000001111111",
-"0000000001111110",
-"0000000001111000",
-"0000000001111110",
-"1000000011111000",
-"1100000111111100",
-"1110001111111110",
-"1111011111111110",
-"1111111111111110",
-"0111111111111110",
-"0011111111111100",
-"0001111111111000",
-"0000110011111000",
-"0000011000110000",
-"0000011000010000",
-"0000010000010000",
-"0000010000000000"
-];
-const DINO_JUMP=[
-"0000000000111110",
-"0000000001111111",
-"0000000001101011",
-"0000000001111111",
-"0000000001111110",
-"0000000001111000",
-"0000000001111110",
-"1000000011111000",
-"1100000111111100",
-"1110001111111110",
-"1111011111111110",
-"1111111111111110",
-"0111111111111110",
-"0011111111111100",
-"0001111111111000",
-"0000111111111000",
-"0000011100011000",
-"0000011000011000",
-"0000010000010000",
-"0000000000000000"
-];
-const DINO_DEAD=[
-"0000000000111110",
-"0000000001111111",
-"0000000001010111",
-"0000000001111111",
-"0000000001111110",
-"0000000001111000",
-"0000000001111110",
-"1000000011111000",
-"1100000111111100",
-"1110001111111110",
-"1111011111111110",
-"1111111111111110",
-"0111111111111110",
-"0011111111111100",
-"0001111111111000",
-"0000111110011000",
-"0000011100011000",
-"0000011000011000",
-"0000010000010000",
-"0000010000010000"
-];
-const CACTUS_S=[
-"001100",
-"001100",
-"001101",
-"101101",
-"101111",
-"111100",
-"001100",
-"001100",
-"001100",
-"001100"
-];
-const CACTUS_L=[
-"00011000",
-"00011000",
-"00011010",
-"10011010",
-"10011110",
-"11011000",
-"01011000",
-"00011000",
-"00011000",
-"00011000",
-"00011000",
-"00011000",
-"00011000"
-];
-const CLOUD=[
-"00111100",
-"01111110",
-"11111111",
-"01111110"
+const CACTUS2=[
+  "...##...",
+  "...##...",
+  "...##.#.",
+  ".#.##.#.",
+  ".#.####.",
+  ".####...",
+  "..##.#..",
+  "..##.#..",
+  "..####..",
+  "...##...",
+  "...##...",
+  "...##...",
+  "...##...",
+  "...##..."
 ];
 
-function drawMat(mat,x,y,scale,color){
-  ctx.fillStyle=color||"#535353";
-  for(var r=0;r<mat.length;r++){
-    for(var c=0;c<mat[r].length;c++){
-      if(mat[r][c]==="1")ctx.fillRect(x+c*scale,y+r*scale,scale,scale);
+function drawSprite(rows,x,y,s){
+  ctx.fillStyle=COL;
+  for(var r=0;r<rows.length;r++){
+    for(var c=0;c<rows[r].length;c++){
+      if(rows[r][c]==="#")ctx.fillRect(x+c*s,y+r*s,s,s);
     }
   }
 }
-function pad5(n){n=Math.max(0,Math.floor(n));return ("00000"+n).slice(-5);}
+function pad5(n){return ("00000"+Math.floor(Math.max(0,n))).slice(-5);}
 
-var hi=+(localStorage.getItem("dinoHi2")||0);
+var hi=+(localStorage.getItem("dinoHi3")||0);
 document.getElementById("hi").textContent=pad5(hi);
 
-var dinoY=0, dinoV=0, onGround=true;
-var obstacles=[], clouds=[], ground=[];
-var score=0, speed=6, frame=0, spawnIn=90;
-var run=false, dead=false;
-var blink=0;
+var dY=0,dV=0,onG=true;
+var obs=[],clouds=[],dots=[];
+var score=0,spd=6.5,frame=0,spawn=90;
+var run=false,dead=false,blink=0;
 
 function reset(){
-  dinoY=0;dinoV=0;onGround=true;
-  obstacles=[];clouds=[];
-  for(var i=0;i<3;i++)clouds.push({x:200+i*220,y:30+Math.random()*40});
-  ground=[];
-  for(var i=0;i<40;i++)ground.push({x:i*24,t:Math.random()>0.6?1:0});
-  score=0;speed=6;frame=0;spawnIn=80;
+  dY=0;dV=0;onG=true;obs=[];
+  clouds=[{x:180,y:35},{x:400,y:50},{x:600,y:28}];
+  dots=[];for(var i=0;i<30;i++)dots.push({x:i*30,y:G+4+((i%3)*3)});
+  score=0;spd=6.5;frame=0;spawn=70;
   run=true;dead=false;blink=0;
   document.getElementById("sc").textContent="00000";
 }
-
 function jump(){
-  if(dead){reset();return;}
-  if(!run){reset();return;}
-  if(onGround){dinoV=-10.5;onGround=false;}
+  if(dead||!run){reset();return;}
+  if(onG){dV=-11;onG=false;}
 }
 
 function loop(){
   frame++;
   if(run&&!dead){
-    // physics
-    dinoV+=0.6;
-    dinoY+=dinoV;
-    if(dinoY>=0){dinoY=0;dinoV=0;onGround=true;}
-
-    score+=0.2;
-    speed=6+Math.min(8,score/150);
+    dV+=0.65;dY+=dV;
+    if(dY>=0){dY=0;dV=0;onG=true;}
+    score+=0.2;spd=6.5+Math.min(7,score/120);
     document.getElementById("sc").textContent=pad5(score);
-
-    // spawn
-    spawnIn--;
-    if(spawnIn<=0){
-      var big=Math.random()>0.55;
-      obstacles.push({x:W+10, big:big, w:big?28:18, h:big?36:26});
-      spawnIn=55+Math.random()*70 - Math.min(25,score/40);
+    spawn--;
+    if(spawn<=0){
+      var big=Math.random()>0.5;
+      obs.push({x:W+20,big:big});
+      spawn=50+Math.random()*60-Math.min(20,score/50);
     }
-
-    // move obstacles
-    for(var i=obstacles.length-1;i>=0;i--){
-      obstacles[i].x-=speed;
-      if(obstacles[i].x<-40)obstacles.splice(i,1);
+    for(var i=obs.length-1;i>=0;i--){
+      obs[i].x-=spd;
+      if(obs[i].x<-50)obs.splice(i,1);
     }
-    // ground scroll
-    for(var i=0;i<ground.length;i++){
-      ground[i].x-=speed;
-      if(ground[i].x<-24){ground[i].x+=40*24;ground[i].t=Math.random()>0.6?1:0;}
-    }
-    clouds.forEach(function(c){c.x-=0.4;if(c.x<-50){c.x=W+Math.random()*100;c.y=25+Math.random()*45;}});
+    dots.forEach(function(d){d.x-=spd;if(d.x<-10)d.x+=900;});
+    clouds.forEach(function(c){c.x-=0.45;if(c.x<-60){c.x=W+40;c.y=25+Math.random()*40;}});
 
-    // collision (tight boxes like original)
-    var dx=50, dy=G-40+dinoY, dw=36, dh=40;
-    for(var i=0;i<obstacles.length;i++){
-      var o=obstacles[i];
-      var ox=o.x+2, oy=G-o.h, ow=o.w-4, oh=o.h;
-      if(dx+8<ox+ow&&dx+dw-10>ox&&dy+10<oy+oh&&dy+dh>oy){
+    // hitbox
+    var bx=55,by=G-42+dY,bw=40,bh=40;
+    for(var i=0;i<obs.length;i++){
+      var o=obs[i];
+      var ox=o.x+4,oy=G-(o.big?36:26),ow=o.big?20:14,oh=o.big?36:26;
+      if(bx+10<ox+ow&&bx+bw-12>ox&&by+8<oy+oh&&by+bh>oy){
         dead=true;run=false;
-        var s=Math.floor(score);
-        if(s>hi){hi=s;localStorage.setItem("dinoHi2",hi);document.getElementById("hi").textContent=pad5(hi);}
+        if(Math.floor(score)>hi){hi=Math.floor(score);localStorage.setItem("dinoHi3",hi);document.getElementById("hi").textContent=pad5(hi);}
       }
     }
   }
 
-  // DRAW
   ctx.fillStyle="#f7f7f7";ctx.fillRect(0,0,W,H);
-
   // clouds
-  clouds.forEach(function(c){drawMat(CLOUD,c.x,c.y,3,"#dadada");});
-
-  // ground line
-  ctx.strokeStyle="#535353";ctx.lineWidth=2;
+  ctx.fillStyle="#dadada";
+  clouds.forEach(function(c){
+    ctx.fillRect(c.x,c.y,40,10);ctx.fillRect(c.x+10,c.y-8,28,12);
+  });
+  // ground
+  ctx.strokeStyle=COL;ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(0,G);ctx.lineTo(W,G);ctx.stroke();
-  // ground texture
-  ctx.fillStyle="#535353";
-  ground.forEach(function(g){
-    if(g.t){ctx.fillRect(g.x,G+3,6,2);ctx.fillRect(g.x+10,G+6,3,2);}
-    else{ctx.fillRect(g.x+4,G+5,4,2);}
+  ctx.fillStyle=COL;
+  dots.forEach(function(d){ctx.fillRect(d.x,d.y,4,2);});
+
+  obs.forEach(function(o){
+    if(o.big)drawSprite(CACTUS2,o.x,G-28,2.5);
+    else drawSprite(CACTUS,o.x,G-22,2.5);
   });
 
-  // obstacles
-  obstacles.forEach(function(o){
-    if(o.big)drawMat(CACTUS_L,o.x,G-26,2);
-    else drawMat(CACTUS_S,o.x,G-20,2);
-  });
+  // T-rex
+  var leg=dead?1:(!onG?0:((Math.floor(frame/5)%2)+1));
+  var spr=makeDino(leg);
+  var dx=50,dy=G-38+dY;
+  drawSprite(spr,dx,dy,2);
 
-  // dino
-  var dx=50, dy=G-40+dinoY;
-  var spr;
-  if(dead)spr=DINO_DEAD;
-  else if(!onGround)spr=DINO_JUMP;
-  else spr=(Math.floor(frame/6)%2===0)?DINO_RUN1:DINO_RUN2;
-  drawMat(spr,dx,dy,2);
-
-  // UI overlay
   if(!run&&!dead){
-    // blinking start prompt like chrome
     blink++;
-    if(Math.floor(blink/20)%2===0){
-      ctx.fillStyle="#535353";
-      ctx.font="14px Courier New";
-      ctx.textAlign="center";
-      ctx.fillText("Press Space to Play",W/2,80);
+    if(Math.floor(blink/18)%2===0){
+      ctx.fillStyle=COL;ctx.font="14px Courier New";ctx.textAlign="center";
+      ctx.fillText("Press Space to Play",W/2,75);
     }
   }
   if(dead){
-    ctx.fillStyle="#535353";
-    ctx.font="bold 16px Courier New";
-    ctx.textAlign="center";
-    ctx.fillText("G A M E  O V E R",W/2,70);
-    // restart icon box
-    ctx.strokeStyle="#535353";ctx.lineWidth=2;
-    ctx.strokeRect(W/2-15,90,30,30);
-    ctx.beginPath();ctx.arc(W/2,105,8,0.3,Math.PI*1.7);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W/2+6,97);ctx.lineTo(W/2+10,105);ctx.lineTo(W/2+2,105);ctx.fill();
+    ctx.fillStyle=COL;ctx.font="bold 16px Courier New";ctx.textAlign="center";
+    ctx.fillText("G A M E  O V E R",W/2,68);
+    ctx.strokeRect(W/2-14,88,28,28);
+    ctx.beginPath();ctx.arc(W/2,102,7,0.2,Math.PI*1.6);ctx.stroke();
   }
-
   requestAnimationFrame(loop);
 }
-
-document.addEventListener("keydown",function(e){
-  if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump();}
-});
+document.addEventListener("keydown",function(e){if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump();}});
 canvas.addEventListener("pointerdown",function(e){e.preventDefault();jump();});
-
 requestAnimationFrame(loop);
 })();
 </script></body></html>
