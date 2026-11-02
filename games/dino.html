@@ -6,124 +6,93 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f7f7f7;font-family:Courier New,monospace;user-select:none;touch-action:none;color:#535353}
-.hud{width:min(700px,96vw);display:flex;justify-content:flex-end;gap:18px;font:bold 15px Courier New,monospace;margin-bottom:6px;letter-spacing:1px}
-canvas{display:block;width:min(700px,96vw);image-rendering:pixelated;image-rendering:crisp-edges;background:#f7f7f7;cursor:pointer;border:1px solid #eee}
+.hud{width:min(700px,96vw);display:flex;justify-content:flex-end;gap:18px;font:bold 15px Courier New,monospace;margin-bottom:6px}
+canvas{display:block;width:min(700px,96vw);image-rendering:pixelated;image-rendering:crisp-edges;background:#f7f7f7;cursor:pointer}
 .hint{margin-top:10px;font-size:12px;color:#999}
 </style></head><body>
 <div class="hud"><span>HI <b id="hi">00000</b></span><span id="sc">00000</span></div>
 <canvas id="c" width="700" height="200"></canvas>
-<p class="hint">SPACE / TAP = jump</p>
+<p class="hint">SPACE / TAP = jump · v4</p>
 <script>
 (function(){
 const canvas=document.getElementById("c");
 const ctx=canvas.getContext("2d");
 ctx.imageSmoothingEnabled=false;
-const W=700,H=200,G=172;
-const COL="#535353";
+const W=700,H=200,G=170;
+const C="#535353";
 
-// Classic Chrome T-rex shape (side view, facing right)
-// Rows from top: head with eye, body, legs, tail behind
-function makeDino(legMode){
-  // 25 wide x 22 tall-ish
-  var rows=[
-    ".....................####..",
-    "...................#######.",
-    "...................##.#.###",
-    "...................########",
-    "...................#######.",
-    "...................######..",
-    "...................####....",
-    "............##...######....",
-    "...........###..########...",
-    "..........################.",
-    ".........#################.",
-    ".........##################",
-    ".........#########..######.",
-    ".........########....#####.",
-    "..........######.....####..",
-    "...........####......####..",
-    "............##.......##.#..",
-    ".....................##....",
-    ".....................##...."
-  ];
-  // leg frames
-  if(legMode===1){
-    rows[15]="...........####......##....";
-    rows[16]="............##......##.....";
-    rows[17]="...................##......";
-    rows[18]="...................#.......";
-  }else if(legMode===2){
-    rows[15]="...........####....##......";
-    rows[16]="............##.....##......";
-    rows[17]=".............#.....#.......";
-    rows[18]=".............#.............";
-  }else if(legMode===0){ // jump both legs back
-    rows[15]="...........####....####....";
-    rows[16]="............##......##.....";
-    rows[17]=".............#.......#.....";
-    rows[18]="...........................";
-  }
-  return rows;
-}
+/*
+  Authentic Chrome offline T-Rex silhouette (facing RIGHT).
+  Drawn as filled rects at pixel size 3 for clarity.
+*/
+function drawTrex(x,y,frame,dead){
+  var s=3;
+  ctx.fillStyle=C;
+  function p(px,py,w,h){ctx.fillRect(x+px*s,y+py*s,(w||1)*s,(h||1)*s);}
 
-const CACTUS=[
-  "..##..",
-  "..##..",
-  "..##.#",
-  "#.##.#",
-  "#.####",
-  ".###..",
-  "..##..",
-  "..##..",
-  "..##..",
-  "..##..",
-  "..##.."
-];
-const CACTUS2=[
-  "...##...",
-  "...##...",
-  "...##.#.",
-  ".#.##.#.",
-  ".#.####.",
-  ".####...",
-  "..##.#..",
-  "..##.#..",
-  "..####..",
-  "...##...",
-  "...##...",
-  "...##...",
-  "...##...",
-  "...##..."
-];
+  // HEAD (top-right)
+  p(12,0,8,1);p(11,1,10,1);p(11,2,10,1);p(11,3,10,1);p(11,4,9,1);p(11,5,7,1);
+  // eye (hole) - leave white
+  ctx.fillStyle="#f7f7f7";p(16,2,2,2);
+  ctx.fillStyle=C;
+  // jaw / mouth line
+  p(11,6,6,1);
 
-function drawSprite(rows,x,y,s){
-  ctx.fillStyle=COL;
-  for(var r=0;r<rows.length;r++){
-    for(var c=0;c<rows[r].length;c++){
-      if(rows[r][c]==="#")ctx.fillRect(x+c*s,y+r*s,s,s);
-    }
+  // NECK + BODY
+  p(10,6,4,1);p(9,7,6,1);p(7,8,9,1);p(6,9,11,1);p(5,10,13,1);
+  p(4,11,14,1);p(4,12,14,1);p(4,13,13,1);p(5,14,11,1);
+
+  // SMALL ARM
+  p(8,11,3,1);p(10,12,2,1);
+
+  // TAIL (left)
+  p(0,10,4,1);p(1,11,3,1);p(2,12,2,1);p(1,9,3,1);p(0,8,2,1);
+
+  // LEGS
+  if(dead){
+    p(7,15,3,1);p(7,16,2,1);p(7,17,2,1);p(7,18,3,1);
+    p(12,15,3,1);p(13,16,2,1);p(13,17,2,1);p(13,18,3,1);
+  }else if(frame===0){ // jump - both tucked
+    p(8,15,3,1);p(8,16,2,1);p(8,17,1,1);
+    p(12,15,3,1);p(13,16,2,1);p(14,17,1,1);
+  }else if(frame===1){
+    // left leg forward, right back
+    p(7,15,3,1);p(7,16,2,1);p(6,17,2,1);p(5,18,3,1);
+    p(12,15,3,1);p(13,16,2,1);p(14,17,1,1);
+  }else{
+    // right leg forward
+    p(8,15,3,1);p(9,16,2,1);p(10,17,1,1);
+    p(11,15,3,1);p(11,16,2,1);p(11,17,2,1);p(11,18,3,1);
   }
 }
+
+function drawCactus(x,y,big){
+  var s=3;
+  ctx.fillStyle=C;
+  function p(px,py,w,h){ctx.fillRect(x+px*s,y+py*s,(w||1)*s,(h||1)*s);}
+  if(big){
+    p(3,0,2,12);p(0,3,2,4);p(1,6,4,1);p(6,2,2,5);p(5,6,3,1);p(3,12,2,2);
+  }else{
+    p(2,0,2,9);p(0,2,2,3);p(1,4,3,1);p(2,9,2,1);
+  }
+}
+
 function pad5(n){return ("00000"+Math.floor(Math.max(0,n))).slice(-5);}
-
-var hi=+(localStorage.getItem("dinoHi3")||0);
+var hi=+(localStorage.getItem("dinoHi4")||0);
 document.getElementById("hi").textContent=pad5(hi);
 
-var dY=0,dV=0,onG=true;
-var obs=[],clouds=[],dots=[];
-var score=0,spd=6.5,frame=0,spawn=90;
-var run=false,dead=false,blink=0;
+var dY=0,dV=0,onG=true,obs=[],clouds=[],dots=[];
+var score=0,spd=6.5,frame=0,spawn=80,run=false,dead=false,blink=0;
 
 function reset(){
   dY=0;dV=0;onG=true;obs=[];
-  clouds=[{x:180,y:35},{x:400,y:50},{x:600,y:28}];
-  dots=[];for(var i=0;i<30;i++)dots.push({x:i*30,y:G+4+((i%3)*3)});
-  score=0;spd=6.5;frame=0;spawn=70;
-  run=true;dead=false;blink=0;
+  clouds=[{x:200,y:40},{x:420,y:55},{x:620,y:30}];
+  dots=[];for(var i=0;i<28;i++)dots.push({x:i*32,o:(i%3)*3});
+  score=0;spd=6.5;frame=0;spawn=70;run=true;dead=false;blink=0;
   document.getElementById("sc").textContent="00000";
 }
 function jump(){
-  if(dead||!run){reset();return;}
+  if(!run||dead){reset();return;}
   if(onG){dV=-11;onG=false;}
 }
 
@@ -135,65 +104,43 @@ function loop(){
     score+=0.2;spd=6.5+Math.min(7,score/120);
     document.getElementById("sc").textContent=pad5(score);
     spawn--;
-    if(spawn<=0){
-      var big=Math.random()>0.5;
-      obs.push({x:W+20,big:big});
-      spawn=50+Math.random()*60-Math.min(20,score/50);
-    }
-    for(var i=obs.length-1;i>=0;i--){
-      obs[i].x-=spd;
-      if(obs[i].x<-50)obs.splice(i,1);
-    }
+    if(spawn<=0){obs.push({x:W+10,big:Math.random()>0.5});spawn=48+Math.random()*55-Math.min(18,score/40);}
+    for(var i=obs.length-1;i>=0;i--){obs[i].x-=spd;if(obs[i].x<-40)obs.splice(i,1);}
     dots.forEach(function(d){d.x-=spd;if(d.x<-10)d.x+=900;});
-    clouds.forEach(function(c){c.x-=0.45;if(c.x<-60){c.x=W+40;c.y=25+Math.random()*40;}});
+    clouds.forEach(function(c){c.x-=0.4;if(c.x<-50){c.x=W+30;c.y=25+Math.random()*40;}});
 
-    // hitbox
-    var bx=55,by=G-42+dY,bw=40,bh=40;
+    var bx=48,by=G-52+dY,bw=48,bh=52;
     for(var i=0;i<obs.length;i++){
-      var o=obs[i];
-      var ox=o.x+4,oy=G-(o.big?36:26),ow=o.big?20:14,oh=o.big?36:26;
-      if(bx+10<ox+ow&&bx+bw-12>ox&&by+8<oy+oh&&by+bh>oy){
+      var o=obs[i],ox=o.x+4,oy=G-(o.big?42:28),ow=o.big?24:16,oh=o.big?42:28;
+      if(bx+12<ox+ow&&bx+bw-14>ox&&by+10<oy+oh&&by+bh>oy){
         dead=true;run=false;
-        if(Math.floor(score)>hi){hi=Math.floor(score);localStorage.setItem("dinoHi3",hi);document.getElementById("hi").textContent=pad5(hi);}
+        if(Math.floor(score)>hi){hi=Math.floor(score);localStorage.setItem("dinoHi4",hi);document.getElementById("hi").textContent=pad5(hi);}
       }
     }
   }
 
   ctx.fillStyle="#f7f7f7";ctx.fillRect(0,0,W,H);
-  // clouds
   ctx.fillStyle="#dadada";
-  clouds.forEach(function(c){
-    ctx.fillRect(c.x,c.y,40,10);ctx.fillRect(c.x+10,c.y-8,28,12);
-  });
-  // ground
-  ctx.strokeStyle=COL;ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(0,G);ctx.lineTo(W,G);ctx.stroke();
-  ctx.fillStyle=COL;
-  dots.forEach(function(d){ctx.fillRect(d.x,d.y,4,2);});
+  clouds.forEach(function(c){ctx.fillRect(c.x,c.y,36,9);ctx.fillRect(c.x+8,c.y-7,24,10);});
+  ctx.strokeStyle=C;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,G);ctx.lineTo(W,G);ctx.stroke();
+  ctx.fillStyle=C;dots.forEach(function(d){ctx.fillRect(d.x,G+3+d.o,5,2);});
 
-  obs.forEach(function(o){
-    if(o.big)drawSprite(CACTUS2,o.x,G-28,2.5);
-    else drawSprite(CACTUS,o.x,G-22,2.5);
-  });
+  obs.forEach(function(o){drawCactus(o.x,G-(o.big?42:28),o.big);});
 
-  // T-rex
-  var leg=dead?1:(!onG?0:((Math.floor(frame/5)%2)+1));
-  var spr=makeDino(leg);
-  var dx=50,dy=G-38+dY;
-  drawSprite(spr,dx,dy,2);
+  var fr=dead?0:(!onG?0:((Math.floor(frame/5)%2)+1));
+  drawTrex(42,G-55+dY,fr,dead);
 
   if(!run&&!dead){
     blink++;
     if(Math.floor(blink/18)%2===0){
-      ctx.fillStyle=COL;ctx.font="14px Courier New";ctx.textAlign="center";
-      ctx.fillText("Press Space to Play",W/2,75);
+      ctx.fillStyle=C;ctx.font="14px Courier New";ctx.textAlign="center";
+      ctx.fillText("Press Space to Play",W/2,70);
     }
   }
   if(dead){
-    ctx.fillStyle=COL;ctx.font="bold 16px Courier New";ctx.textAlign="center";
-    ctx.fillText("G A M E  O V E R",W/2,68);
-    ctx.strokeRect(W/2-14,88,28,28);
-    ctx.beginPath();ctx.arc(W/2,102,7,0.2,Math.PI*1.6);ctx.stroke();
+    ctx.fillStyle=C;ctx.font="bold 16px Courier New";ctx.textAlign="center";
+    ctx.fillText("G A M E  O V E R",W/2,65);
+    ctx.strokeRect(W/2-14,85,28,28);
   }
   requestAnimationFrame(loop);
 }
