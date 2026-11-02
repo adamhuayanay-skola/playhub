@@ -6,7 +6,6 @@ const GAMES=[
 {id:"g2048",title:"2048",category:"puzzle",playable:true,file:"games/2048.html",popular:true},
 {id:"minesweeper",title:"Minesweeper",category:"puzzle",playable:true,file:"games/minesweeper.html",popular:true},
 {id:"flappy",title:"Flappy Bird",category:"arcade",playable:true,file:"games/flappy.html",popular:true},
-{id:"dino",title:"Chrome Dino",category:"arcade",playable:true,file:"games/dino.html",popular:true},
 {id:"memory",title:"Memory Match",category:"puzzle",playable:true,file:"games/memory.html",popular:true},
 {id:"ttt",title:"Tic Tac Toe",category:"strategy",playable:true,file:"games/tictactoe.html",popular:false},
 {id:"stack",title:"Stack",category:"arcade",playable:true,file:"games/stack.html",popular:true},
@@ -21,7 +20,7 @@ function drawPreview(id,cv){
   else if(id==="breakout"){ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);var bc=["#f43f5e","#f97316","#eab308","#22c55e"];for(var r=0;r<4;r++)for(var c=0;c<6;c++){ctx.fillStyle=bc[r];ctx.fillRect(16+c*36,20+r*18,32,14);}ctx.fillStyle="#e2e8f0";ctx.fillRect(W/2-35,H-28,70,10);}
   else if(id==="g2048"){ctx.fillStyle="#bbada0";ctx.fillRect(0,0,W,H);var tiles=[[2,4],[8,16],[32,64],[2,8]];for(var r=0;r<4;r++)for(var c=0;c<2;c++){ctx.fillStyle="#eee4da";ctx.fillRect(20+c*70,15+r*45,60,40);ctx.fillStyle="#776e65";ctx.font="bold 16px system-ui";ctx.textAlign="center";ctx.fillText(String(tiles[r][c]),50+c*70,42+r*45);}}
   else if(id==="flappy"){ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);ctx.fillStyle="#5ea512";ctx.fillRect(W*0.55,0,40,H*0.35);ctx.fillRect(W*0.55,H*0.55,40,H*0.3);ctx.fillStyle="#f8e71c";ctx.beginPath();ctx.ellipse(W*0.3,H*0.45,16,14,0,0,Math.PI*2);ctx.fill();}
-  else if(id==="dino"){ctx.fillStyle="#f7f7f7";ctx.fillRect(0,0,W,H);ctx.fillStyle="#535353";ctx.fillRect(0,H*0.75,W,2);ctx.fillRect(W*0.25,H*0.5,30,H*0.25);ctx.fillRect(W*0.55,H*0.58,14,H*0.17);}
+  
   else if(id==="minesweeper"){ctx.fillStyle="#1e293b";ctx.fillRect(0,0,W,H);for(var r=0;r<5;r++)for(var c=0;c<6;c++){ctx.fillStyle="#334155";ctx.fillRect(12+c*30,12+r*28,26,24);}}
   else if(id==="memory"){ctx.fillStyle="#1e1b4b";ctx.fillRect(0,0,W,H);for(var i=0;i<8;i++){ctx.fillStyle="#4c1d95";ctx.fillRect(16+(i%4)*48,20+Math.floor(i/4)*60,42,50);}}
   else if(id==="ttt"){ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#475569";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/3,16);ctx.lineTo(W/3,H-16);ctx.moveTo(2*W/3,16);ctx.lineTo(2*W/3,H-16);ctx.moveTo(16,H/3);ctx.lineTo(W-16,H/3);ctx.moveTo(16,2*H/3);ctx.lineTo(W-16,2*H/3);ctx.stroke();}
