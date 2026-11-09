@@ -14,29 +14,6 @@ canvas{border-radius:10px;box-shadow:0 0 0 2px #1e293b,0 20px 50px rgba(0,0,0,.5
 .panel .v{font-size:1.35rem;font-weight:800}
 .hint{margin-top:12px;color:#64748b;font-size:.72rem;text-align:center}
 .leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
-
-/* visual polish – no gameplay changes */
-html{-webkit-tap-highlight-color:transparent}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;
-}
-#leave,.leave-btn,button#leave{
-  position:fixed!important;top:12px!important;left:12px!important;z-index:9999!important;
-  width:48px!important;height:48px!important;border:none!important;border-radius:14px!important;
-  background:linear-gradient(145deg,#f87171,#dc2626)!important;color:#fff!important;
-  font-size:28px!important;font-weight:900!important;cursor:pointer!important;
-  box-shadow:0 6px 20px rgba(220,38,38,.45)!important;line-height:1!important;
-}
-#leave:active,.leave-btn:active,button#leave:active{transform:scale(.94)}
-canvas{
-  border-radius:14px!important;
-  box-shadow:0 16px 40px rgba(0,0,0,.35)!important;
-}
-h1{
-  letter-spacing:.02em;
-  text-shadow:0 2px 12px rgba(0,0,0,.25);
-}
-
 </style></head><body>
 <button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
 <h1>TETRIS</h1>
@@ -52,7 +29,7 @@ h1{
 <script>
 const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
 const COLS=10,ROWS=20,SZ=30;
-const COLORS=[null,"#22d3ee","#facc15","#a855f7","#22c55e","#ef4444","#3b82f6","#f97316"];
+const COLORS=[null,"#67e8f9","#fde047","#d8b4fe","#4ade80","#fb7185","#60a5fa","#fdba74"];
 const SHAPES={I:[[1,1,1,1]],O:[[2,2],[2,2]],T:[[0,3,0],[3,3,3]],S:[[0,4,4],[4,4,0]],Z:[[5,5,0],[0,5,5]],J:[[6,0,0],[6,6,6]],L:[[0,0,7],[7,7,7]]};
 const params=new URLSearchParams(location.search);
 const baseSpd={easy:650,mid:480,hard:280}[params.get("diff")||"mid"]||480;
@@ -98,7 +75,7 @@ function clearLines(){
 function cell(px,py,id){
   if(!id)return;
   const g=ctx.createLinearGradient(px*SZ,py*SZ,px*SZ,py*SZ+SZ);
-  g.addColorStop(0,COLORS[id]);g.addColorStop(1,"#00000044");
+  g.addColorStop(0,COLORS[id]);g.addColorStop(1,"#ffffff22");
   ctx.fillStyle=g;
   ctx.fillRect(px*SZ+1,py*SZ+1,SZ-2,SZ-2);
   ctx.fillStyle="rgba(255,255,255,.25)";
