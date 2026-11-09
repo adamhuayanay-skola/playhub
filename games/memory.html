@@ -1,14 +1,138 @@
-<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Memory</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;font-family:system-ui,sans-serif;color:#e2e8f0;user-select:none}h1{font-size:1.4rem;font-weight:800;margin-bottom:6px;background:linear-gradient(90deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.hud{color:#94a3b8;margin-bottom:14px}.hud b{color:#fff}.board{display:grid;grid-template-columns:repeat(4,78px);gap:10px}.card{width:78px;height:78px;perspective:600px;cursor:pointer}.inner{width:100%;height:100%;transition:transform .4s;transform-style:preserve-3d;position:relative}.card.on .inner,.card.ok .inner{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2rem}.front{background:linear-gradient(135deg,#6366f1,#8b5cf6);border:2px solid rgba(255,255,255,.15)}.back{background:#1e293b;border:2px solid #334155;transform:rotateY(180deg)}.card.ok .back{border-color:#34d399;box-shadow:0 0 16px rgba(52,211,153,.35)}.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Memory</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#0f172a;font-family:system-ui,sans-serif;color:#e2e8f0;user-select:none;padding:16px;
+}
+.leave-btn{
+  position:fixed;top:12px;left:12px;z-index:99;width:44px;height:44px;border:none;border-radius:12px;
+  background:#ef4444;color:#fff;font-size:1.5rem;font-weight:800;cursor:pointer;line-height:1;
+}
+h1{
+  font-size:1.4rem;font-weight:800;margin-bottom:6px;
+  background:linear-gradient(90deg,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hud{color:#94a3b8;margin-bottom:14px;font-size:.95rem}
+.hud b{color:#fff}
+.board{
+  display:grid;grid-template-columns:repeat(6,minmax(48px,70px));gap:8px;justify-content:center;
+}
+@media(max-width:480px){
+  .board{grid-template-columns:repeat(4,minmax(52px,70px));}
+}
+.card{width:100%;aspect-ratio:1;perspective:600px;cursor:pointer}
+.inner{width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d;position:relative}
+.card.on .inner,.card.ok .inner{transform:rotateY(180deg)}
+.face{
+  position:absolute;inset:0;backface-visibility:hidden;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:clamp(1.4rem,4vw,1.9rem);
+}
+.front{background:linear-gradient(135deg,#6366f1,#8b5cf6);border:2px solid rgba(255,255,255,.15)}
+.back{background:#1e293b;border:2px solid #334155;transform:rotateY(180deg)}
+.card.ok .back{border-color:#34d399;box-shadow:0 0 14px rgba(52,211,153,.35)}
+.overlay{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.65);z-index:50;padding:16px;
+}
+.overlay.show{display:flex}
+.box{
+  background:#fff;color:#0f172a;border-radius:22px;padding:28px 24px;text-align:center;
+  width:min(320px,100%);box-shadow:0 20px 50px rgba(0,0,0,.4);
+}
+.box h2{font-size:1.8rem;font-weight:900;margin-bottom:8px;color:#7c3aed}
+.box p{color:#64748b;margin-bottom:16px}
+.box button{
+  border:none;background:#7c3aed;color:#fff;font-weight:800;padding:12px 22px;
+  border-radius:12px;cursor:pointer;font-size:1rem;
+}
 </style></head><body>
-<button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
-<h1>MEMORY MATCH</h1><div class="hud">Tahy: <b id="m">0</b> · Pary: <b id="p">0</b>/8</div><div class="board" id="b"></div>
+<button type="button" class="leave-btn" id="leaveBtn" title="Zpet">&times;</button>
+<h1>MEMORY MATCH</h1>
+<div class="hud">Tahy: <b id="m">0</b> · Pary: <b id="p">0</b>/<span id="total">12</span></div>
+<div class="board" id="b"></div>
+
+<div class="overlay" id="ov">
+  <div class="box">
+    <h2>Vyhral jsi!</h2>
+    <p id="ovText">Nasel jsi vsechny pary</p>
+    <button type="button" id="again">Hrat znovu</button>
+  </div>
+</div>
+
 <script>
-const E=["\uD83C\uDF4E","\uD83D\uDE97","\u2B50","\uD83C\uDFB5","\uD83D\uDD25","\uD83D\uDC8E","\uD83C\uDFAE","\uD83D\uDE80"];
+(function(){
+const E=[
+  "\uD83C\uDF4E","\uD83C\uDF4C","\uD83C\uDF47","\uD83C\uDF53",
+  "\u2B50","\uD83D\uDD25","\uD83D\uDC8E","\uD83D\uDE80",
+  "\uD83C\uDFB5","\uD83C\uDFAE","\uD83D\uDC36","\uD83D\uDC31",
+  "\u26A1","\uD83C\uDF6D","\uD83C\uDF08","\uD83C\uDF40"
+];
+// 12 pairs from emoji list
+const PAIRS=12;
 let cards=[],flipped=[],moves=0,pairs=0,lock=false;
-function init(){const deck=[...E,...E].sort(()=>Math.random()-.5);cards=deck.map(e=>({e,on:false,ok:false}));flipped=[];moves=0;pairs=0;lock=false;document.getElementById("m").textContent=0;document.getElementById("p").textContent="0";render()}
-function render(){const b=document.getElementById("b");b.innerHTML="";cards.forEach((c,i)=>{const d=document.createElement("div");d.className="card"+(c.on||c.ok?" on":"")+(c.ok?" ok":"");d.innerHTML="<div class=\"inner\"><div class=\"face front\">?</div><div class=\"face back\">"+c.e+"</div></div>";d.onclick=()=>flip(i);b.appendChild(d)})}
-function flip(i){if(lock||cards[i].on||cards[i].ok)return;cards[i].on=true;flipped.push(i);render();if(flipped.length===2){moves++;document.getElementById("m").textContent=moves;lock=true;const[a,b]=flipped;if(cards[a].e===cards[b].e){cards[a].ok=cards[b].ok=true;pairs++;document.getElementById("p").textContent=pairs;flipped=[];lock=false;render()}else setTimeout(()=>{cards[a].on=cards[b].on=false;flipped=[];lock=false;render()},600)}}
+
+document.getElementById("leaveBtn").onclick=function(){
+  if(history.length>1)history.back();else location.href="../index.html";
+};
+document.getElementById("total").textContent=String(PAIRS);
+
+function init(){
+  var pool=E.slice(0,PAIRS);
+  var deck=pool.concat(pool).sort(function(){return Math.random()-0.5;});
+  cards=deck.map(function(e){return {e:e,on:false,ok:false};});
+  flipped=[];moves=0;pairs=0;lock=false;
+  document.getElementById("m").textContent="0";
+  document.getElementById("p").textContent="0";
+  document.getElementById("ov").classList.remove("show");
+  render();
+}
+function render(){
+  var b=document.getElementById("b");
+  b.innerHTML="";
+  cards.forEach(function(c,i){
+    var d=document.createElement("div");
+    d.className="card"+(c.on||c.ok?" on":"")+(c.ok?" ok":"");
+    d.innerHTML="<div class=\"inner\"><div class=\"face front\">?</div><div class=\"face back\">"+c.e+"</div></div>";
+    d.onclick=function(){flip(i);};
+    b.appendChild(d);
+  });
+}
+function flip(i){
+  if(lock||cards[i].on||cards[i].ok)return;
+  cards[i].on=true;
+  flipped.push(i);
+  render();
+  if(flipped.length===2){
+    moves++;
+    document.getElementById("m").textContent=String(moves);
+    lock=true;
+    var a=flipped[0],b=flipped[1];
+    if(cards[a].e===cards[b].e){
+      cards[a].ok=true;cards[b].ok=true;
+      pairs++;
+      document.getElementById("p").textContent=String(pairs);
+      flipped=[];
+      lock=false;
+      render();
+      if(pairs>=PAIRS){
+        document.getElementById("ovText").textContent="Nasel jsi vsech "+PAIRS+" paru za "+moves+" tahu";
+        document.getElementById("ov").classList.add("show");
+      }
+    }else{
+      setTimeout(function(){
+        cards[a].on=false;cards[b].on=false;
+        flipped=[];lock=false;render();
+      },650);
+    }
+  }
+}
+document.getElementById("again").onclick=init;
 init();
-</script><script>(function(){var b=document.getElementById("leaveBtn");if(b)b.onclick=function(){if(history.length>1)history.back();else location.href="../index.html";};})();</script>
+})();
+</script>
 </body></html>
