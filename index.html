@@ -37,6 +37,11 @@ a.card{display:block;background:#fff;border-radius:16px;overflow:hidden;text-dec
     <a class="card" href="games/tictactoe.html" data-g="ttt"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Tic Tac Toe</strong><small>1v1 / Bot</small></div></a>
     <a class="card" href="games/stack.html" data-g="stack"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Stack</strong><small>Arcade</small></div></a>
     <a class="card" href="games/connect4.html" data-g="connect4"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Connect 4</strong><small>1v1 / Bot</small></div></a>
+    <a class="card" href="games/invaders.html" data-g="invaders"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Space Invaders</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/simon.html" data-g="simon"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Simon</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/frogger.html" data-g="frogger"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Frogger</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/race.html" data-g="race"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Retro Race</strong><small>Arcade</small></div></a>
+
   </div>
 </div>
 <script>
@@ -53,6 +58,10 @@ else if(id==="flappy"){ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);ctx.fillSty
 else if(id==="memory"){for(var i=0;i<8;i++){ctx.fillStyle="#6d28d9";ctx.fillRect(14+(i%4)*58,18+Math.floor(i/4)*60,52,52);}}
 else if(id==="ttt"){ctx.strokeStyle="#64748b";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/3,12);ctx.lineTo(W/3,H-12);ctx.moveTo(2*W/3,12);ctx.lineTo(2*W/3,H-12);ctx.moveTo(12,H/3);ctx.lineTo(W-12,H/3);ctx.moveTo(12,2*H/3);ctx.lineTo(W-12,2*H/3);ctx.stroke();ctx.fillStyle="#38bdf8";ctx.font="bold 32px Arial";ctx.textAlign="center";ctx.fillText("X",W/6,H/3-8);}
 else if(id==="stack"){for(var i=0;i<5;i++){ctx.fillStyle="hsl("+((i*40)%360)+",80%,55%)";ctx.fillRect(36+i*6,H-30-i*24,W-72-i*12,22);}}
+else if(id==="invaders"){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#4ade80";for(var i=0;i<6;i++){ctx.fillRect(18+i*40,28,30,16);}ctx.fillStyle="#22c55e";ctx.fillRect(W/2-20,H-30,40,14);}
+else if(id==="simon"){ctx.fillStyle="#111";ctx.fillRect(0,0,W,H);ctx.fillStyle="#16a34a";ctx.fillRect(40,30,100,70);ctx.fillStyle="#dc2626";ctx.fillRect(160,30,100,70);ctx.fillStyle="#eab308";ctx.fillRect(40,110,100,70);ctx.fillStyle="#2563eb";ctx.fillRect(160,110,100,70);}
+else if(id==="frogger"){ctx.fillStyle="#14532d";ctx.fillRect(0,0,W,H);ctx.fillStyle="#1e293b";ctx.fillRect(0,60,W,80);ctx.fillStyle="#4ade80";ctx.beginPath();ctx.arc(W/2,H-40,16,0,6.28);ctx.fill();ctx.fillStyle="#ef4444";ctx.fillRect(40,80,50,24);}
+else if(id==="race"){ctx.fillStyle="#1a1a1a";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#fbbf24";ctx.beginPath();ctx.moveTo(W/3,0);ctx.lineTo(W/3,H);ctx.moveTo(2*W/3,0);ctx.lineTo(2*W/3,H);ctx.stroke();ctx.fillStyle="#22c55e";ctx.fillRect(W/2-18,H-70,36,50);ctx.fillStyle="#ef4444";ctx.fillRect(W/6-18,40,36,50);}
 else if(id==="connect4"){ctx.fillStyle="#1d4ed8";ctx.fillRect(0,0,W,H);for(var r=0;r<3;r++)for(var c=0;c<5;c++){ctx.beginPath();ctx.arc(32+c*44,32+r*44,17,0,6.28);ctx.fillStyle=(r+c)%3===0?"#ef4444":((r+c)%3===1?"#eab308":"#0f172a");ctx.fill();}}
 }
 var cards=document.querySelectorAll("a.card");

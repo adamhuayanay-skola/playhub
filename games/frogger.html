@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Frogger</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0b3d2e;font-family:system-ui,sans-serif;color:#fff;user-select:none;touch-action:none}
+#leave{position:fixed;top:12px;left:12px;z-index:99;width:48px;height:48px;border:none;border-radius:12px;background:#ef4444;color:#fff;font-size:28px;font-weight:900;cursor:pointer}
+h1{margin-bottom:6px}
+#sc{margin-bottom:8px;font-weight:700}
+canvas{border-radius:10px;max-width:96vw;background:#14532d;cursor:pointer}
+.hint{margin-top:8px;color:#86efac;font-size:.8rem}
+</style></head><body>
+<button type="button" id="leave">&times;</button>
+<h1>FROGGER</h1>
+<div id="sc">Score 0</div>
+<canvas id="c" width="400" height="480"></canvas>
+<p class="hint">Sipky / WASD \u00b7 dostan se nahoru</p>
+<script>
+(function(){
+document.getElementById("leave").onclick=function(){location.href="../index.html";};
+var cv=document.getElementById("c"),ctx=cv.getContext("2d"),W=400,H=480,CS=40;
+var frog={x:4,y:11},cars=[],score=0,run=false,dead=false;
+function spawn(){
+  cars=[];
+  for(var row=0;row<5;row++){
+    var y=2+row,spd=(row%2?1:-1)*(1.2+row*0.25),n=2+((row*2)%3);
+    for(var i=0;i<n;i++)cars.push({x:(i*5+row)%12,y:y,w:2,spd:spd,color:["#ef4444","#f97316","#eab308","#3b82f6","#a855f7"][row]});
+  }
+}
+function reset(){frog={x:4,y:11};spawn();run=true;dead=false;}
+function loop(){
+  if(run&&!dead){
+    for(var i=0;i<cars.length;i++){
+      var c=cars[i];c.x+=c.spd*0.05;if(c.x>12)c.x=-c.w;if(c.x<-c.w)c.x=12;
+      if(c.y===frog.y&&frog.x+0.7>c.x&&frog.x<c.x+c.w){dead=true;run=false;}
+    }
+    if(frog.y<=0){score++;document.getElementById("sc").textContent="Score "+score;frog={x:4,y:11};}
+  }
+  ctx.fillStyle="#14532d";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#1e293b";for(var r=2;r<=6;r++)ctx.fillRect(0,r*CS,W,CS);
+  ctx.fillStyle="#0ea5e9";ctx.fillRect(0,0,W,CS);
+  ctx.fillStyle="#22c55e";ctx.fillRect(0,11*CS,W,CS);
+  for(i=0;i<cars.length;i++){c=cars[i];ctx.fillStyle=c.color;ctx.fillRect(c.x*CS+2,c.y*CS+6,c.w*CS-4,CS-12);}
+  ctx.fillStyle="#4ade80";ctx.beginPath();ctx.arc(frog.x*CS+CS/2,frog.y*CS+CS/2,14,0,6.28);ctx.fill();
+  if(!run&&!dead){ctx.fillStyle="rgba(0,0,0,.4)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="20px system-ui";ctx.textAlign="center";ctx.fillText("Klikni / sipka = start",W/2,H/2);}
+  if(dead){ctx.fillStyle="rgba(0,0,0,.45)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fecaca";ctx.font="bold 24px system-ui";ctx.textAlign="center";ctx.fillText("Game Over",W/2,H/2);}
+  requestAnimationFrame(loop);
+}
+function move(dx,dy){
+  if(!run){reset();return;}if(dead){reset();return;}
+  frog.x=Math.max(0,Math.min(9,frog.x+dx));frog.y=Math.max(0,Math.min(11,frog.y+dy));
+}
+document.addEventListener("keydown",function(e){
+  if(["ArrowUp","KeyW"].indexOf(e.code)>=0){e.preventDefault();move(0,-1);}
+  if(["ArrowDown","KeyS"].indexOf(e.code)>=0){e.preventDefault();move(0,1);}
+  if(["ArrowLeft","KeyA"].indexOf(e.code)>=0){e.preventDefault();move(-1,0);}
+  if(["ArrowRight","KeyD"].indexOf(e.code)>=0){e.preventDefault();move(1,0);}
+});
+cv.addEventListener("pointerdown",function(){if(!run||dead)reset();});
+requestAnimationFrame(loop);
+})();
+</script></body></html>
