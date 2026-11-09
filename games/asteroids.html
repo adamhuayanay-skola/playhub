@@ -5,158 +5,156 @@
 <title>Asteroids</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;font-family:Courier New,monospace;color:#fff;user-select:none;touch-action:none}
-.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(255,255,255,.15);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer}
-h1{font-size:1.1rem;letter-spacing:.2em;margin-bottom:6px}
-.sc{font-weight:700;margin-bottom:8px}
-canvas{max-width:96vw;background:#000;border:1px solid #333;cursor:pointer}
-.hint{margin-top:8px;color:#666;font-size:.75rem}
+html,body{height:100%;background:#000;color:#fff;font-family:Arial,sans-serif;user-select:none;touch-action:none}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+#leave{
+  position:fixed;top:10px;left:10px;z-index:100;
+  width:48px;height:48px;border:2px solid #fff;border-radius:12px;
+  background:#ef4444;color:#fff;font-size:28px;font-weight:900;cursor:pointer;line-height:1;
+}
+h1{letter-spacing:.15em;margin-bottom:6px;font-size:18px}
+#sc{margin-bottom:8px;font-weight:700}
+#c{background:#000;border:2px solid #444;max-width:96vw;cursor:pointer}
+.hint{margin-top:10px;color:#888;font-size:13px;text-align:center}
 </style></head><body>
-<button type="button" class="leave-btn" id="leaveBtn">\u00d7</button>
+<button type="button" id="leave" aria-label="Zpet">&times;</button>
 <h1>ASTEROIDS</h1>
-<div class="sc">SCORE <span id="sc">0</span></div>
+<div id="sc">SCORE 0</div>
 <canvas id="c" width="480" height="480"></canvas>
-<p class="hint">\u2190 \u2192 otoc \u00b7 \u2191 plyn \u00b7 Space / klik = strelba</p>
+<p class="hint">Klik / Space = start a strelba<br/>Sipky nebo WASD = rizeni</p>
 <script>
 (function(){
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
-const W=480,H=480;
-let ship={x:W/2,y:H/2,a:-Math.PI/2,vx:0,vy:0};
-let rocks=[],shots=[],score=0,run=false,keys={};
-
-document.getElementById("leaveBtn").onclick=function(){
-  if(history.length>1)history.back();else location.href="../index.html";
+document.getElementById("leave").onclick=function(){
+  try{if(document.referrer)history.back();else location.href="../index.html";}
+  catch(e){location.href="../index.html";}
 };
+var cv=document.getElementById("c");
+var ctx=cv.getContext("2d");
+var W=480,H=480;
+var ship={x:240,y:240,a:-Math.PI/2,vx:0,vy:0};
+var rocks=[];
+var shots=[];
+var score=0;
+var run=false;
+var keys={L:0,R:0,U:0};
 
-function makeRock(r,x,y){
-  var pts=[];
-  for(var i=0;i<8;i++){
-    var ang=i/8*Math.PI*2;
-    pts.push({a:ang,d:r*(0.7+Math.random()*0.3)});
-  }
-  return {x:x,y:y,r:r,vx:(Math.random()-0.5)*2.2,vy:(Math.random()-0.5)*2.2,pts:pts};
+function rock(r,x,y){
+  var pts=[],i;
+  for(i=0;i<8;i++)pts.push({a:i/8*Math.PI*2,d:r*(0.65+Math.random()*0.35)});
+  return {x:x,y:y,r:r,vx:(Math.random()-0.5)*2.5,vy:(Math.random()-0.5)*2.5,pts:pts};
 }
-function reset(){
-  ship={x:W/2,y:H/2,a:-Math.PI/2,vx:0,vy:0};
-  rocks=[];
-  for(var i=0;i<5;i++){
-    var ang=Math.random()*Math.PI*2,dist=140+Math.random()*60;
-    rocks.push(makeRock(40+Math.random()*25, W/2+Math.cos(ang)*dist, H/2+Math.sin(ang)*dist));
+function start(){
+  ship={x:240,y:240,a:-Math.PI/2,vx:0,vy:0};
+  rocks=[];shots=[];score=0;run=true;
+  document.getElementById("sc").textContent="SCORE 0";
+  var i,ang,d;
+  for(i=0;i<5;i++){
+    ang=Math.random()*6.28;d=130+Math.random()*70;
+    rocks.push(rock(42+Math.random()*22,240+Math.cos(ang)*d,240+Math.sin(ang)*d));
   }
-  shots=[];score=0;run=true;
-  document.getElementById("sc").textContent="0";
 }
-function fire(){
-  if(!run){reset();return;}
+function shoot(){
+  if(!run){start();return;}
   shots.push({
-    x:ship.x+Math.cos(ship.a)*12,
-    y:ship.y+Math.sin(ship.a)*12,
+    x:ship.x+Math.cos(ship.a)*14,
+    y:ship.y+Math.sin(ship.a)*14,
     vx:Math.cos(ship.a)*8+ship.vx,
     vy:Math.sin(ship.a)*8+ship.vy,
-    life:45
+    life:40
   });
 }
-function loop(){
+function tick(){
   if(run){
-    if(keys.left)ship.a-=0.09;
-    if(keys.right)ship.a+=0.09;
-    if(keys.up){ship.vx+=Math.cos(ship.a)*0.18;ship.vy+=Math.sin(ship.a)*0.18;}
+    if(keys.L)ship.a-=0.1;
+    if(keys.R)ship.a+=0.1;
+    if(keys.U){ship.vx+=Math.cos(ship.a)*0.2;ship.vy+=Math.sin(ship.a)*0.2;}
     ship.vx*=0.99;ship.vy*=0.99;
     ship.x=(ship.x+ship.vx+W)%W;
     ship.y=(ship.y+ship.vy+H)%H;
-
-    for(var i=shots.length-1;i>=0;i--){
-      shots[i].x+=shots[i].vx;shots[i].y+=shots[i].vy;shots[i].life--;
-      if(shots[i].life<=0)shots.splice(i,1);
+    var i,j,s,r,dx,dy;
+    for(i=shots.length-1;i>=0;i--){
+      s=shots[i];s.x+=s.vx;s.y+=s.vy;s.life--;
+      if(s.life<=0)shots.splice(i,1);
     }
-    rocks.forEach(function(r){
-      r.x=(r.x+r.vx+W)%W;
-      r.y=(r.y+r.vy+H)%H;
-    });
-
-    for(var i=shots.length-1;i>=0;i--){
-      for(var j=rocks.length-1;j>=0;j--){
+    for(i=0;i<rocks.length;i++){
+      r=rocks[i];r.x=(r.x+r.vx+W)%W;r.y=(r.y+r.vy+H)%H;
+    }
+    for(i=shots.length-1;i>=0;i--){
+      for(j=rocks.length-1;j>=0;j--){
         if(!shots[i])break;
-        var s=shots[i],r=rocks[j];
-        var dx=s.x-r.x,dy=s.y-r.y;
+        s=shots[i];r=rocks[j];
+        dx=s.x-r.x;dy=s.y-r.y;
         if(dx*dx+dy*dy<r.r*r.r){
           shots.splice(i,1);
           rocks.splice(j,1);
-          score+=Math.floor(120/r.r*12);
-          document.getElementById("sc").textContent=String(score);
-          if(r.r>22){
-            rocks.push(makeRock(r.r*0.55,r.x,r.y));
-            rocks.push(makeRock(r.r*0.55,r.x,r.y));
+          score+=Math.floor(1000/Math.max(10,r.r));
+          document.getElementById("sc").textContent="SCORE "+score;
+          if(r.r>24){
+            rocks.push(rock(r.r*0.55,r.x,r.y));
+            rocks.push(rock(r.r*0.55,r.x,r.y));
           }
           break;
         }
       }
     }
-
-    for(var j=0;j<rocks.length;j++){
-      var r=rocks[j],dx=ship.x-r.x,dy=ship.y-r.y;
-      if(dx*dx+dy*dy<(r.r+10)*(r.r+10)){run=false;break;}
+    for(j=0;j<rocks.length;j++){
+      r=rocks[j];dx=ship.x-r.x;dy=ship.y-r.y;
+      if(dx*dx+dy*dy<(r.r+12)*(r.r+12)){run=false;break;}
     }
     if(rocks.length===0){
-      for(var i=0;i<5;i++){
-        var ang=Math.random()*Math.PI*2,dist=150+Math.random()*50;
-        rocks.push(makeRock(45+Math.random()*20,W/2+Math.cos(ang)*dist,H/2+Math.sin(ang)*dist));
+      for(i=0;i<5;i++){
+        ang=Math.random()*6.28;d=140+Math.random()*60;
+        rocks.push(rock(40+Math.random()*25,240+Math.cos(ang)*d,240+Math.sin(ang)*d));
       }
     }
   }
 
-  ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
-  // stars
-  ctx.fillStyle="#222";
-  for(var i=0;i<40;i++)ctx.fillRect((i*97)%W,(i*53)%H,2,2);
+  ctx.fillStyle="#050505";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#333";
+  for(i=0;i<50;i++)ctx.fillRect((i*91)%W,(i*57)%H,2,2);
 
   ctx.strokeStyle="#fff";ctx.lineWidth=2;
-  rocks.forEach(function(r){
-    ctx.beginPath();
-    for(var i=0;i<r.pts.length;i++){
-      var p=r.pts[i],px=r.x+Math.cos(p.a)*p.d,py=r.y+Math.sin(p.a)*p.d;
-      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  for(i=0;i<rocks.length;i++){
+    r=rocks[i];ctx.beginPath();
+    for(j=0;j<r.pts.length;j++){
+      var px=r.x+Math.cos(r.pts[j].a)*r.pts[j].d;
+      var py=r.y+Math.sin(r.pts[j].a)*r.pts[j].d;
+      if(j===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
     }
     ctx.closePath();ctx.stroke();
-  });
+  }
 
-  // ship
   ctx.beginPath();
   ctx.moveTo(ship.x+Math.cos(ship.a)*16,ship.y+Math.sin(ship.a)*16);
   ctx.lineTo(ship.x+Math.cos(ship.a+2.5)*12,ship.y+Math.sin(ship.a+2.5)*12);
   ctx.lineTo(ship.x+Math.cos(ship.a-2.5)*12,ship.y+Math.sin(ship.a-2.5)*12);
   ctx.closePath();ctx.stroke();
-  if(run&&keys.up){
-    ctx.beginPath();
-    ctx.moveTo(ship.x+Math.cos(ship.a+2.7)*8,ship.y+Math.sin(ship.a+2.7)*8);
-    ctx.lineTo(ship.x-Math.cos(ship.a)*12,ship.y-Math.sin(ship.a)*12);
-    ctx.lineTo(ship.x+Math.cos(ship.a-2.7)*8,ship.y+Math.sin(ship.a-2.7)*8);
-    ctx.strokeStyle="#fbbf24";ctx.stroke();ctx.strokeStyle="#fff";
-  }
 
   ctx.fillStyle="#fff";
-  shots.forEach(function(s){ctx.fillRect(s.x-1.5,s.y-1.5,3,3);});
+  for(i=0;i<shots.length;i++)ctx.fillRect(shots[i].x-2,shots[i].y-2,4,4);
 
   if(!run){
-    ctx.fillStyle="rgba(0,0,0,.45)";ctx.fillRect(0,0,W,H);
-    ctx.fillStyle="#fff";ctx.font="bold 20px Courier New";ctx.textAlign="center";
-    ctx.fillText(score?"GAME OVER":"CLICK / SPACE TO START",W/2,H/2);
-    if(score){ctx.font="16px Courier New";ctx.fillText("Score "+score,W/2,H/2+28);}
+    ctx.fillStyle="rgba(0,0,0,0.5)";ctx.fillRect(0,0,W,H);
+    ctx.fillStyle="#fff";ctx.font="bold 22px Arial";ctx.textAlign="center";
+    ctx.fillText(score?"GAME OVER - KLIKNI":"KLIKNI PRO START",W/2,H/2);
+    if(score){ctx.font="16px Arial";ctx.fillText("Score "+score,W/2,H/2+28);}
   }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(tick);
 }
+
 document.addEventListener("keydown",function(e){
-  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=true;
-  if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=true;
-  if(e.code==="ArrowUp"||e.code==="KeyW")keys.up=true;
-  if(e.code==="Space"){e.preventDefault();fire();}
+  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.L=1;
+  if(e.code==="ArrowRight"||e.code==="KeyD")keys.R=1;
+  if(e.code==="ArrowUp"||e.code==="KeyW")keys.U=1;
+  if(e.code==="Space"){e.preventDefault();shoot();}
 });
 document.addEventListener("keyup",function(e){
-  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.left=false;
-  if(e.code==="ArrowRight"||e.code==="KeyD")keys.right=false;
-  if(e.code==="ArrowUp"||e.code==="KeyW")keys.up=false;
+  if(e.code==="ArrowLeft"||e.code==="KeyA")keys.L=0;
+  if(e.code==="ArrowRight"||e.code==="KeyD")keys.R=0;
+  if(e.code==="ArrowUp"||e.code==="KeyW")keys.U=0;
 });
-canvas.addEventListener("pointerdown",fire);
-requestAnimationFrame(loop);
+cv.addEventListener("pointerdown",function(e){e.preventDefault();shoot();});
+requestAnimationFrame(tick);
 })();
-</script></body></html>
+</script>
+</body></html>
