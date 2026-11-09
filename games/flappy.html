@@ -46,7 +46,7 @@ function loop(){
   var sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,"#4ec0ca");sky.addColorStop(1,"#70d5de");
   ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
   ctx.fillStyle="rgba(255,255,255,.5)";for(var i=0;i<4;i++){ctx.beginPath();ctx.ellipse(((i*110-frame*0.3)%(W+80))-40,50+i*18,30,13,0,0,6.28);ctx.fill();}
-  pipes.forEach(function(p){ctx.fillStyle="#3d8c0f";ctx.fillRect(p.x,0,52,p.top);ctx.fillRect(p.x,p.bot,52,G-p.bot);ctx.fillStyle="#5cb31a";ctx.fillRect(p.x-3,p.top-24,58,24);ctx.fillRect(p.x-3,p.bot,58,24);});
+  pipes.forEach(function(p){ctx.fillStyle="#3d9b12";ctx.fillRect(p.x,0,52,p.top);ctx.fillRect(p.x,p.bot,52,G-p.bot);ctx.fillStyle="#58c918";ctx.fillRect(p.x-3,p.top-24,58,24);ctx.fillRect(p.x-3,p.bot,58,24);});
   ctx.fillStyle="#ded895";ctx.fillRect(0,G,W,H-G);ctx.fillStyle="#c5c06a";ctx.fillRect(0,G,W,6);
   ctx.save();ctx.translate(bird.x,bird.y);ctx.rotate(Math.max(-0.5,Math.min(0.8,bird.vy*0.06)));
   ctx.fillStyle="#f7d23a";ctx.beginPath();ctx.ellipse(0,0,16,14,0,0,6.28);ctx.fill();
