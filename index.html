@@ -29,7 +29,7 @@ footer{text-align:center;padding:24px;color:#94a3b8;font-size:.85rem}
 </head>
 <body>
 <header><a class="logo" href="index.html">Retro <span>Hry</span></a></header>
-<div class="hero"><div class="hero-box"><h1>Retro hry online</h1><p>Klikni na kartu a hraj. 14 her.</p></div></div>
+<div class="hero"><div class="hero-box"><h1>Retro hry online</h1><p>Klikni na kartu a hraj. 13 her.</p></div></div>
 <main>
 <h2>Vsechny hry</h2>
 <div class="grid">
@@ -43,7 +43,6 @@ footer{text-align:center;padding:24px;color:#94a3b8;font-size:.85rem}
 <a class="card" href="games/memory.html" data-g="memory"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Memory Match</strong><small>Puzzle</small></div></a>
 <a class="card" href="games/tictactoe.html" data-g="ttt"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Tic Tac Toe</strong><small>Strategie</small></div></a>
 <a class="card" href="games/stack.html" data-g="stack"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Stack</strong><small>Arcade</small></div></a>
-<a class="card" href="games/slope.html" data-g="slope"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Slope</strong><small>Arcade</small></div></a>
 <a class="card" href="games/invaders.html" data-g="invaders"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Space Invaders</strong><small>Arcade</small></div></a>
 <a class="card" href="games/asteroids.html" data-g="asteroids"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Asteroids</strong><small>Arcade</small></div></a>
 <a class="card" href="games/connect4.html" data-g="connect4"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Connect 4</strong><small>Strategie</small></div></a>
@@ -65,7 +64,6 @@ else if(id==="flappy"){ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);ctx.fillSty
 else if(id==="memory"){for(var i=0;i<8;i++){ctx.fillStyle="#4c1d95";ctx.fillRect(14+(i%4)*55,18+Math.floor(i/4)*55,48,48);}}
 else if(id==="ttt"){ctx.strokeStyle="#64748b";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/3,12);ctx.lineTo(W/3,H-12);ctx.moveTo(2*W/3,12);ctx.lineTo(2*W/3,H-12);ctx.moveTo(12,H/3);ctx.lineTo(W-12,H/3);ctx.moveTo(12,2*H/3);ctx.lineTo(W-12,2*H/3);ctx.stroke();ctx.fillStyle="#38bdf8";ctx.font="bold 28px system-ui";ctx.textAlign="center";ctx.fillText("X",W/6,H/3-8);}
 else if(id==="stack"){for(var i=0;i<5;i++){ctx.fillStyle="hsl("+((i*40)%360)+",80%,55%)";ctx.fillRect(40+i*5,H-28-i*22,W-80-i*10,20);}}
-else if(id==="slope"){ctx.strokeStyle="#22d3ee";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(20,40);ctx.quadraticCurveTo(W*0.4,H*0.7,W-20,H*0.45);ctx.stroke();ctx.fillStyle="#ef4444";ctx.beginPath();ctx.arc(W*0.45,H*0.55,11,0,6.28);ctx.fill();}
 else if(id==="invaders"){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#4ade80";for(var i=0;i<6;i++){ctx.fillRect(20+i*38,30,28,16);}ctx.fillStyle="#0f0";ctx.fillRect(W/2-18,H-28,36,12);}
 else if(id==="asteroids"){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W/2,H/2-18);ctx.lineTo(W/2-14,H/2+14);ctx.lineTo(W/2+14,H/2+14);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.arc(70,50,28,0,6.28);ctx.stroke();}
 else if(id==="connect4"){ctx.fillStyle="#1d4ed8";ctx.fillRect(0,0,W,H);for(var r=0;r<3;r++)for(var c=0;c<5;c++){ctx.beginPath();ctx.arc(30+c*42,30+r*42,16,0,6.28);ctx.fillStyle=(r+c)%3===0?"#ef4444":((r+c)%3===1?"#eab308":"#0f172a");ctx.fill();}}
