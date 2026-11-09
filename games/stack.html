@@ -1,7 +1,9 @@
 <!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/><title>Stack</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;font-family:system-ui,sans-serif;color:#fff;user-select:none;touch-action:none}
 h1{font-weight:800;margin-bottom:4px}.sc{font-size:1.6rem;font-weight:800;color:#a5b4fc;margin-bottom:10px}
-canvas{border-radius:14px;max-width:96vw;cursor:pointer;background:#1e1b4b}.hint{margin-top:10px;color:#64748b;font-size:.75rem}</style></head><body>
+canvas{border-radius:14px;max-width:96vw;cursor:pointer;background:#1e1b4b}.hint{margin-top:10px;color:#64748b;font-size:.75rem}.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
+</style></head><body>
+<button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
 <h1>STACK</h1><div class="sc" id="sc">0</div><canvas id="c" width="360" height="520"></canvas><p class="hint">Klik / Space = polozit</p>
 <script>
 (function(){
@@ -22,4 +24,5 @@ if(over){ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#ff
 requestAnimationFrame(loop);}
 cv.addEventListener("pointerdown",function(e){e.preventDefault();drop();});document.addEventListener("keydown",function(e){if(e.code==="Space"){e.preventDefault();drop();}});
 requestAnimationFrame(loop);
-})();</script></body></html>
+})();</script><script>(function(){var b=document.getElementById("leaveBtn");if(b)b.onclick=function(){if(history.length>1)history.back();else location.href="../index.html";};})();</script>
+</body></html>

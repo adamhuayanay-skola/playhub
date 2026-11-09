@@ -1,7 +1,9 @@
 <!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/><title>Space Invaders</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;font-family:Courier New,monospace;color:#0f0;user-select:none;touch-action:none}
 h1{letter-spacing:.15em;margin-bottom:6px}.hud{display:flex;gap:20px;margin-bottom:8px;font-weight:700}
-canvas{border:2px solid #0f0;max-width:96vw}.hint{margin-top:8px;color:#060;font-size:.75rem}</style></head><body>
+canvas{border:2px solid #0f0;max-width:96vw}.hint{margin-top:8px;color:#060;font-size:.75rem}.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
+</style></head><body>
+<button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
 <h1>SPACE INVADERS</h1><div class="hud"><span>SCORE <b id="sc">0</b></span><span>HI <b id="hi">0</b></span></div>
 <canvas id="c" width="480" height="560"></canvas><p class="hint">← → · Space / klik = strelba</p>
 <script>
@@ -32,4 +34,5 @@ document.addEventListener("keyup",function(e){if(e.code==="ArrowLeft"||e.code===
 cv.addEventListener("pointermove",function(e){var r=cv.getBoundingClientRect();ship.x=Math.max(4,Math.min(W-36,(e.clientX-r.left)*(W/r.width)-16));});
 cv.addEventListener("pointerdown",shoot);
 ship={x:W/2-16,y:H-40};bullets=[];inv=[];requestAnimationFrame(loop);
-})();</script></body></html>
+})();</script><script>(function(){var b=document.getElementById("leaveBtn");if(b)b.onclick=function(){if(history.length>1)history.back();else location.href="../index.html";};})();</script>
+</body></html>

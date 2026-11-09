@@ -9,7 +9,9 @@ h1{font-size:1.1rem;font-weight:900;letter-spacing:.25em;color:#22d3ee;text-shad
 .sc{font-size:1.5rem;font-weight:800;margin-bottom:8px}
 canvas{border-radius:10px;box-shadow:0 0 40px rgba(34,211,238,.12);max-width:96vw;cursor:none}
 .hint{margin-top:10px;color:#555;font-size:.75rem}
+.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
 </style></head><body>
+<button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
 <h1>SLOPE</h1>
 <div class="sc" id="sc">0</div>
 <canvas id="c" width="480" height="640"></canvas>
@@ -166,4 +168,5 @@ canvas.addEventListener("pointermove",function(e){
 canvas.addEventListener("pointerdown",function(){if(!run||dead)reset();});
 requestAnimationFrame(loop);
 })();
-</script></body></html>
+</script><script>(function(){var b=document.getElementById("leaveBtn");if(b)b.onclick=function(){if(history.length>1)history.back();else location.href="../index.html";};})();</script>
+</body></html>

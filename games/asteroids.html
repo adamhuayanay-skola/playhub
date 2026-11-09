@@ -9,7 +9,9 @@ h1{font-size:1.1rem;letter-spacing:.2em;margin-bottom:6px}
 .sc{font-weight:700;margin-bottom:8px}
 canvas{max-width:96vw;background:#000;border:1px solid #333}
 .hint{margin-top:8px;color:#666;font-size:.75rem}
+.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
 </style></head><body>
+<button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
 <h1>ASTEROIDS</h1>
 <div class="sc">SCORE <span id="sc">0</span></div>
 <canvas id="c" width="480" height="480"></canvas>
@@ -88,4 +90,5 @@ document.addEventListener("keyup",function(e){
 canvas.addEventListener("pointerdown",fire);
 requestAnimationFrame(loop);
 })();
-</script></body></html>
+</script><script>(function(){var b=document.getElementById("leaveBtn");if(b)b.onclick=function(){if(history.length>1)history.back();else location.href="../index.html";};})();</script>
+</body></html>
