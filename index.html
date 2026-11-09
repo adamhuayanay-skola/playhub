@@ -7,57 +7,142 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
-header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
-.logo{font-weight:800;font-size:1.2rem;text-decoration:none;color:#0f172a}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 20px;position:sticky;top:0;z-index:10}
+.logo{font-weight:800;font-size:1.25rem;text-decoration:none;color:#0f172a}
 .logo span{color:#6366f1}
-.hero{max-width:1000px;margin:20px auto;padding:0 16px}
-.hero-box{background:linear-gradient(135deg,#eef2ff,#ecfeff);border-radius:16px;padding:24px;border:1px solid #e2e8f0}
-.hero-box h1{font-size:1.6rem;margin-bottom:6px}
+.hero{max-width:1040px;margin:20px auto;padding:0 16px}
+.hero-box{background:linear-gradient(135deg,#eef2ff,#ecfeff);border-radius:18px;padding:24px;border:1px solid #e2e8f0}
+.hero-box h1{font-size:1.55rem;margin-bottom:6px}
 .hero-box p{color:#64748b}
-main{max-width:1000px;margin:0 auto;padding:8px 16px 40px}
+main{max-width:1040px;margin:0 auto;padding:8px 16px 48px}
 h2{font-size:1.15rem;margin:18px 0 12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-a.card{display:block;background:#fff;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;border:1px solid #e2e8f0;box-shadow:0 4px 14px rgba(15,23,42,.06);transition:transform .15s}
-a.card:hover{transform:translateY(-3px);border-color:#a5b4fc}
-.thumb{height:100px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;color:#fff}
-.info{padding:10px 12px}
-.info strong{display:block;font-size:.95rem}
-.info small{color:#64748b}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+a.card{
+  display:block;background:#fff;border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;
+  border:1px solid #e2e8f0;box-shadow:0 6px 18px rgba(15,23,42,.07);transition:transform .15s,box-shadow .15s;
+}
+a.card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(15,23,42,.12);border-color:#c7d2fe}
+.thumb{height:110px;position:relative;overflow:hidden;background:#0f172a}
+.thumb canvas{width:100%;height:100%;display:block}
+.info{padding:10px 12px 12px}
+.info strong{display:block;font-size:.95rem;margin-bottom:2px}
+.info small{color:#64748b;font-size:.75rem}
 footer{text-align:center;padding:24px;color:#94a3b8;font-size:.85rem}
 </style>
 </head>
 <body>
-<header>
-  <a class="logo" href="index.html">Retro <span>Hry</span></a>
-</header>
-
-<div class="hero">
-  <div class="hero-box">
-    <h1>Retro hry online</h1>
-    <p>Klikni na kartu a hraj primo v prohlizeci. Bez instalace.</p>
-  </div>
-</div>
-
+<header><a class="logo" href="index.html">Retro <span>Hry</span></a></header>
+<div class="hero"><div class="hero-box">
+  <h1>Retro hry online</h1>
+  <p>Klikni na kartu a hraj primo v prohlizeci.</p>
+</div></div>
 <main>
   <h2>Vsechny hry</h2>
-  <div class="grid">
-    <a class="card" href="games/snake.html"><div class="thumb" style="background:#16a34a">Snake</div><div class="info"><strong>Snake</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/tetris.html"><div class="thumb" style="background:#0891b2">Tetris</div><div class="info"><strong>Tetris</strong><small>Puzzle</small></div></a>
-    <a class="card" href="games/pong.html"><div class="thumb" style="background:#0f172a">Pong</div><div class="info"><strong>Pong</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/breakout.html"><div class="thumb" style="background:#ea580c">Breakout</div><div class="info"><strong>Breakout</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/2048.html"><div class="thumb" style="background:#ca8a04">2048</div><div class="info"><strong>2048</strong><small>Puzzle</small></div></a>
-    <a class="card" href="games/minesweeper.html"><div class="thumb" style="background:#475569">Minesweeper</div><div class="info"><strong>Minesweeper</strong><small>Puzzle</small></div></a>
-    <a class="card" href="games/flappy.html"><div class="thumb" style="background:#0ea5e9">Flappy Bird</div><div class="info"><strong>Flappy Bird</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/memory.html"><div class="thumb" style="background:#7c3aed">Memory</div><div class="info"><strong>Memory Match</strong><small>Puzzle</small></div></a>
-    <a class="card" href="games/tictactoe.html"><div class="thumb" style="background:#334155">Tic Tac Toe</div><div class="info"><strong>Tic Tac Toe</strong><small>Strategie</small></div></a>
-    <a class="card" href="games/stack.html"><div class="thumb" style="background:#4f46e5">Stack</div><div class="info"><strong>Stack</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/slope.html"><div class="thumb" style="background:#06b6d4">Slope</div><div class="info"><strong>Slope</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/invaders.html"><div class="thumb" style="background:#15803d">Invaders</div><div class="info"><strong>Space Invaders</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/asteroids.html"><div class="thumb" style="background:#111827">Asteroids</div><div class="info"><strong>Asteroids</strong><small>Arcade</small></div></a>
-    <a class="card" href="games/connect4.html"><div class="thumb" style="background:#1d4ed8">Connect 4</div><div class="info"><strong>Connect 4</strong><small>Strategie</small></div></a>
+  <div class="grid" id="grid">
+    <a class="card" href="games/snake.html" data-g="snake"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Snake</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/tetris.html" data-g="tetris"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Tetris</strong><small>Puzzle</small></div></a>
+    <a class="card" href="games/pong.html" data-g="pong"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Pong</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/breakout.html" data-g="breakout"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Breakout</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/2048.html" data-g="g2048"><div class="thumb"><canvas></canvas></div><div class="info"><strong>2048</strong><small>Puzzle</small></div></a>
+    <a class="card" href="games/minesweeper.html" data-g="mines"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Minesweeper</strong><small>Puzzle</small></div></a>
+    <a class="card" href="games/flappy.html" data-g="flappy"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Flappy Bird</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/memory.html" data-g="memory"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Memory Match</strong><small>Puzzle</small></div></a>
+    <a class="card" href="games/tictactoe.html" data-g="ttt"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Tic Tac Toe</strong><small>Strategie</small></div></a>
+    <a class="card" href="games/stack.html" data-g="stack"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Stack</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/slope.html" data-g="slope"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Slope</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/invaders.html" data-g="invaders"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Space Invaders</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/asteroids.html" data-g="asteroids"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Asteroids</strong><small>Arcade</small></div></a>
+    <a class="card" href="games/connect4.html" data-g="connect4"><div class="thumb"><canvas></canvas></div><div class="info"><strong>Connect 4</strong><small>Strategie</small></div></a>
   </div>
 </main>
-
 <footer>Skolni projekt · Retro Hry</footer>
+<script>
+(function(){
+function draw(id,cv){
+  var ctx=cv.getContext("2d"),W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  if(id==="snake"){
+    ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
+    for(var i=0;i<8;i++){ctx.fillStyle=i?"#22c55e":"#4ade80";ctx.fillRect(20+i*22,H/2-10,20,20);}
+    ctx.fillStyle="#ef4444";ctx.beginPath();ctx.arc(W-36,H/2,11,0,6.28);ctx.fill();
+  }else if(id==="tetris"){
+    ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
+    var cs=["#22d3ee","#eab308","#a855f7","#22c55e","#f43f5e"];
+    for(var i=0;i<5;i++){ctx.fillStyle=cs[i];ctx.fillRect(30+i*36,40+(i%2)*18,30,30);ctx.fillRect(30+i*36,70+(i%2)*18,30,30);}
+  }else if(id==="pong"){
+    ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";
+    ctx.fillRect(10,H/2-28,8,56);ctx.fillRect(W-18,H/2-20,8,50);
+    ctx.beginPath();ctx.arc(W/2+20,H/2,7,0,6.28);ctx.fill();
+  }else if(id==="breakout"){
+    ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
+    var bc=["#f43f5e","#f97316","#eab308"];
+    for(var r=0;r<3;r++)for(var c=0;c<6;c++){ctx.fillStyle=bc[r];ctx.fillRect(16+c*38,16+r*18,34,14);}
+    ctx.fillStyle="#e2e8f0";ctx.fillRect(W/2-40,H-24,80,10);
+    ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(W/2,H-40,6,0,6.28);ctx.fill();
+  }else if(id==="g2048"){
+    ctx.fillStyle="#bbada0";ctx.fillRect(0,0,W,H);
+    var vals=[2,4,8,16,32,64,128,256];
+    for(var i=0;i<8;i++){
+      var x=12+(i%4)*55,y=12+Math.floor(i/4)*55;
+      ctx.fillStyle=i>3?"#f2b179":"#eee4da";ctx.fillRect(x,y,50,50);
+      ctx.fillStyle=i>3?"#f9f6f2":"#776e65";ctx.font="bold 16px system-ui";ctx.textAlign="center";ctx.fillText(String(vals[i]),x+25,y+32);
+    }
+  }else if(id==="mines"){
+    ctx.fillStyle="#1e293b";ctx.fillRect(0,0,W,H);
+    for(var r=0;r<4;r++)for(var c=0;c<6;c++){
+      ctx.fillStyle="#334155";ctx.fillRect(12+c*36,12+r*32,32,28);
+      if((r+c)%3===0){ctx.fillStyle="#f87171";ctx.font="14px system-ui";ctx.fillText("*",24+c*36,32+r*32);}
+    }
+  }else if(id==="flappy"){
+    ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);
+    ctx.fillStyle="#5ea512";ctx.fillRect(W*0.55,0,42,H*0.32);ctx.fillRect(W*0.55,H*0.55,42,H*0.25);
+    ctx.fillStyle="#ded895";ctx.fillRect(0,H*0.82,W,H*0.18);
+    ctx.fillStyle="#f8e71c";ctx.beginPath();ctx.ellipse(W*0.28,H*0.45,16,13,0,0,6.28);ctx.fill();
+  }else if(id==="memory"){
+    ctx.fillStyle="#1e1b4b";ctx.fillRect(0,0,W,H);
+    var em=["🍎","⭐","🔥","💎"];
+    for(var i=0;i<8;i++){
+      var x=14+(i%4)*55,y=18+Math.floor(i/4)*55;
+      ctx.fillStyle=i%3===0?"#4c1d95":"#312e81";ctx.fillRect(x,y,48,48);
+      if(i%3===0){ctx.font="22px system-ui";ctx.fillText(em[i%4],x+10,y+34);}
+    }
+  }else if(id==="ttt"){
+    ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#64748b";ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(W/3,12);ctx.lineTo(W/3,H-12);ctx.moveTo(2*W/3,12);ctx.lineTo(2*W/3,H-12);
+    ctx.moveTo(12,H/3);ctx.lineTo(W-12,H/3);ctx.moveTo(12,2*H/3);ctx.lineTo(W-12,2*H/3);ctx.stroke();
+    ctx.fillStyle="#38bdf8";ctx.font="bold 28px system-ui";ctx.textAlign="center";ctx.fillText("X",W/6,H/3-8);
+    ctx.fillStyle="#f472b6";ctx.fillText("O",W/2,H/2+10);
+  }else if(id==="stack"){
+    ctx.fillStyle="#1e1b4b";ctx.fillRect(0,0,W,H);
+    for(var i=0;i<5;i++){ctx.fillStyle="hsl("+((i*40)%360)+",80%,55%)";ctx.fillRect(40+i*5,H-28-i*22,W-80-i*10,20);}
+  }else if(id==="slope"){
+    ctx.fillStyle="#030308";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#22d3ee";ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(20,40);ctx.quadraticCurveTo(W*0.4,H*0.7,W-20,H*0.45);ctx.stroke();
+    ctx.fillStyle="#ef4444";ctx.beginPath();ctx.arc(W*0.45,H*0.55,11,0,6.28);ctx.fill();
+  }else if(id==="invaders"){
+    ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#4ade80";
+    for(var i=0;i<6;i++){ctx.fillRect(20+i*38,30,28,16);ctx.fillRect(20+i*38,55,28,16);}
+    ctx.fillStyle="#0f0";ctx.fillRect(W/2-18,H-28,36,12);
+  }else if(id==="asteroids"){
+    ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.strokeStyle="#fff";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(W/2,H/2-18);ctx.lineTo(W/2-14,H/2+14);ctx.lineTo(W/2+14,H/2+14);ctx.closePath();ctx.stroke();
+    ctx.beginPath();ctx.arc(70,50,28,0,6.28);ctx.stroke();ctx.beginPath();ctx.arc(W-60,H-40,18,0,6.28);ctx.stroke();
+  }else if(id==="connect4"){
+    ctx.fillStyle="#1d4ed8";ctx.fillRect(0,0,W,H);
+    for(var r=0;r<3;r++)for(var c=0;c<5;c++){
+      ctx.beginPath();ctx.arc(30+c*42,30+r*42,16,0,6.28);
+      ctx.fillStyle=(r+c)%3===0?"#ef4444":((r+c)%3===1?"#eab308":"#0f172a");ctx.fill();
+    }
+  }else{ctx.fillStyle="#6366f1";ctx.fillRect(0,0,W,H);}
+}
+var cards=document.querySelectorAll("a.card");
+for(var i=0;i<cards.length;i++){
+  var a=cards[i], cv=a.querySelector("canvas");
+  if(!cv)continue;
+  cv.width=320;cv.height=200;
+  try{draw(a.getAttribute("data-g"),cv);}catch(e){}
+}
+})();
+</script>
 </body>
 </html>
