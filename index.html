@@ -4,19 +4,18 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Retro Hry</title>
-<meta name="version" content="v15-all-games"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,Arial,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
-header{background:#4f46e5;color:#fff;padding:14px 20px;font-size:1.3rem;font-weight:800;box-shadow:0 4px 20px rgba(79,70,229,.35)}
+header{background:#4f46e5;color:#fff;padding:14px 20px;font-size:1.3rem;font-weight:800}
 .wrap{max-width:1040px;margin:0 auto;padding:16px}
 .hero{background:linear-gradient(135deg,#eef2ff,#ecfeff);border-radius:16px;padding:20px;margin:12px 0 16px;border:1px solid #e2e8f0}
 .hero h1{font-size:1.4rem;margin-bottom:4px}
 .hero p{color:#64748b}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:14px}
-a.card{display:block;background:#fff;border-radius:16px;overflow:hidden;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;box-shadow:0 4px 14px rgba(0,0,0,.06);transition:transform .15s,box-shadow .15s}
-a.card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(15,23,42,.12);border-color:#a5b4fc}
-.thumb{height:110px;background:linear-gradient(180deg,#1e293b,#0f172a)}
+a.card{display:block;background:#fff;border-radius:16px;overflow:hidden;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;box-shadow:0 4px 14px rgba(0,0,0,.07)}
+a.card:hover{border-color:#a5b4fc;transform:translateY(-3px)}
+.thumb{height:112px;background:#0f172a;overflow:hidden}
 .thumb canvas{width:100%;height:100%;display:block}
 .info{padding:10px 12px 12px}
 .info strong{display:block;font-size:.95rem}
@@ -26,10 +25,7 @@ a.card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(15,23,42,.12
 <body>
 <header>Retro Hry</header>
 <div class="wrap">
-  <div class="hero">
-    <h1>Vyber hru</h1>
-    <p>14 her · nahlady gameplaye · klikni na kartu</p>
-  </div>
+  <div class="hero"><h1>Vyber hru</h1><p>Nahlady gameplaye · klikni na kartu</p></div>
   <div class="grid">
     <a class="card" href="games/snake.html" data-g="snake"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Snake</strong><small>Arcade</small></div></a>
     <a class="card" href="games/tetris.html" data-g="tetris"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Tetris</strong><small>Puzzle</small></div></a>
@@ -48,23 +44,128 @@ a.card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(15,23,42,.12
 </div>
 <script>
 function draw(id,cv){
-var ctx=cv.getContext("2d"),W=cv.width,H=cv.height;
-ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
-if(id==="snake"){for(var i=0;i<8;i++){ctx.fillStyle=i?"#22c55e":"#4ade80";ctx.fillRect(18+i*24,H/2-12,22,22);}ctx.fillStyle="#ef4444";ctx.beginPath();ctx.arc(W-34,H/2,12,0,6.28);ctx.fill();}
-else if(id==="tetris"){var cs=["#67e8f9","#fde047","#d8b4fe","#4ade80","#fb7185"];for(var i=0;i<5;i++){ctx.fillStyle=cs[i];ctx.fillRect(28+i*38,40,32,32);ctx.fillRect(28+i*38,76,32,32);}}
-else if(id==="pong"){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.fillRect(12,H/2-30,8,60);ctx.fillRect(W-20,H/2-22,8,52);ctx.beginPath();ctx.arc(W/2+18,H/2,8,0,6.28);ctx.fill();}
-else if(id==="breakout"){var bc=["#f43f5e","#f97316","#eab308"];for(var r=0;r<3;r++)for(var c=0;c<6;c++){ctx.fillStyle=bc[r];ctx.fillRect(14+c*40,16+r*18,36,14);}ctx.fillStyle="#e2e8f0";ctx.fillRect(W/2-40,H-26,80,12);}
-else if(id==="g2048"){ctx.fillStyle="#bbada0";ctx.fillRect(0,0,W,H);ctx.fillStyle="#eee4da";ctx.fillRect(40,40,100,100);ctx.fillStyle="#776e65";ctx.font="bold 28px Arial";ctx.textAlign="center";ctx.fillText("2048",W/2,H/2+10);}
-else if(id==="mines"){for(var r=0;r<4;r++)for(var c=0;c<6;c++){ctx.fillStyle="#334155";ctx.fillRect(12+c*38,12+r*34,34,30);}}
-else if(id==="flappy"){ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);ctx.fillStyle="#5ea512";ctx.fillRect(W*0.55,0,44,H*0.32);ctx.fillRect(W*0.55,H*0.55,44,H*0.25);ctx.fillStyle="#f8e71c";ctx.beginPath();ctx.ellipse(W*0.28,H*0.45,17,14,0,0,6.28);ctx.fill();}
-else if(id==="memory"){for(var i=0;i<8;i++){ctx.fillStyle="#6d28d9";ctx.fillRect(14+(i%4)*58,18+Math.floor(i/4)*60,52,52);}}
-else if(id==="ttt"){ctx.strokeStyle="#64748b";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/3,12);ctx.lineTo(W/3,H-12);ctx.moveTo(2*W/3,12);ctx.lineTo(2*W/3,H-12);ctx.moveTo(12,H/3);ctx.lineTo(W-12,H/3);ctx.moveTo(12,2*H/3);ctx.lineTo(W-12,2*H/3);ctx.stroke();ctx.fillStyle="#38bdf8";ctx.font="bold 32px Arial";ctx.textAlign="center";ctx.fillText("X",W/6,H/3-8);}
-else if(id==="stack"){for(var i=0;i<5;i++){ctx.fillStyle="hsl("+((i*40)%360)+",80%,55%)";ctx.fillRect(36+i*6,H-30-i*24,W-72-i*12,22);}}
-else if(id==="connect4"){ctx.fillStyle="#1d4ed8";ctx.fillRect(0,0,W,H);for(var r=0;r<3;r++)for(var c=0;c<5;c++){ctx.beginPath();ctx.arc(32+c*44,32+r*44,17,0,6.28);ctx.fillStyle=(r+c)%3===0?"#ef4444":((r+c)%3===1?"#eab308":"#0f172a");ctx.fill();}}
-else if(id==="simon"){ctx.fillStyle="#111";ctx.fillRect(0,0,W,H);ctx.fillStyle="#16a34a";ctx.fillRect(40,30,100,70);ctx.fillStyle="#dc2626";ctx.fillRect(160,30,100,70);ctx.fillStyle="#eab308";ctx.fillRect(40,110,100,70);ctx.fillStyle="#2563eb";ctx.fillRect(160,110,100,70);}
-else if(id==="frogger"){ctx.fillStyle="#14532d";ctx.fillRect(0,0,W,H);ctx.fillStyle="#1e293b";ctx.fillRect(0,60,W,80);ctx.fillStyle="#4ade80";ctx.beginPath();ctx.arc(W/2,H-40,16,0,6.28);ctx.fill();ctx.fillStyle="#ef4444";ctx.fillRect(40,80,50,24);}
+var ctx=cv.getContext("2d");
+var W=cv.width,H=cv.height;
+ctx.clearRect(0,0,W,H);
+try{
+if(id==="snake"){
+  ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="#22c55e";ctx.lineWidth=16;ctx.lineCap="round";
+  ctx.beginPath();ctx.moveTo(36,H*0.55);ctx.quadraticCurveTo(120,H*0.55,150,H*0.35);ctx.quadraticCurveTo(200,H*0.2,250,H*0.5);ctx.stroke();
+  ctx.fillStyle="#4ade80";ctx.beginPath();ctx.arc(250,H*0.5,11,0,6.28);ctx.fill();
+  ctx.fillStyle="#f43f5e";ctx.beginPath();ctx.arc(W-50,H*0.45,13,0,6.28);ctx.fill();
+}
+else if(id==="tetris"){
+  ctx.fillStyle="#0a0a12";ctx.fillRect(0,0,W,H);
+  var blocks=[[90,40,"#7dd3fc"],[126,40,"#7dd3fc"],[126,76,"#7dd3fc"],[162,76,"#7dd3fc"],[50,120,"#fde047"],[86,120,"#fde047"],[50,156,"#fde047"],[86,156,"#fde047"],[190,120,"#e9d5ff"],[226,120,"#e9d5ff"],[262,120,"#e9d5ff"],[226,156,"#e9d5ff"]];
+  for(var i=0;i<blocks.length;i++){ctx.fillStyle=blocks[i][2];ctx.fillRect(blocks[i][0],blocks[i][1],34,34);ctx.fillStyle="rgba(255,255,255,.3)";ctx.fillRect(blocks[i][0]+2,blocks[i][1]+2,30,8);}
+}
+else if(id==="pong"){
+  ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="#333";ctx.setLineDash([6,10]);ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle="#fff";ctx.fillRect(16,H*0.35,10,70);ctx.fillRect(W-26,H*0.45,10,70);
+  ctx.beginPath();ctx.arc(W*0.6,H*0.4,8,0,6.28);ctx.fill();
+  ctx.font="bold 26px Arial";ctx.textAlign="center";ctx.fillText("3",W/2-40,40);ctx.fillText("2",W/2+40,40);
+}
+else if(id==="breakout"){
+  ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
+  var rows=["#f87171","#fb923c","#facc15","#4ade80","#60a5fa"];
+  for(var r=0;r<5;r++)for(var c=0;c<7;c++){ctx.fillStyle=rows[r];ctx.fillRect(14+c*42,14+r*18,38,14);}
+  ctx.fillStyle="#e2e8f0";ctx.fillRect(W/2-50,H-28,100,12);
+  ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(W/2+20,H-50,8,0,6.28);ctx.fill();
+}
+else if(id==="g2048"){
+  ctx.fillStyle="#bbada0";ctx.fillRect(0,0,W,H);
+  var grid=[[2,4,8,16],[32,64,2,4],[8,16,32,128],[4,2,8,256]];
+  var col={2:"#eee4da",4:"#ede0c8",8:"#f2b179",16:"#f59563",32:"#f67c5f",64:"#f65e3b",128:"#edcf72",256:"#edcc61"};
+  for(var r=0;r<4;r++)for(var c=0;c<4;c++){
+    var v=grid[r][c],x=16+c*74,y=14+r*46;
+    ctx.fillStyle=col[v]||"#f9f6f2";ctx.fillRect(x,y,66,40);
+    ctx.fillStyle=v<=4?"#776e65":"#f9f6f2";ctx.font="bold 16px Arial";ctx.textAlign="center";ctx.fillText(String(v),x+33,y+26);
+  }
+}
+else if(id==="mines"){
+  ctx.fillStyle="#1e293b";ctx.fillRect(0,0,W,H);
+  for(var r=0;r<4;r++)for(var c=0;c<5;c++){
+    var x=18+c*58,y=16+r*44;
+    ctx.fillStyle="#0f172a";ctx.fillRect(x,y,52,38);
+    if((r+c)%4===0){ctx.fillStyle="#f87171";ctx.font="18px Arial";ctx.textAlign="center";ctx.fillText("*",x+26,y+26);}
+    else if((r+c)%3===0){ctx.fillStyle="#60a5fa";ctx.font="bold 16px Arial";ctx.textAlign="center";ctx.fillText("1",x+26,y+26);}
+  }
+}
+else if(id==="flappy"){
+  ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="rgba(255,255,255,.45)";ctx.beginPath();ctx.arc(70,40,28,0,6.28);ctx.fill();ctx.beginPath();ctx.arc(95,40,22,0,6.28);ctx.fill();
+  ctx.fillStyle="#3d9b12";ctx.fillRect(210,0,48,72);ctx.fillRect(210,140,48,60);
+  ctx.fillStyle="#58c918";ctx.fillRect(204,64,60,16);ctx.fillRect(204,132,60,16);
+  ctx.fillStyle="#ded895";ctx.fillRect(0,H-32,W,32);
+  ctx.fillStyle="#f7d23a";ctx.beginPath();ctx.arc(95,105,16,0,6.28);ctx.fill();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(101,100,5,0,6.28);ctx.fill();
+  ctx.fillStyle="#222";ctx.beginPath();ctx.arc(102,100,2.5,0,6.28);ctx.fill();
+  ctx.fillStyle="#f39c12";ctx.fillRect(108,102,14,6);
+  ctx.fillStyle="#fff";ctx.font="bold 24px Arial";ctx.textAlign="center";ctx.fillText("7",W/2,32);
+}
+else if(id==="memory"){
+  ctx.fillStyle="#1e1b4b";ctx.fillRect(0,0,W,H);
+  var em=["🍎","⭐","🔥","💎"];
+  for(var i=0;i<8;i++){
+    var x=16+(i%4)*74,y=20+Math.floor(i/4)*85;
+    if(i%2===0){ctx.fillStyle="#1e293b";ctx.fillRect(x,y,66,72);ctx.font="28px Arial";ctx.textAlign="center";ctx.fillText(em[i%4],x+33,y+46);}
+    else{ctx.fillStyle="#7c3aed";ctx.fillRect(x,y,66,72);ctx.fillStyle="#fff";ctx.font="bold 24px Arial";ctx.textAlign="center";ctx.fillText("?",x+33,y+46);}
+  }
+}
+else if(id==="ttt"){
+  ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle="#64748b";ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(W/3,16);ctx.lineTo(W/3,H-16);ctx.moveTo(2*W/3,16);ctx.lineTo(2*W/3,H-16);
+  ctx.moveTo(16,H/3);ctx.lineTo(W-16,H/3);ctx.moveTo(16,2*H/3);ctx.lineTo(W-16,2*H/3);ctx.stroke();
+  ctx.font="bold 40px Arial";ctx.textAlign="center";
+  ctx.fillStyle="#38bdf8";ctx.fillText("X",W/6,H/6+8);ctx.fillText("X",W/2,H/2+8);
+  ctx.fillStyle="#f472b6";ctx.fillText("O",5*W/6,H/6+8);ctx.fillText("O",W/6,5*H/6+8);
+}
+else if(id==="stack"){
+  ctx.fillStyle="#1e1b4b";ctx.fillRect(0,0,W,H);
+  for(var i=0;i<5;i++){
+    var w=160-i*12,x=(W-w)/2;
+    ctx.fillStyle="hsl("+((i*48)%360)+",80%,58%)";ctx.fillRect(x,H-28-i*28,w,24);
+    ctx.fillStyle="rgba(255,255,255,.25)";ctx.fillRect(x+4,H-28-i*28+3,w-8,6);
+  }
+  ctx.fillStyle="#c4b5fd";ctx.font="bold 22px Arial";ctx.textAlign="center";ctx.fillText("5",W/2,26);
+}
+else if(id==="connect4"){
+  ctx.fillStyle="#1d4ed8";ctx.fillRect(0,0,W,H);
+  var board=[[0,0,0,1,0,0,0],[0,0,2,1,0,0,0],[0,2,1,2,0,0,0],[1,2,1,2,1,0,0],[1,2,1,2,1,2,0],[1,2,1,2,1,2,1]];
+  for(var r=0;r<6;r++)for(var c=0;c<7;c++){
+    var cx=28+c*42,cy=22+r*28;
+    ctx.beginPath();ctx.arc(cx,cy,12,0,6.28);
+    ctx.fillStyle=board[r][c]===1?"#ef4444":(board[r][c]===2?"#eab308":"#0f172a");ctx.fill();
+  }
+}
+else if(id==="simon"){
+  ctx.fillStyle="#0a0a0a";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#22c55e";ctx.fillRect(30,18,120,80);
+  ctx.fillStyle="#ef4444";ctx.fillRect(170,18,120,80);
+  ctx.fillStyle="#eab308";ctx.fillRect(30,108,120,80);
+  ctx.fillStyle="#3b82f6";ctx.fillRect(170,108,120,80);
+}
+else if(id==="frogger"){
+  ctx.fillStyle="#14532d";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#0ea5e9";ctx.fillRect(0,0,W,28);
+  ctx.fillStyle="#1e293b";ctx.fillRect(0,50,W,90);
+  ctx.fillStyle="#ef4444";ctx.fillRect(30,60,54,22);
+  ctx.fillStyle="#3b82f6";ctx.fillRect(150,88,60,22);
+  ctx.fillStyle="#eab308";ctx.fillRect(90,116,50,22);
+  ctx.fillStyle="#22c55e";ctx.fillRect(0,H-34,W,34);
+  ctx.fillStyle="#4ade80";ctx.beginPath();ctx.arc(W/2,H-18,14,0,6.28);ctx.fill();
+}
+else{ctx.fillStyle="#6366f1";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="bold 18px Arial";ctx.textAlign="center";ctx.fillText(id,W/2,H/2);}
+}catch(e){ctx.fillStyle="#334155";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="16px Arial";ctx.textAlign="center";ctx.fillText(id,W/2,H/2);}
+}
 var cards=document.querySelectorAll("a.card");
-for(var i=0;i<cards.length;i++){var cv=cards[i].querySelector("canvas");if(cv)try{draw(cards[i].getAttribute("data-g"),cv);}catch(e){}}
+for(var i=0;i<cards.length;i++){
+  var a=cards[i],cv=a.querySelector("canvas");
+  if(cv)draw(a.getAttribute("data-g"),cv);
+}
 </script>
 </body>
 </html>
