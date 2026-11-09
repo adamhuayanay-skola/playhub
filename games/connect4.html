@@ -21,6 +21,29 @@ h1{font-size:1.4rem;font-weight:800;margin-bottom:8px}
 .panel p{color:#64748b;margin-bottom:14px}
 .panel button{display:block;width:100%;margin:8px 0;padding:14px;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:1rem}
 .btn-blue{background:#1d4ed8;color:#fff}.btn-gray{background:#e2e8f0;color:#0f172a}.btn-purple{background:#7c3aed;color:#fff}
+
+/* visual polish – no gameplay changes */
+html{-webkit-tap-highlight-color:transparent}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;
+}
+#leave,.leave-btn,button#leave{
+  position:fixed!important;top:12px!important;left:12px!important;z-index:9999!important;
+  width:48px!important;height:48px!important;border:none!important;border-radius:14px!important;
+  background:linear-gradient(145deg,#f87171,#dc2626)!important;color:#fff!important;
+  font-size:28px!important;font-weight:900!important;cursor:pointer!important;
+  box-shadow:0 6px 20px rgba(220,38,38,.45)!important;line-height:1!important;
+}
+#leave:active,.leave-btn:active,button#leave:active{transform:scale(.94)}
+canvas{
+  border-radius:14px!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.35)!important;
+}
+h1{
+  letter-spacing:.02em;
+  text-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+
 </style></head><body>
 <button type="button" id="leave">&times;</button>
 <h1>Connect 4</h1>

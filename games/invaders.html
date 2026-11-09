@@ -10,6 +10,29 @@ h1{letter-spacing:.12em;margin-bottom:6px;font-size:1.1rem}
 .hud{display:flex;gap:20px;margin-bottom:8px;font-weight:700}
 canvas{border:2px solid #0f0;max-width:96vw;background:#000;cursor:pointer}
 .hint{margin-top:8px;color:#060;font-size:.75rem}
+
+/* visual polish – no gameplay changes */
+html{-webkit-tap-highlight-color:transparent}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;
+}
+#leave,.leave-btn,button#leave{
+  position:fixed!important;top:12px!important;left:12px!important;z-index:9999!important;
+  width:48px!important;height:48px!important;border:none!important;border-radius:14px!important;
+  background:linear-gradient(145deg,#f87171,#dc2626)!important;color:#fff!important;
+  font-size:28px!important;font-weight:900!important;cursor:pointer!important;
+  box-shadow:0 6px 20px rgba(220,38,38,.45)!important;line-height:1!important;
+}
+#leave:active,.leave-btn:active,button#leave:active{transform:scale(.94)}
+canvas{
+  border-radius:14px!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.35)!important;
+}
+h1{
+  letter-spacing:.02em;
+  text-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+
 </style></head><body>
 <button type="button" id="leave">&times;</button>
 <h1>SPACE INVADERS</h1>

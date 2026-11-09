@@ -1,5 +1,28 @@
 <!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/><title>2048</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#faf8ef;font-family:Clear Sans,Helvetica Neue,Arial,sans-serif;user-select:none;touch-action:none;color:#776e65}h1{font-size:3rem;font-weight:900;color:#776e65;margin-bottom:4px}.hud{display:flex;gap:10px;margin-bottom:12px}.box{background:#bbada0;border-radius:6px;padding:8px 18px;text-align:center;min-width:70px}.box .l{font-size:.65rem;font-weight:700;color:#eee4da;text-transform:uppercase}.box .v{font-size:1.4rem;font-weight:900;color:#fff}.board{background:#bbada0;border-radius:10px;padding:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:min(360px,92vw);aspect-ratio:1}.cell{background:#cdc1b4;border-radius:6px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.7rem;color:#776e65}.n2{background:#eee4da}.n4{background:#ede0c8}.n8{background:#f2b179;color:#f9f6f2}.n16{background:#f59563;color:#f9f6f2}.n32{background:#f67c5f;color:#f9f6f2}.n64{background:#f65e3b;color:#f9f6f2}.n128{background:#edcf72;color:#f9f6f2;font-size:1.4rem}.n256{background:#edcc61;color:#f9f6f2;font-size:1.4rem}.n512{background:#edc850;color:#f9f6f2;font-size:1.4rem}.n1024{background:#edc53f;color:#f9f6f2;font-size:1.15rem}.n2048{background:#edc22e;color:#f9f6f2;font-size:1.15rem}.nbig{background:#3c3a32;color:#f9f6f2;font-size:1rem}.btn{margin-top:10px;padding:10px 22px;border:none;border-radius:6px;background:#8f7a66;color:#f9f6f2;font-weight:700;cursor:pointer}.hint{margin-top:12px;color:#bbada0;font-size:.8rem}.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
+
+/* visual polish – no gameplay changes */
+html{-webkit-tap-highlight-color:transparent}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;
+}
+#leave,.leave-btn,button#leave{
+  position:fixed!important;top:12px!important;left:12px!important;z-index:9999!important;
+  width:48px!important;height:48px!important;border:none!important;border-radius:14px!important;
+  background:linear-gradient(145deg,#f87171,#dc2626)!important;color:#fff!important;
+  font-size:28px!important;font-weight:900!important;cursor:pointer!important;
+  box-shadow:0 6px 20px rgba(220,38,38,.45)!important;line-height:1!important;
+}
+#leave:active,.leave-btn:active,button#leave:active{transform:scale(.94)}
+canvas{
+  border-radius:14px!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.35)!important;
+}
+h1{
+  letter-spacing:.02em;
+  text-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+
 </style></head><body>
 <button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
 <h1>2048</h1><div class="hud"><div class="box"><div class="l">Score</div><div class="v" id="sc">0</div></div><div class="box"><div class="l">Best</div><div class="v" id="hi">0</div></div></div>

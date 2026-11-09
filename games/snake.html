@@ -3,6 +3,29 @@
 h1{font-weight:800;margin-bottom:8px}.hud{display:flex;gap:12px;margin-bottom:10px}.hud span{background:#1e293b;padding:6px 14px;border-radius:10px;font-weight:700}
 canvas{border-radius:14px;background:#020617;box-shadow:0 12px 40px #0008;max-width:94vw;cursor:pointer}
 .hint{margin-top:10px;color:#64748b;font-size:.75rem}.leave-btn{position:fixed;top:12px;left:12px;z-index:99;width:42px;height:42px;border:none;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font-size:1.35rem;font-weight:800;cursor:pointer;line-height:1}
+
+/* visual polish – no gameplay changes */
+html{-webkit-tap-highlight-color:transparent}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;
+}
+#leave,.leave-btn,button#leave{
+  position:fixed!important;top:12px!important;left:12px!important;z-index:9999!important;
+  width:48px!important;height:48px!important;border:none!important;border-radius:14px!important;
+  background:linear-gradient(145deg,#f87171,#dc2626)!important;color:#fff!important;
+  font-size:28px!important;font-weight:900!important;cursor:pointer!important;
+  box-shadow:0 6px 20px rgba(220,38,38,.45)!important;line-height:1!important;
+}
+#leave:active,.leave-btn:active,button#leave:active{transform:scale(.94)}
+canvas{
+  border-radius:14px!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.35)!important;
+}
+h1{
+  letter-spacing:.02em;
+  text-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+
 </style></head><body>
 <button type="button" class="leave-btn" id="leaveBtn" title="Zpet">×</button>
 <h1>Snake</h1><div class="hud"><span>Score <b id="sc">0</b></span><span>Best <b id="hi">0</b></span></div>
