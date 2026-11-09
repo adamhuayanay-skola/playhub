@@ -1,54 +1,39 @@
 <!DOCTYPE html>
 <html lang="cs"><head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <title>Connect 4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1e3a5f;font-family:system-ui,sans-serif;color:#fff;user-select:none}
-#leave{position:fixed;top:12px;left:12px;z-index:300;width:48px;height:48px;border:none;border-radius:12px;background:#ef4444;color:#fff;font-size:28px;font-weight:900;cursor:pointer}
-h1{font-size:1.4rem;font-weight:800;margin-bottom:8px}
-#st{margin-bottom:14px;font-weight:600;min-height:24px}
-.board{display:grid;grid-template-columns:repeat(7,46px);gap:8px;background:#1d4ed8;padding:12px;border-radius:16px}
-.cell{width:46px;height:46px;border-radius:50%;border:none;background:#0f172a;cursor:pointer}
-.cell.r{background:#ef4444}.cell.y{background:#eab308}
-#rst{margin-top:16px;padding:10px 20px;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+body{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#1e3a5f,#0f172a);font-family:system-ui,sans-serif;color:#fff;user-select:none;
+}
+#leave{
+  position:fixed;top:12px;left:12px;z-index:300;width:48px;height:48px;border:none;border-radius:12px;
+  background:linear-gradient(145deg,#f87171,#dc2626);color:#fff;font-size:28px;font-weight:900;cursor:pointer;
+  box-shadow:0 6px 20px rgba(220,38,38,.45);
+}
+h1{font-weight:800;margin-bottom:8px;font-size:1.4rem}
+#st{margin-bottom:12px;font-weight:700;min-height:28px}
+canvas{
+  border-radius:16px;max-width:96vw;cursor:pointer;touch-action:none;
+  box-shadow:0 16px 40px rgba(0,0,0,.4);
+}
+#rst{margin-top:14px;padding:12px 22px;border:none;border-radius:12px;font-weight:800;cursor:pointer;background:#fff;color:#1e3a5f}
 .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);padding:16px}
 .modal[hidden]{display:none!important}
 .panel{background:#fff;color:#0f172a;border-radius:20px;padding:28px 22px;width:min(340px,100%);text-align:center}
-.panel h2{font-size:1.7rem;font-weight:900;margin-bottom:8px}
+.panel h2{font-size:1.8rem;font-weight:900;margin-bottom:8px;line-height:1.15}
 .panel.red h2{color:#dc2626}.panel.yellow h2{color:#ca8a04}.panel.draw h2{color:#475569}
 .panel p{color:#64748b;margin-bottom:14px}
 .panel button{display:block;width:100%;margin:8px 0;padding:14px;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:1rem}
 .btn-blue{background:#1d4ed8;color:#fff}.btn-gray{background:#e2e8f0;color:#0f172a}.btn-purple{background:#7c3aed;color:#fff}
-
-/* visual polish – no gameplay changes */
-html{-webkit-tap-highlight-color:transparent}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;
-}
-#leave,.leave-btn,button#leave{
-  position:fixed!important;top:12px!important;left:12px!important;z-index:9999!important;
-  width:48px!important;height:48px!important;border:none!important;border-radius:14px!important;
-  background:linear-gradient(145deg,#f87171,#dc2626)!important;color:#fff!important;
-  font-size:28px!important;font-weight:900!important;cursor:pointer!important;
-  box-shadow:0 6px 20px rgba(220,38,38,.45)!important;line-height:1!important;
-}
-#leave:active,.leave-btn:active,button#leave:active{transform:scale(.94)}
-canvas{
-  border-radius:14px!important;
-  box-shadow:0 16px 40px rgba(0,0,0,.35)!important;
-}
-h1{
-  letter-spacing:.02em;
-  text-shadow:0 2px 12px rgba(0,0,0,.25);
-}
-
 </style></head><body>
 <button type="button" id="leave">&times;</button>
 <h1>Connect 4</h1>
 <div id="st">Vyber rezim</div>
-<div class="board" id="board"></div>
+<canvas id="c" width="420" height="380"></canvas>
 <button type="button" id="rst">Nova hra</button>
 
 <div class="modal" id="modeModal">
@@ -71,67 +56,42 @@ h1{
 
 <script>
 (function(){
-var ROWS=6,COLS=7;
-var boardEl=document.getElementById("board");
-var st=document.getElementById("st");
-var grid=[],turn=1,over=false,vsBot=false,started=false;
+var cv=document.getElementById("c");
+var ctx=cv.getContext("2d");
+var R=6,C=7,GAP=8;
+var cell=Math.floor((420-32-GAP*(C-1))/C);
+var boardH=R*cell+(R-1)*GAP;
+var boardW=C*cell+(C-1)*GAP;
+var ox=(420-boardW)/2;
+var oy=(380-boardH)/2;
 
-document.getElementById("leave").onclick=function(){
-  window.location.href="../index.html";
-};
+var grid=[];
+var turn=1;
+var over=false;
+var busy=false;
+var anim=null;
+var hoverCol=-1;
+var vsBot=false;
+var started=false;
 
 function emptyGrid(){
   var g=[],r,c;
-  for(r=0;r<ROWS;r++){g[r]=[];for(c=0;c<COLS;c++)g[r][c]=0;}
+  for(r=0;r<R;r++){g[r]=[];for(c=0;c<C;c++)g[r][c]=0;}
   return g;
 }
-function render(){
-  boardEl.innerHTML="";
-  var r,c,btn;
-  for(r=0;r<ROWS;r++){
-    for(c=0;c<COLS;c++){
-      btn=document.createElement("button");
-      btn.type="button";
-      btn.className="cell"+(grid[r][c]===1?" r":(grid[r][c]===2?" y":""));
-      (function(col){
-        btn.onclick=function(){
-          if(!started||over)return;
-          if(vsBot&&turn!==1)return;
-          drop(col);
-        };
-      })(c);
-      boardEl.appendChild(btn);
-    }
-  }
+function colX(c){return ox+c*(cell+GAP);}
+function rowY(r){return oy+r*(cell+GAP);}
+function dropRow(g,c){
+  var r;for(r=R-1;r>=0;r--)if(g[r][c]===0)return r;return -1;
 }
-function drop(col){
-  if(over)return;
-  var r;
-  for(r=ROWS-1;r>=0;r--){
-    if(grid[r][col]===0){
-      grid[r][col]=turn;
-      render();
-      if(checkWin(r,col)){endGame(turn);return;}
-      if(isFull()){endGame(0);return;}
-      turn=turn===1?2:1;
-      if(vsBot){
-        st.textContent=turn===1?"Ty (cervena)":"Bot tahne...";
-        if(turn===2)setTimeout(botMove,300);
-      }else{
-        st.textContent="Hraje: "+(turn===1?"Cervena":"Zluta");
-      }
-      return;
-    }
-  }
+function openCols(g){
+  var a=[],c;for(c=0;c<C;c++)if(g[0][c]===0)a.push(c);return a;
 }
-function isFull(){
-  var c;for(c=0;c<COLS;c++)if(grid[0][c]===0)return false;return true;
-}
-function checkWin(r,c){
-  var t=grid[r][c];
+function winnerAt(g,r,c){
+  var t=g[r][c];if(!t)return false;
   function cnt(dr,dc){
     var n=0,rr=r+dr,cc=c+dc;
-    while(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS&&grid[rr][cc]===t){n++;rr+=dr;cc+=dc;}
+    while(rr>=0&&rr<R&&cc>=0&&cc<C&&g[rr][cc]===t){n++;rr+=dr;cc+=dc;}
     return n;
   }
   var dirs=[[0,1],[1,0],[1,1],[1,-1]],i;
@@ -140,7 +100,25 @@ function checkWin(r,c){
   }
   return false;
 }
-function endGame(color){
+
+document.getElementById("leave").onclick=function(){
+  window.location.href="../index.html";
+};
+
+function start(bot){
+  vsBot=!!bot;
+  started=true;
+  over=false;
+  busy=false;
+  anim=null;
+  turn=1;
+  grid=emptyGrid();
+  document.getElementById("modeModal").hidden=true;
+  document.getElementById("winModal").hidden=true;
+  document.getElementById("st").textContent=vsBot?"Ty (cervena)":"Hraje: Cervena";
+}
+
+function showWin(color){
   over=true;
   var panel=document.getElementById("winPanel");
   var title=document.getElementById("winTitle");
@@ -158,49 +136,174 @@ function endGame(color){
     title.textContent="Zluta vyhrala!";
     text.textContent=vsBot?"Bot vyhral":"4 v rade";
   }
-  st.textContent=title.textContent;
+  document.getElementById("st").textContent=title.textContent;
   document.getElementById("winModal").hidden=false;
 }
-function openCols(){
-  var a=[],c;for(c=0;c<COLS;c++)if(grid[0][c]===0)a.push(c);return a;
+
+function drop(col){
+  if(!started||over||busy)return;
+  if(grid[0][col]!==0)return;
+  var r=dropRow(grid,col);
+  if(r<0)return;
+  busy=true;
+  anim={
+    col:col,
+    row:r,
+    color:turn,
+    y:oy-cell-12,
+    targetY:rowY(r),
+    vy:0
+  };
 }
+
+function finishDrop(){
+  if(!anim)return;
+  var r=anim.row,c=anim.col,color=anim.color;
+  grid[r][c]=color;
+  anim=null;
+  busy=false;
+  if(winnerAt(grid,r,c)){showWin(color);return;}
+  if(!openCols(grid).length){showWin(0);return;}
+  turn=turn===1?2:1;
+  if(vsBot){
+    if(turn===1){
+      document.getElementById("st").textContent="Ty (cervena)";
+    }else{
+      document.getElementById("st").textContent="Bot tahne...";
+      setTimeout(botMove,320);
+    }
+  }else{
+    document.getElementById("st").textContent="Hraje: "+(turn===1?"Cervena":"Zluta");
+  }
+}
+
 function botMove(){
   if(over||!vsBot||turn!==2)return;
-  var cols=openCols(),i,c,r,pick;
+  var cols=openCols(grid),i,c,r,pick;
   if(!cols.length)return;
-  // win now
   for(i=0;i<cols.length;i++){
-    c=cols[i];
-    for(r=ROWS-1;r>=0;r--)if(grid[r][c]===0)break;
+    c=cols[i];r=dropRow(grid,c);
     grid[r][c]=2;
-    if(checkWin(r,c)){grid[r][c]=0;drop(c);return;}
+    if(winnerAt(grid,r,c)){grid[r][c]=0;drop(c);return;}
     grid[r][c]=0;
   }
-  // block X
   for(i=0;i<cols.length;i++){
-    c=cols[i];
-    for(r=ROWS-1;r>=0;r--)if(grid[r][c]===0)break;
+    c=cols[i];r=dropRow(grid,c);
     grid[r][c]=1;
-    if(checkWin(r,c)){grid[r][c]=0;drop(c);return;}
+    if(winnerAt(grid,r,c)){grid[r][c]=0;drop(c);return;}
     grid[r][c]=0;
   }
-  // random preference toward center
   cols.sort(function(a,b){return Math.abs(a-3)-Math.abs(b-3);});
   if(Math.random()<0.3&&cols.length>1)pick=cols[1+Math.floor(Math.random()*(cols.length-1))];
   else pick=cols[0];
   drop(pick);
 }
-function start(bot){
-  vsBot=!!bot;
-  started=true;
-  over=false;
-  turn=1;
-  grid=emptyGrid();
-  document.getElementById("modeModal").hidden=true;
-  document.getElementById("winModal").hidden=true;
-  st.textContent=vsBot?"Ty (cervena)":"Hraje: Cervena";
-  render();
+
+function drawDisc(x,y,color,scale){
+  scale=scale||1;
+  var rad=(cell/2-3)*scale;
+  var cx=x+cell/2;
+  var cy=y+cell/2;
+  ctx.beginPath();
+  ctx.arc(cx+2,cy+3,rad,0,Math.PI*2);
+  ctx.fillStyle="rgba(0,0,0,.25)";
+  ctx.fill();
+  var g=ctx.createRadialGradient(cx-rad*0.3,cy-rad*0.3,2,cx,cy,rad);
+  if(color===1){
+    g.addColorStop(0,"#fca5a5");g.addColorStop(0.45,"#ef4444");g.addColorStop(1,"#b91c1c");
+  }else if(color===2){
+    g.addColorStop(0,"#fde68a");g.addColorStop(0.45,"#eab308");g.addColorStop(1,"#a16207");
+  }else{
+    g.addColorStop(0,"#1e293b");g.addColorStop(1,"#020617");
+  }
+  ctx.beginPath();
+  ctx.arc(cx,cy,rad,0,Math.PI*2);
+  ctx.fillStyle=g;
+  ctx.fill();
+  if(color){
+    ctx.beginPath();
+    ctx.ellipse(cx-rad*0.25,cy-rad*0.3,rad*0.35,rad*0.2,-0.4,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,.35)";
+    ctx.fill();
+  }
 }
+
+function roundRect(x,y,w,h,rad){
+  ctx.beginPath();
+  ctx.moveTo(x+rad,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rad);
+  ctx.arcTo(x+w,y+h,x,y+h,rad);
+  ctx.arcTo(x,y+h,x,y,rad);
+  ctx.arcTo(x,y,x+w,y,rad);
+  ctx.closePath();
+}
+
+function colFromEvent(e){
+  var rect=cv.getBoundingClientRect();
+  var x=(e.clientX-rect.left)*(cv.width/rect.width);
+  var c;
+  for(c=0;c<C;c++){
+    var cx=colX(c);
+    if(x>=cx&&x<=cx+cell)return c;
+  }
+  return Math.max(0,Math.min(C-1,Math.floor((x-ox)/(cell+GAP))));
+}
+
+function loop(){
+  if(anim){
+    anim.vy+=0.9;
+    anim.y+=anim.vy;
+    if(anim.y>=anim.targetY){
+      anim.y=anim.targetY;
+      if(anim.vy>3.5){
+        anim.vy*=-0.3;
+      }else{
+        finishDrop();
+      }
+    }
+  }
+
+  ctx.clearRect(0,0,420,380);
+  roundRect(ox-12,oy-12,boardW+24,boardH+24,16);
+  ctx.fillStyle="#1d4ed8";
+  ctx.fill();
+  roundRect(ox-8,oy-8,boardW+16,boardH+16,14);
+  ctx.fillStyle="#2563eb";
+  ctx.fill();
+
+  var r,c,x,y,free;
+  for(r=0;r<R;r++){
+    for(c=0;c<C;c++){
+      x=colX(c);y=rowY(r);
+      ctx.beginPath();
+      ctx.arc(x+cell/2,y+cell/2,cell/2-2,0,Math.PI*2);
+      ctx.fillStyle="#0f172a";
+      ctx.fill();
+      if(grid[r]&&grid[r][c])drawDisc(x,y,grid[r][c]);
+    }
+  }
+
+  if(started&&!busy&&!over&&hoverCol>=0&&!(vsBot&&turn===2)){
+    free=dropRow(grid,hoverCol);
+    if(free>=0){
+      ctx.globalAlpha=0.35;
+      drawDisc(colX(hoverCol),rowY(free),turn);
+      ctx.globalAlpha=1;
+      drawDisc(colX(hoverCol),oy-cell-4,turn,0.7);
+    }
+  }
+
+  if(anim)drawDisc(colX(anim.col),anim.y,anim.color);
+  requestAnimationFrame(loop);
+}
+
+cv.addEventListener("pointermove",function(e){hoverCol=colFromEvent(e);});
+cv.addEventListener("pointerleave",function(){hoverCol=-1;});
+cv.addEventListener("pointerdown",function(e){
+  if(!started||over||(vsBot&&turn===2))return;
+  drop(colFromEvent(e));
+});
+
 document.getElementById("btnFriend").onclick=function(){start(false);};
 document.getElementById("btnBot").onclick=function(){start(true);};
 document.getElementById("btnAgain").onclick=function(){start(vsBot);};
@@ -208,14 +311,15 @@ document.getElementById("btnMode").onclick=function(){
   document.getElementById("winModal").hidden=true;
   document.getElementById("modeModal").hidden=false;
   started=false;
-  st.textContent="Vyber rezim";
+  document.getElementById("st").textContent="Vyber rezim";
 };
 document.getElementById("rst").onclick=function(){
   if(started)start(vsBot);
   else document.getElementById("modeModal").hidden=false;
 };
+
 grid=emptyGrid();
-render();
+requestAnimationFrame(loop);
 })();
 </script>
 </body></html>
