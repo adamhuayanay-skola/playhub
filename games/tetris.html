@@ -29,7 +29,7 @@ canvas{border-radius:10px;box-shadow:0 0 0 2px #1e293b,0 20px 50px rgba(0,0,0,.5
 <script>
 const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
 const COLS=10,ROWS=20,SZ=30;
-const COLORS=[null,"#67e8f9","#fde047","#d8b4fe","#4ade80","#fb7185","#60a5fa","#fdba74"];
+const COLORS=[null,"#7dd3fc","#fde047","#e9d5ff","#86efac","#fda4af","#93c5fd","#fdba74"];
 const SHAPES={I:[[1,1,1,1]],O:[[2,2],[2,2]],T:[[0,3,0],[3,3,3]],S:[[0,4,4],[4,4,0]],Z:[[5,5,0],[0,5,5]],J:[[6,0,0],[6,6,6]],L:[[0,0,7],[7,7,7]]};
 const params=new URLSearchParams(location.search);
 const baseSpd={easy:650,mid:480,hard:280}[params.get("diff")||"mid"]||480;
@@ -74,22 +74,38 @@ function clearLines(){
 }
 function cell(px,py,id){
   if(!id)return;
-  const g=ctx.createLinearGradient(px*SZ,py*SZ,px*SZ,py*SZ+SZ);
-  g.addColorStop(0,COLORS[id]);g.addColorStop(1,"#ffffff22");
+  var x=px*SZ+2,y=py*SZ+2,s=SZ-4;
+  var g=ctx.createLinearGradient(x,y,x,y+s);
+  g.addColorStop(0,COLORS[id]);
+  g.addColorStop(1,COLORS[id]);
   ctx.fillStyle=g;
-  ctx.fillRect(px*SZ+1,py*SZ+1,SZ-2,SZ-2);
-  ctx.fillStyle="rgba(255,255,255,.25)";
-  ctx.fillRect(px*SZ+2,py*SZ+2,SZ-6,4);
+  ctx.beginPath();
+  if(ctx.roundRect)ctx.roundRect(x,y,s,s,6);else{ctx.rect(x,y,s,s);}
+  ctx.fill();
+  // top gloss
+  ctx.fillStyle="rgba(255,255,255,.35)";
+  ctx.beginPath();
+  if(ctx.roundRect)ctx.roundRect(x+2,y+2,s-4,Math.max(4,s*0.22),4);else ctx.rect(x+2,y+2,s-4,4);
+  ctx.fill();
+  // soft outer edge
+  ctx.strokeStyle="rgba(0,0,0,.2)";ctx.lineWidth=1;
+  ctx.beginPath();
+  if(ctx.roundRect)ctx.roundRect(x,y,s,s,6);else ctx.rect(x,y,s,s);
+  ctx.stroke();
 }
 function draw(){
-  ctx.fillStyle="#0b1220";ctx.fillRect(0,0,300,600);
-  ctx.strokeStyle="rgba(255,255,255,.03)";
-  for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,r*SZ);ctx.lineTo(COLS*SZ,r*SZ);ctx.stroke();}
-  for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(c*SZ,0);ctx.lineTo(c*SZ,ROWS*SZ);ctx.stroke();}
+  var bg=ctx.createLinearGradient(0,0,0,600);
+  bg.addColorStop(0,"#12121c");bg.addColorStop(1,"#07070d");
+  ctx.fillStyle=bg;ctx.fillRect(0,0,300,600);
+  // soft guide dots instead of harsh grid
+  ctx.fillStyle="rgba(148,163,184,.07)";
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    ctx.beginPath();ctx.arc(c*SZ+SZ/2,r*SZ+SZ/2,1.1,0,6.28);ctx.fill();
+  }
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)cell(c,r,board[r][c]);
   if(run)for(let r=0;r<piece.length;r++)for(let c=0;c<piece[r].length;c++)if(piece[r][c])cell(x+c,y+r,piece[r][c]);
   if(!run){
-    ctx.fillStyle="rgba(0,0,0,.6)";ctx.fillRect(0,0,300,600);
+    ctx.fillStyle="rgba(0,0,0,.55)";ctx.fillRect(0,0,300,600);
     ctx.fillStyle="#fff";ctx.font="bold 26px system-ui";ctx.textAlign="center";
     ctx.fillText("GAME OVER",150,280);
     ctx.font="15px system-ui";ctx.fillText("Space = restart",150,310);

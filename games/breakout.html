@@ -40,7 +40,7 @@ h1{
 <canvas id="c" width="480" height="560"></canvas>
 <p class="hint">Mys / touch = padlo · klik = start</p>
 <script>
-const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");ctx.imageSmoothingEnabled=true;
 const W=480,H=560;
 const COLORS=["#f43f5e","#f97316","#eab308","#22c55e","#3b82f6","#a855f7"];
 let paddle,ball,bricks,score=0,run=false,lives=3,particles=[];

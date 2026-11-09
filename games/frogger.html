@@ -65,7 +65,7 @@ function loop(){
   ctx.fillStyle="#0ea5e9";ctx.fillRect(0,0,W,CS);
   ctx.fillStyle="#22c55e";ctx.fillRect(0,11*CS,W,CS);
   for(i=0;i<cars.length;i++){c=cars[i];ctx.fillStyle=c.color;ctx.fillRect(c.x*CS+2,c.y*CS+6,c.w*CS-4,CS-12);}
-  ctx.fillStyle="#4ade80";ctx.beginPath();ctx.arc(frog.x*CS+CS/2,frog.y*CS+CS/2,14,0,6.28);ctx.fill();
+  ctx.fillStyle="rgba(74,222,128,.3)";ctx.beginPath();ctx.arc(frog.x*CS+CS/2,frog.y*CS+CS/2,17,0,6.28);ctx.fill();ctx.fillStyle="#4ade80";ctx.beginPath();ctx.arc(frog.x*CS+CS/2,frog.y*CS+CS/2,14,0,6.28);ctx.fill();ctx.fillStyle="#166534";ctx.beginPath();ctx.arc(frog.x*CS+CS/2-4,frog.y*CS+CS/2-3,2.2,0,6.28);ctx.fill();ctx.beginPath();ctx.arc(frog.x*CS+CS/2+4,frog.y*CS+CS/2-3,2.2,0,6.28);ctx.fill();
   if(!run&&!dead){ctx.fillStyle="rgba(0,0,0,.4)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.font="20px system-ui";ctx.textAlign="center";ctx.fillText("Klikni / sipka = start",W/2,H/2);}
   if(dead){ctx.fillStyle="rgba(0,0,0,.45)";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fecaca";ctx.font="bold 24px system-ui";ctx.textAlign="center";ctx.fillText("Game Over",W/2,H/2);}
   requestAnimationFrame(loop);
