@@ -1,260 +1,226 @@
 <!DOCTYPE html>
-<html lang="cs"><head>
+<html lang="cs">
+<head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <title>Connect 4</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#1e3a5f,#0f172a);font-family:system-ui,sans-serif;color:#fff;user-select:none}
-#leave{position:fixed;top:12px;left:12px;z-index:200;width:48px;height:48px;border:none;border-radius:12px;background:#ef4444;color:#fff;font-size:28px;font-weight:900;cursor:pointer}
-h1{font-weight:800;margin-bottom:6px}
-#st{margin-bottom:12px;font-weight:700;min-height:28px}
-canvas{border-radius:16px;max-width:96vw;cursor:pointer;touch-action:none;box-shadow:0 12px 36px rgba(0,0,0,.4)}
-#rst{margin-top:14px;padding:12px 22px;border:none;border-radius:12px;font-weight:800;cursor:pointer;background:#fff;color:#1e3a5f}
-.modal{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);padding:16px}
-.modal[hidden]{display:none!important}
-.panel{background:#fff;color:#0f172a;border-radius:20px;padding:28px 22px;width:min(340px,100%);text-align:center}
-.panel h2{font-size:1.7rem;font-weight:900;margin-bottom:10px;line-height:1.2}
-.panel.red h2{color:#dc2626}.panel.yellow h2{color:#ca8a04}.panel.draw h2{color:#475569}
-.panel p{color:#64748b;margin-bottom:14px}
-.panel button{display:block;width:100%;margin:8px 0;padding:14px;border:none;border-radius:12px;font-weight:800;font-size:1rem;cursor:pointer}
-.btn-blue{background:#1d4ed8;color:#fff}
-.btn-gray{background:#e2e8f0;color:#0f172a}
-.btn-purple{background:#7c3aed;color:#fff}
-</style></head><body>
+html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#1e3a5f;color:#fff}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+#leave{
+  position:fixed;top:12px;left:12px;width:52px;height:52px;z-index:9999;
+  border:3px solid #fff;border-radius:14px;background:#ef4444;color:#fff;
+  font-size:32px;font-weight:900;cursor:pointer;line-height:1;
+}
+h1{margin:0 0 8px}
+#st{margin:0 0 12px;font-weight:700;font-size:18px}
+#board{
+  display:grid;grid-template-columns:repeat(7,48px);gap:8px;
+  background:#1d4ed8;padding:12px;border-radius:16px;
+}
+.cell{
+  width:48px;height:48px;border-radius:50%;border:none;background:#0f172a;cursor:pointer;
+}
+.cell.r{background:#ef4444}
+.cell.y{background:#eab308}
+#rst{margin-top:14px;padding:12px 20px;border:none;border-radius:10px;font-weight:800;cursor:pointer}
+#mask{
+  position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:5000;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+#mask.hide{display:none}
+.box{background:#fff;color:#111;border-radius:18px;padding:24px;width:min(320px,100%);text-align:center}
+.box h2{margin:0 0 10px;font-size:28px}
+.box button{
+  display:block;width:100%;margin:10px 0 0;padding:14px;border:none;border-radius:12px;
+  font-size:16px;font-weight:800;cursor:pointer;
+}
+#bf{background:#e2e8f0;color:#111}
+#bb{background:#7c3aed;color:#fff}
+#ba{background:#1d4ed8;color:#fff}
+#bm{background:#e2e8f0;color:#111}
+.winRed h2{color:#dc2626}
+.winYel h2{color:#ca8a04}
+</style>
+</head>
+<body>
 <button type="button" id="leave">&times;</button>
 <h1>Connect 4</h1>
 <div id="st">Vyber rezim</div>
-<canvas id="c" width="420" height="380"></canvas>
+<div id="board"></div>
 <button type="button" id="rst">Nova hra</button>
 
-<div class="modal" id="modeModal">
-  <div class="panel">
-    <h2>Jak chces hrat?</h2>
-    <p>Vyber souperu</p>
-    <button type="button" class="btn-gray" id="btnFriend">Proti kamaradovi</button>
-    <button type="button" class="btn-purple" id="btnBot">Proti botovi</button>
-  </div>
-</div>
-
-<div class="modal" id="winModal" hidden>
-  <div class="panel" id="winPanel">
-    <h2 id="winTitle">Vyhra</h2>
-    <p id="winText"></p>
-    <button type="button" class="btn-blue" id="btnAgain">Hrat znovu</button>
-    <button type="button" class="btn-gray" id="btnMode">Zmenit rezim</button>
+<div id="mask">
+  <div class="box" id="box">
+    <h2 id="mt">Jak chces hrat?</h2>
+    <p id="mp">Vyber souperu</p>
+    <button type="button" id="bf">Proti kamaradovi</button>
+    <button type="button" id="bb">Proti botovi</button>
+    <button type="button" id="ba" style="display:none">Hrat znovu</button>
+    <button type="button" id="bm" style="display:none">Zmenit rezim</button>
   </div>
 </div>
 
 <script>
 (function(){
-var cv=document.getElementById("c");
-var ctx=cv.getContext("2d");
-var R=6,C=7,GAP=8;
-var cell=Math.floor((420-32-GAP*(C-1))/C);
-var boardH=R*cell+(R-1)*GAP;
-var boardW=C*cell+(C-1)*GAP;
-var ox=(420-boardW)/2, oy=(380-boardH)/2;
-var grid=emptyGrid();
-var turn=1, over=false, busy=false, anim=null, hoverCol=-1;
-var vsBot=false, started=false;
-
-function emptyGrid(){
-  var g=[],r,c;
-  for(r=0;r<R;r++){g[r]=[];for(c=0;c<C;c++)g[r][c]=0;}
-  return g;
-}
-function colX(c){return ox+c*(cell+GAP);}
-function rowY(r){return oy+r*(cell+GAP);}
+var ROWS=6,COLS=7;
+var grid=[],turn=1,over=false,vsBot=false,started=false,busy=false;
+var board=document.getElementById("board");
+var st=document.getElementById("st");
+var mask=document.getElementById("mask");
+var box=document.getElementById("box");
+var mt=document.getElementById("mt");
+var mp=document.getElementById("mp");
 
 document.getElementById("leave").onclick=function(){
-  location.href="../index.html";
+  window.location.href="../index.html";
 };
 
-function start(bot){
-  vsBot=!!bot;
-  started=true;
-  grid=emptyGrid();
-  turn=1;over=false;busy=false;anim=null;
-  document.getElementById("modeModal").hidden=true;
-  document.getElementById("winModal").hidden=true;
-  document.getElementById("st").textContent=vsBot?"Ty (cervena) vs Bot":"Hraje: Cervena";
+function empty(){
+  var g=[],r,c;
+  for(r=0;r<ROWS;r++){g[r]=[];for(c=0;c<COLS;c++)g[r][c]=0;}
+  return g;
 }
-
-document.getElementById("btnFriend").onclick=function(){start(false);};
-document.getElementById("btnBot").onclick=function(){start(true);};
-document.getElementById("btnAgain").onclick=function(){start(vsBot);};
-document.getElementById("btnMode").onclick=function(){
-  document.getElementById("winModal").hidden=true;
-  document.getElementById("modeModal").hidden=false;
-  started=false;
-  document.getElementById("st").textContent="Vyber rezim";
-};
-document.getElementById("rst").onclick=function(){
-  if(started)start(vsBot);
-  else document.getElementById("modeModal").hidden=false;
-};
-
-function showWin(color){
-  over=true;
-  var panel=document.getElementById("winPanel");
-  var title=document.getElementById("winTitle");
-  var text=document.getElementById("winText");
-  panel.className="panel";
-  if(color===0){panel.className="panel draw";title.textContent="Remiza!";text.textContent="Deska je plna";}
-  else if(color===1){panel.className="panel red";title.textContent="Cervena vyhrala!";text.textContent=vsBot?"Vyhral jsi!":"4 v rade";}
-  else{panel.className="panel yellow";title.textContent="Zluta vyhrala!";text.textContent=vsBot?"Bot vyhral":"4 v rade";}
-  document.getElementById("st").textContent=title.textContent;
-  document.getElementById("winModal").hidden=false;
+function render(){
+  board.innerHTML="";
+  var r,c,btn;
+  for(r=0;r<ROWS;r++){
+    for(c=0;c<COLS;c++){
+      btn=document.createElement("button");
+      btn.type="button";
+      btn.className="cell"+(grid[r][c]===1?" r":grid[r][c]===2?" y":"");
+      btn.setAttribute("data-col",String(c));
+      btn.onclick=onCell;
+      board.appendChild(btn);
+    }
+  }
 }
-
-function validCols(g){
-  var cols=[],c;for(c=0;c<C;c++)if(g[0][c]===0)cols.push(c);return cols;
+function onCell(e){
+  if(!started||over||busy)return;
+  if(vsBot&&turn===2)return;
+  var col=parseInt(e.currentTarget.getAttribute("data-col"),10);
+  playCol(col);
 }
-function dropRow(g,c){
-  var r;for(r=R-1;r>=0;r--)if(g[r][c]===0)return r;return -1;
+function playCol(col){
+  if(over||busy)return;
+  var r;
+  for(r=ROWS-1;r>=0;r--){
+    if(grid[r][col]===0){
+      grid[r][col]=turn;
+      render();
+      if(win(r,col)){endWin(turn);return;}
+      if(full()){endDraw();return;}
+      turn=turn===1?2:1;
+      if(vsBot){
+        st.textContent=turn===1?"Ty (cervena)":"Bot mysli...";
+        if(turn===2){
+          busy=true;
+          setTimeout(botTurn,350);
+        }
+      }else{
+        st.textContent="Hraje: "+(turn===1?"Cervena":"Zluta");
+      }
+      return;
+    }
+  }
 }
-function clone(g){return g.map(function(row){return row.slice();});}
-function winnerAt(g,r,c){
-  var t=g[r][c];if(!t)return false;
+function full(){
+  var c;for(c=0;c<COLS;c++)if(grid[0][c]===0)return false;return true;
+}
+function win(r,c){
+  var t=grid[r][c];
   function cnt(dr,dc){
     var n=0,rr=r+dr,cc=c+dc;
-    while(rr>=0&&rr<R&&cc>=0&&cc<C&&g[rr][cc]===t){n++;rr+=dr;cc+=dc;}
+    while(rr>=0&&rr<ROWS&&cc>=0&&cc<COLS&&grid[rr][cc]===t){n++;rr+=dr;cc+=dc;}
     return n;
   }
-  var dirs=[[0,1],[1,0],[1,1],[1,-1]],i;
-  for(i=0;i<dirs.length;i++){
-    if(1+cnt(dirs[i][0],dirs[i][1])+cnt(-dirs[i][0],-dirs[i][1])>=4)return true;
-  }
+  var d=[[0,1],[1,0],[1,1],[1,-1]],i;
+  for(i=0;i<4;i++)if(1+cnt(d[i][0],d[i][1])+cnt(-d[i][0],-d[i][1])>=4)return true;
   return false;
 }
-function shuffle(a){
-  a=a.slice();var i,j,t;
-  for(i=a.length-1;i>0;i--){j=(Math.random()*(i+1))|0;t=a[i];a[i]=a[j];a[j]=t;}
-  return a;
+function endWin(color){
+  over=true;busy=false;
+  box.className="box "+(color===1?"winRed":"winYel");
+  mt.textContent=color===1?"Cervena vyhrala!":"Zluta vyhrala!";
+  mp.textContent=vsBot?(color===1?"Vyhral jsi!":"Bot vyhral"):"4 v rade";
+  st.textContent=mt.textContent;
+  showEnd();
 }
-function scoreWindow(arr,player){
-  var opp=player===1?2:1,p=0,o=0,e=0,i;
-  for(i=0;i<4;i++){if(arr[i]===player)p++;else if(arr[i]===opp)o++;else e++;}
-  if(p===4)return 100000;if(p===3&&e===1)return 120;if(p===2&&e===2)return 12;
-  if(o===3&&e===1)return -90;if(o===2&&e===2)return -8;
-  return 0;
+function endDraw(){
+  over=true;busy=false;
+  box.className="box";
+  mt.textContent="Remiza!";
+  mp.textContent="Deska je plna";
+  st.textContent="Remiza";
+  showEnd();
 }
-function evaluate(g,player){
-  var score=0,r,c;
-  for(r=0;r<R;r++){if(g[r][3]===player)score+=8;else if(g[r][3])score-=5;}
-  for(r=0;r<R;r++)for(c=0;c<C-3;c++)score+=scoreWindow([g[r][c],g[r][c+1],g[r][c+2],g[r][c+3]],player);
-  for(c=0;c<C;c++)for(r=0;r<R-3;r++)score+=scoreWindow([g[r][c],g[r+1][c],g[r+2][c],g[r+3][c]],player);
-  for(r=0;r<R-3;r++)for(c=0;c<C-3;c++){
-    score+=scoreWindow([g[r][c],g[r+1][c+1],g[r+2][c+2],g[r+3][c+3]],player);
-    score+=scoreWindow([g[r+3][c],g[r+2][c+1],g[r+1][c+2],g[r][c+3]],player);
+function showEnd(){
+  document.getElementById("bf").style.display="none";
+  document.getElementById("bb").style.display="none";
+  document.getElementById("ba").style.display="block";
+  document.getElementById("bm").style.display="block";
+  mask.className="";
+}
+function showMode(){
+  started=false;over=false;busy=false;
+  box.className="box";
+  mt.textContent="Jak chces hrat?";
+  mp.textContent="Vyber souperu";
+  document.getElementById("bf").style.display="block";
+  document.getElementById("bb").style.display="block";
+  document.getElementById("ba").style.display="none";
+  document.getElementById("bm").style.display="none";
+  mask.className="";
+  st.textContent="Vyber rezim";
+}
+function start(bot){
+  vsBot=bot?true:false;
+  started=true;over=false;busy=false;turn=1;
+  grid=empty();
+  render();
+  mask.className="hide";
+  st.textContent=vsBot?"Ty (cervena) vs Bot":"Hraje: Cervena";
+}
+function botTurn(){
+  busy=false;
+  if(over||!vsBot)return;
+  var moves=[],c,r,i,best=[],score,pick;
+  for(c=0;c<COLS;c++)if(grid[0][c]===0)moves.push(c);
+  if(!moves.length)return;
+  // win
+  for(i=0;i<moves.length;i++){
+    c=moves[i];
+    for(r=ROWS-1;r>=0;r--)if(grid[r][c]===0)break;
+    grid[r][c]=2;if(win(r,c)){grid[r][c]=0;playCol(c);return;}grid[r][c]=0;
   }
-  return score;
-}
-function minimax(g,depth,alpha,beta,maximizing,player){
-  var cols=validCols(g);
-  if(depth===0||!cols.length)return {score:evaluate(g,player),col:cols[0]};
-  cols=shuffle(cols);
-  var i,c,r,ng,res,best;
-  if(maximizing){
-    best={score:-1e15,col:cols[0]};
-    for(i=0;i<cols.length;i++){
-      c=cols[i];r=dropRow(g,c);ng=clone(g);ng[r][c]=player;
-      if(winnerAt(ng,r,c))return {score:1e14-depth,col:c};
-      res=minimax(ng,depth-1,alpha,beta,false,player);
-      if(res.score>best.score)best={score:res.score,col:c};
-      alpha=Math.max(alpha,best.score);if(alpha>=beta)break;
-    }
-    return best;
+  // block
+  for(i=0;i<moves.length;i++){
+    c=moves[i];
+    for(r=ROWS-1;r>=0;r--)if(grid[r][c]===0)break;
+    grid[r][c]=1;if(win(r,c)){grid[r][c]=0;playCol(c);return;}grid[r][c]=0;
   }
-  var opp=player===1?2:1;
-  best={score:1e15,col:cols[0]};
-  for(i=0;i<cols.length;i++){
-    c=cols[i];r=dropRow(g,c);ng=clone(g);ng[r][c]=opp;
-    if(winnerAt(ng,r,c))return {score:-1e14+depth,col:c};
-    res=minimax(ng,depth-1,alpha,beta,true,player);
-    if(res.score<best.score)best={score:res.score,col:c};
-    beta=Math.min(beta,best.score);if(alpha>=beta)break;
+  // prefer center-ish with randomness
+  for(i=0;i<moves.length;i++){
+    c=moves[i];score=10-Math.abs(c-3)*2+Math.random()*3;
+    best.push({c:c,s:score});
   }
-  return best;
+  best.sort(function(a,b){return b.s-a.s;});
+  pick=best[Math.random()<0.25&&best.length>1?1:0].c;
+  playCol(pick);
 }
-function botMove(){
-  if(over||!vsBot||turn!==2)return;
-  var cols=validCols(grid),i,c,r,ng,col;
-  if(!cols.length)return;
-  for(i=0;i<cols.length;i++){c=cols[i];r=dropRow(grid,c);ng=clone(grid);ng[r][c]=2;if(winnerAt(ng,r,c)){drop(c);return;}}
-  for(i=0;i<cols.length;i++){c=cols[i];r=dropRow(grid,c);ng=clone(grid);ng[r][c]=1;if(winnerAt(ng,r,c)){drop(c);return;}}
-  col=minimax(grid,4,-1e15,1e15,true,2).col;
-  if(Math.random()<0.1){var alt=shuffle(cols);col=alt[0];}
-  drop(col);
-}
-function drop(col){
-  if(!started||over||busy)return;
-  if(grid[0][col]!==0)return;
-  var r=dropRow(grid,col);if(r<0)return;
-  busy=true;
-  anim={col:col,row:r,color:turn,y:oy-cell-10,targetY:rowY(r),vy:0};
-}
-function finishDrop(){
-  if(!anim)return;
-  var r=anim.row,c=anim.col,color=anim.color;
-  grid[r][c]=color;
-  anim=null;busy=false;
-  if(winnerAt(grid,r,c)){showWin(color);return;}
-  if(!validCols(grid).length){showWin(0);return;}
-  turn=turn===1?2:1;
-  if(vsBot){
-    if(turn===1)document.getElementById("st").textContent="Ty (cervena)";
-    else{document.getElementById("st").textContent="Bot mysli...";setTimeout(botMove,250+Math.random()*300);}
-  }else document.getElementById("st").textContent="Hraje: "+(turn===1?"Cervena":"Zluta");
-}
-function drawDisc(x,y,color,scale){
-  scale=scale||1;
-  var rad=(cell/2-3)*scale,cx=x+cell/2,cy=y+cell/2;
-  ctx.beginPath();ctx.arc(cx+2,cy+3,rad,0,Math.PI*2);ctx.fillStyle="rgba(0,0,0,.25)";ctx.fill();
-  var g=ctx.createRadialGradient(cx-rad*0.3,cy-rad*0.3,2,cx,cy,rad);
-  if(color===1){g.addColorStop(0,"#fca5a5");g.addColorStop(0.5,"#ef4444");g.addColorStop(1,"#b91c1c");}
-  else if(color===2){g.addColorStop(0,"#fde68a");g.addColorStop(0.5,"#eab308");g.addColorStop(1,"#a16207");}
-  else{g.addColorStop(0,"#1e293b");g.addColorStop(1,"#020617");}
-  ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-}
-function rr(x,y,w,h,rad){
-  ctx.beginPath();ctx.moveTo(x+rad,y);ctx.arcTo(x+w,y,x+w,y+h,rad);ctx.arcTo(x+w,y+h,x,y+h,rad);ctx.arcTo(x,y+h,x,y,rad);ctx.arcTo(x,y,x+w,y,rad);ctx.closePath();
-}
-function colFromEvent(e){
-  var rect=cv.getBoundingClientRect();
-  var x=(e.clientX-rect.left)*(cv.width/rect.width);
-  var c;
-  for(c=0;c<C;c++){var cx=colX(c);if(x>=cx&&x<=cx+cell)return c;}
-  return Math.max(0,Math.min(C-1,Math.floor((x-ox)/(cell+GAP))));
-}
-function loop(){
-  if(anim){
-    anim.vy+=0.85;anim.y+=anim.vy;
-    if(anim.y>=anim.targetY){anim.y=anim.targetY;if(anim.vy>3)anim.vy*=-0.28;else finishDrop();}
-  }
-  ctx.clearRect(0,0,420,380);
-  rr(ox-12,oy-12,boardW+24,boardH+24,16);ctx.fillStyle="#1d4ed8";ctx.fill();
-  var r,c,x,y,free;
-  for(r=0;r<R;r++)for(c=0;c<C;c++){
-    x=colX(c);y=rowY(r);
-    ctx.beginPath();ctx.arc(x+cell/2,y+cell/2,cell/2-2,0,Math.PI*2);ctx.fillStyle="#0f172a";ctx.fill();
-    if(grid[r][c])drawDisc(x,y,grid[r][c]);
-  }
-  if(started&&!busy&&!over&&hoverCol>=0&&!(vsBot&&turn===2)){
-    free=dropRow(grid,hoverCol);
-    if(free>=0){ctx.globalAlpha=0.35;drawDisc(colX(hoverCol),rowY(free),turn);ctx.globalAlpha=1;}
-  }
-  if(anim)drawDisc(colX(anim.col),anim.y,anim.color);
-  requestAnimationFrame(loop);
-}
-cv.addEventListener("pointermove",function(e){hoverCol=colFromEvent(e);});
-cv.addEventListener("pointerleave",function(){hoverCol=-1;});
-cv.addEventListener("pointerdown",function(e){
-  if(!started||(vsBot&&turn===2))return;
-  drop(colFromEvent(e));
-});
-requestAnimationFrame(loop);
+
+document.getElementById("bf").onclick=function(){start(false);};
+document.getElementById("bb").onclick=function(){start(true);};
+document.getElementById("ba").onclick=function(){start(vsBot);};
+document.getElementById("bm").onclick=function(){showMode();};
+document.getElementById("rst").onclick=function(){
+  if(started)start(vsBot);else showMode();
+};
+
+grid=empty();
+render();
+showMode();
 })();
 </script>
-</body></html>
+</body>
+</html>

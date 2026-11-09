@@ -7,36 +7,25 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,Arial,sans-serif;background:#f1f5f9;color:#0f172a;min-height:100vh}
-header{background:#4f46e5;color:#fff;padding:14px 20px;font-size:1.3rem;font-weight:800;position:sticky;top:0;z-index:10}
-header span{opacity:.95}
+header{background:#4f46e5;color:#fff;padding:14px 20px;font-size:1.3rem;font-weight:800}
 .wrap{max-width:1040px;margin:0 auto;padding:16px}
-.hero{background:linear-gradient(135deg,#eef2ff,#ecfeff);border-radius:16px;padding:22px;margin-bottom:16px;border:1px solid #e2e8f0}
-.hero h1{font-size:1.45rem;margin-bottom:6px}
+.hero{background:linear-gradient(135deg,#eef2ff,#ecfeff);border-radius:16px;padding:20px;margin:12px 0 16px;border:1px solid #e2e8f0}
+.hero h1{font-size:1.4rem;margin-bottom:4px}
 .hero p{color:#64748b}
-h2{font-size:1.1rem;margin:8px 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:14px}
-a.card{
-  display:block;background:#fff;border-radius:16px;overflow:hidden;text-decoration:none;color:#0f172a;
-  border:1px solid #e2e8f0;box-shadow:0 6px 18px rgba(15,23,42,.07);
-}
-a.card:hover{border-color:#a5b4fc;transform:translateY(-2px)}
-.thumb{height:112px;background:#0f172a;overflow:hidden}
+a.card{display:block;background:#fff;border-radius:16px;overflow:hidden;text-decoration:none;color:#0f172a;border:1px solid #e2e8f0;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.thumb{height:110px;background:#0f172a}
 .thumb canvas{width:100%;height:100%;display:block}
 .info{padding:10px 12px 12px}
 .info strong{display:block;font-size:.95rem}
 .info small{color:#64748b;font-size:.75rem}
-footer{text-align:center;padding:28px;color:#94a3b8;font-size:.85rem}
 </style>
 </head>
 <body>
-<header>Retro <span>Hry</span></header>
+<header>Retro Hry</header>
 <div class="wrap">
-  <div class="hero">
-    <h1>Retro hry online</h1>
-    <p>Klikni na kartu. Nahlady ukazuji gameplay.</p>
-  </div>
-  <h2>Vsechny hry</h2>
-  <div class="grid">
+  <div class="hero"><h1>Vyber hru</h1><p>Nahlady ukazuji gameplay. Klikni na kartu.</p></div>
+  <div class="grid" id="grid">
     <a class="card" href="games/snake.html" data-g="snake"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Snake</strong><small>Arcade</small></div></a>
     <a class="card" href="games/tetris.html" data-g="tetris"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Tetris</strong><small>Puzzle</small></div></a>
     <a class="card" href="games/pong.html" data-g="pong"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Pong</strong><small>Arcade</small></div></a>
@@ -50,75 +39,24 @@ footer{text-align:center;padding:28px;color:#94a3b8;font-size:.85rem}
     <a class="card" href="games/connect4.html" data-g="connect4"><div class="thumb"><canvas width="320" height="200"></canvas></div><div class="info"><strong>Connect 4</strong><small>1v1 / Bot</small></div></a>
   </div>
 </div>
-<footer>Skolni projekt · Retro Hry</footer>
 <script>
-(function(){
 function draw(id,cv){
-  var ctx=cv.getContext("2d"),W=cv.width,H=cv.height;
-  ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
-  if(id==="snake"){
-    for(var i=0;i<8;i++){ctx.fillStyle=i?"#22c55e":"#4ade80";ctx.fillRect(18+i*24,H/2-12,22,22);}
-    ctx.fillStyle="#ef4444";ctx.beginPath();ctx.arc(W-34,H/2,12,0,6.28);ctx.fill();
-  }else if(id==="tetris"){
-    var cs=["#22d3ee","#eab308","#a855f7","#22c55e","#f43f5e"];
-    for(var i=0;i<5;i++){ctx.fillStyle=cs[i];ctx.fillRect(28+i*38,36,32,32);ctx.fillRect(28+i*38,72,32,32);}
-  }else if(id==="pong"){
-    ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";
-    ctx.fillRect(12,H/2-30,8,60);ctx.fillRect(W-20,H/2-22,8,52);
-    ctx.beginPath();ctx.arc(W/2+18,H/2,8,0,6.28);ctx.fill();
-  }else if(id==="breakout"){
-    var bc=["#f43f5e","#f97316","#eab308","#22c55e"];
-    for(var r=0;r<4;r++)for(var c=0;c<6;c++){ctx.fillStyle=bc[r];ctx.fillRect(14+c*40,14+r*18,36,14);}
-    ctx.fillStyle="#e2e8f0";ctx.fillRect(W/2-42,H-26,84,12);
-    ctx.fillStyle="#fbbf24";ctx.beginPath();ctx.arc(W/2,H-48,7,0,6.28);ctx.fill();
-  }else if(id==="g2048"){
-    ctx.fillStyle="#bbada0";ctx.fillRect(0,0,W,H);
-    var vals=[2,4,8,16,32,64,128,256];
-    for(var i=0;i<8;i++){
-      var x=14+(i%4)*58,y=14+Math.floor(i/4)*58;
-      ctx.fillStyle=i>3?"#f2b179":"#eee4da";ctx.fillRect(x,y,52,52);
-      ctx.fillStyle=i>3?"#f9f6f2":"#776e65";ctx.font="bold 18px system-ui";ctx.textAlign="center";ctx.fillText(String(vals[i]),x+26,y+34);
-    }
-  }else if(id==="mines"){
-    for(var r=0;r<4;r++)for(var c=0;c<6;c++){
-      ctx.fillStyle="#334155";ctx.fillRect(12+c*38,12+r*34,34,30);
-      if((r+c)%3===0){ctx.fillStyle="#f87171";ctx.font="16px system-ui";ctx.fillText("*",24+c*38,34+r*34);}
-    }
-  }else if(id==="flappy"){
-    ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);
-    ctx.fillStyle="#5ea512";ctx.fillRect(W*0.55,0,44,H*0.32);ctx.fillRect(W*0.55,H*0.55,44,H*0.25);
-    ctx.fillStyle="#ded895";ctx.fillRect(0,H*0.82,W,H*0.18);
-    ctx.fillStyle="#f8e71c";ctx.beginPath();ctx.ellipse(W*0.28,H*0.45,17,14,0,0,6.28);ctx.fill();
-  }else if(id==="memory"){
-    var em=["🍎","⭐","🔥","💎"];
-    for(var i=0;i<8;i++){
-      var x=14+(i%4)*58,y=18+Math.floor(i/4)*60;
-      ctx.fillStyle=i%3===0?"#6d28d9":"#312e81";ctx.fillRect(x,y,52,52);
-      if(i%3===0){ctx.font="24px system-ui";ctx.fillText(em[i%4],x+12,y+36);}
-    }
-  }else if(id==="ttt"){
-    ctx.strokeStyle="#64748b";ctx.lineWidth=3;
-    ctx.beginPath();ctx.moveTo(W/3,12);ctx.lineTo(W/3,H-12);ctx.moveTo(2*W/3,12);ctx.lineTo(2*W/3,H-12);
-    ctx.moveTo(12,H/3);ctx.lineTo(W-12,H/3);ctx.moveTo(12,2*H/3);ctx.lineTo(W-12,2*H/3);ctx.stroke();
-    ctx.fillStyle="#38bdf8";ctx.font="bold 32px system-ui";ctx.textAlign="center";ctx.fillText("X",W/6,H/3-8);
-    ctx.fillStyle="#f472b6";ctx.fillText("O",W/2,H/2+12);
-  }else if(id==="stack"){
-    for(var i=0;i<5;i++){ctx.fillStyle="hsl("+((i*40)%360)+",80%,55%)";ctx.fillRect(36+i*6,H-30-i*24,W-72-i*12,22);}
-  }    ctx.fillStyle="#22c55e";ctx.fillRect(W/2-20,H-30,40,14);
-  }else if(id==="connect4"){
-    ctx.fillStyle="#1d4ed8";ctx.fillRect(0,0,W,H);
-    for(var r=0;r<3;r++)for(var c=0;c<5;c++){
-      ctx.beginPath();ctx.arc(32+c*44,32+r*44,17,0,6.28);
-      ctx.fillStyle=(r+c)%3===0?"#ef4444":((r+c)%3===1?"#eab308":"#0f172a");ctx.fill();
-    }
-  }
+var ctx=cv.getContext("2d"),W=cv.width,H=cv.height;
+ctx.fillStyle="#0f172a";ctx.fillRect(0,0,W,H);
+if(id==="snake"){for(var i=0;i<8;i++){ctx.fillStyle=i?"#22c55e":"#4ade80";ctx.fillRect(18+i*24,H/2-12,22,22);}ctx.fillStyle="#ef4444";ctx.beginPath();ctx.arc(W-34,H/2,12,0,6.28);ctx.fill();}
+else if(id==="tetris"){var cs=["#22d3ee","#eab308","#a855f7","#22c55e","#f43f5e"];for(var i=0;i<5;i++){ctx.fillStyle=cs[i];ctx.fillRect(28+i*38,40,32,32);ctx.fillRect(28+i*38,76,32,32);}}
+else if(id==="pong"){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#fff";ctx.fillRect(12,H/2-30,8,60);ctx.fillRect(W-20,H/2-22,8,52);ctx.beginPath();ctx.arc(W/2+18,H/2,8,0,6.28);ctx.fill();}
+else if(id==="breakout"){var bc=["#f43f5e","#f97316","#eab308"];for(var r=0;r<3;r++)for(var c=0;c<6;c++){ctx.fillStyle=bc[r];ctx.fillRect(14+c*40,16+r*18,36,14);}ctx.fillStyle="#e2e8f0";ctx.fillRect(W/2-40,H-26,80,12);}
+else if(id==="g2048"){ctx.fillStyle="#bbada0";ctx.fillRect(0,0,W,H);ctx.fillStyle="#eee4da";ctx.fillRect(40,40,100,100);ctx.fillStyle="#776e65";ctx.font="bold 28px Arial";ctx.textAlign="center";ctx.fillText("2048",W/2,H/2+10);}
+else if(id==="mines"){for(var r=0;r<4;r++)for(var c=0;c<6;c++){ctx.fillStyle="#334155";ctx.fillRect(12+c*38,12+r*34,34,30);}}
+else if(id==="flappy"){ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W,H);ctx.fillStyle="#5ea512";ctx.fillRect(W*0.55,0,44,H*0.32);ctx.fillRect(W*0.55,H*0.55,44,H*0.25);ctx.fillStyle="#f8e71c";ctx.beginPath();ctx.ellipse(W*0.28,H*0.45,17,14,0,0,6.28);ctx.fill();}
+else if(id==="memory"){for(var i=0;i<8;i++){ctx.fillStyle="#6d28d9";ctx.fillRect(14+(i%4)*58,18+Math.floor(i/4)*60,52,52);}}
+else if(id==="ttt"){ctx.strokeStyle="#64748b";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(W/3,12);ctx.lineTo(W/3,H-12);ctx.moveTo(2*W/3,12);ctx.lineTo(2*W/3,H-12);ctx.moveTo(12,H/3);ctx.lineTo(W-12,H/3);ctx.moveTo(12,2*H/3);ctx.lineTo(W-12,2*H/3);ctx.stroke();ctx.fillStyle="#38bdf8";ctx.font="bold 32px Arial";ctx.textAlign="center";ctx.fillText("X",W/6,H/3-8);}
+else if(id==="stack"){for(var i=0;i<5;i++){ctx.fillStyle="hsl("+((i*40)%360)+",80%,55%)";ctx.fillRect(36+i*6,H-30-i*24,W-72-i*12,22);}}
+else if(id==="connect4"){ctx.fillStyle="#1d4ed8";ctx.fillRect(0,0,W,H);for(var r=0;r<3;r++)for(var c=0;c<5;c++){ctx.beginPath();ctx.arc(32+c*44,32+r*44,17,0,6.28);ctx.fillStyle=(r+c)%3===0?"#ef4444":((r+c)%3===1?"#eab308":"#0f172a");ctx.fill();}}
 }
 var cards=document.querySelectorAll("a.card");
-for(var i=0;i<cards.length;i++){
-  var a=cards[i],cv=a.querySelector("canvas");
-  if(cv){try{draw(a.getAttribute("data-g"),cv);}catch(e){}}
-}
-})();
+for(var i=0;i<cards.length;i++){var cv=cards[i].querySelector("canvas");if(cv)try{draw(cards[i].getAttribute("data-g"),cv);}catch(e){}}
 </script>
 </body>
 </html>
