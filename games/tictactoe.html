@@ -1,12 +1,159 @@
-<!DOCTYPE html><html lang="cs"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Tic Tac Toe</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;font-family:system-ui,sans-serif;color:#e2e8f0;user-select:none}h1{font-size:1.4rem;font-weight:800;margin-bottom:8px}.status{margin-bottom:14px;font-weight:600;color:#94a3b8}.board{display:grid;grid-template-columns:repeat(3,100px);gap:10px}.cell{width:100px;height:100px;background:#1e293b;border:2px solid #334155;border-radius:14px;font-size:2.6rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center}.cell:hover:not(.taken){border-color:#6366f1}.cell.x{color:#38bdf8}.cell.o{color:#f472b6}.cell.win{background:#14532d;border-color:#34d399}.btn{margin-top:16px;padding:10px 22px;border:none;border-radius:10px;background:#6366f1;color:#fff;font-weight:700;cursor:pointer}</style></head><body>
-<h1>Tic Tac Toe</h1><div class="status" id="st">Ty jsi X</div><div class="board" id="b"></div><button class="btn" id="rst">Nova hra</button>
+<!DOCTYPE html>
+<html lang="cs"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tic Tac Toe</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0f172a;font-family:system-ui,sans-serif;color:#e2e8f0;user-select:none}
+.leave{position:fixed;top:14px;left:14px;width:44px;height:44px;border:none;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-size:1.4rem;font-weight:800;cursor:pointer;z-index:60}
+.leave:active{background:#ef4444}
+h1{font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.status{margin-bottom:14px;font-weight:600;color:#94a3b8;min-height:24px}
+.board{display:grid;grid-template-columns:repeat(3,100px);gap:10px}
+.cell{width:100px;height:100px;background:#1e293b;border:none;border-radius:14px;font-size:2.4rem;font-weight:800;cursor:pointer;color:#e2e8f0}
+.cell.x{color:#38bdf8}.cell.o{color:#f472b6}
+.cell:disabled{cursor:default;opacity:.95}
+button.rst{margin-top:16px;padding:10px 20px;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+.mode,.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:50;padding:16px}
+.mode.show,.overlay.show{display:flex}
+.box{background:#fff;color:#0f172a;border-radius:22px;padding:28px 22px;text-align:center;width:min(340px,100%);animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.75);opacity:0}to{transform:scale(1);opacity:1}}
+.box h2{font-size:clamp(1.5rem,6vw,2.2rem);font-weight:900;margin-bottom:8px}
+.box.winx h2{color:#0284c7}.box.wino h2{color:#db2777}.box.draw h2{color:#475569}
+.box p{color:#64748b;margin-bottom:14px}
+.box button{display:block;width:100%;margin:8px 0;padding:13px;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-size:1rem}
+.box button.primary{background:#6366f1;color:#fff}
+.box button.secondary{background:#e2e8f0;color:#0f172a}
+.box button.bot{background:#7c3aed;color:#fff}
+</style></head><body>
+<button type="button" class="leave" id="leave">\u00d7</button>
+<h1>Tic Tac Toe</h1>
+<div class="status" id="st">Vyber rezim</div>
+<div class="board" id="board"></div>
+<button class="rst" id="rst">Nova hra</button>
+
+<div class="mode show" id="mode">
+  <div class="box">
+    <h2>Jak chces hrat?</h2>
+    <p>Vyber souperu</p>
+    <button type="button" class="secondary" id="modeFriend">Proti kamaradovi</button>
+    <button type="button" class="bot" id="modeBot">Proti botovi</button>
+  </div>
+</div>
+
+<div class="overlay" id="ov">
+  <div class="box" id="ovBox">
+    <h2 id="ovTitle">Vyhra</h2>
+    <p id="ovText"></p>
+    <button type="button" class="primary" id="ovBtn">Hrat znovu</button>
+    <button type="button" class="secondary" id="ovMode">Zmenit rezim</button>
+  </div>
+</div>
+
 <script>
-let board,turn,over;const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-function init(){board=Array(9).fill("");turn="X";over=false;document.getElementById("st").textContent="Ty jsi X";render()}
-function render(winLine=[]){const el=document.getElementById("b");el.innerHTML="";board.forEach((v,i)=>{const d=document.createElement("button");d.className="cell"+(v?" taken":"")+(v==="X"?" x":"")+(v==="O"?" o":"")+(winLine.includes(i)?" win":"");d.textContent=v==="X"?"X":(v==="O"?"O":"");d.onclick=()=>move(i);el.appendChild(d)})}
-function check(){for(const w of wins){const[a,b,c]=w;if(board[a]&&board[a]===board[b]&&board[a]===board[c])return w}return null}
-function move(i){if(over||board[i]||turn!=="X")return;board[i]="X";let w=check();if(w){over=true;document.getElementById("st").textContent="Vyhral jsi!";render(w);return}if(board.every(Boolean)){over=true;document.getElementById("st").textContent="Remiza";render();return}turn="O";document.getElementById("st").textContent="AI...";render();setTimeout(ai,280)}
-function ai(){const empty=board.map((v,i)=>v?"":i).filter(v=>v!=="");function find(t){for(const w of wins){const cells=w.map(i=>board[i]);const n=cells.filter(c=>c===t).length;const e=w.filter(i=>!board[i]);if(n===2&&e.length===1)return e[0]}return null}let pick=find("O")??find("X")??(board[4]?"":4);if(pick===""||pick===null)pick=empty[Math.floor(Math.random()*empty.length)];board[pick]="O";let w=check();if(w){over=true;document.getElementById("st").textContent="AI vyhrala";render(w);return}if(board.every(Boolean)){over=true;document.getElementById("st").textContent="Remiza";render();return}turn="X";document.getElementById("st").textContent="Ty jsi X";render()}
-document.getElementById("rst").onclick=init;init();
+(function(){
+const boardEl=document.getElementById("board"),st=document.getElementById("st");
+const ov=document.getElementById("ov"),ovBox=document.getElementById("ovBox");
+const ovTitle=document.getElementById("ovTitle"),ovText=document.getElementById("ovText");
+const modeEl=document.getElementById("mode");
+let cells,turn,over,vsBot,started=false;
+
+document.getElementById("leave").onclick=function(){
+  if(history.length>1)history.back();else location.href="../index.html";
+};
+
+function lines(b){
+  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for(var i=0;i<L.length;i++){
+    var a=L[i][0],c=L[i][1],d=L[i][2];
+    if(b[a]&&b[a]===b[c]&&b[a]===b[d])return b[a];
+  }
+  return b.every(Boolean)?"draw":null;
+}
+function empties(b){var e=[];for(var i=0;i<9;i++)if(!b[i])e.push(i);return e;}
+function minimax(b,isMax){
+  var w=lines(b);
+  if(w==="O")return {s:10};if(w==="X")return {s:-10};if(w==="draw")return {s:0};
+  var best=isMax?{s:-999,i:-1}:{s:999,i:-1};
+  var moves=empties(b);
+  // shuffle for variety when scores equal
+  for(var i=moves.length-1;i>0;i--){var j=(Math.random()*(i+1))|0;var t=moves[i];moves[i]=moves[j];moves[j]=t;}
+  for(var k=0;k<moves.length;k++){
+    var i=moves[k];b[i]=isMax?"O":"X";
+    var res=minimax(b,!isMax);
+    b[i]=null;
+    if(isMax){if(res.s>best.s){best={s:res.s,i:i};}}else{if(res.s<best.s){best={s:res.s,i:i};}}
+  }
+  return best;
+}
+function botPlay(){
+  if(over||!vsBot)return;
+  var b=cells.map(function(c){return c.mark;});
+  var move;
+  // 18% play random reasonable move for variety if not forced
+  var e=empties(b);
+  // win if possible
+  for(var i=0;i<e.length;i++){b[e[i]]="O";if(lines(b)==="O"){move=e[i];b[e[i]]=null;break;}b[e[i]]=null;}
+  // block
+  if(move==null){for(var i=0;i<e.length;i++){b[e[i]]="X";if(lines(b)==="X"){move=e[i];b[e[i]]=null;break;}b[e[i]]=null;}}
+  if(move==null){
+    if(Math.random()<0.15&&e.length){
+      // prefer center/corners random
+      var pref=e.filter(function(i){return i===4||i%2===0;});
+      move=(pref.length?pref:e)[(Math.random()*(pref.length||e.length))|0];
+    }else{
+      move=minimax(b,true).i;
+    }
+  }
+  if(move==null)move=e[0];
+  setTimeout(function(){place(move,"O");},300+Math.random()*250);
+}
+function place(i,mark){
+  if(over||cells[i].mark)return;
+  cells[i].mark=mark;
+  cells[i].btn.textContent=mark;
+  cells[i].btn.className="cell "+mark.toLowerCase();
+  cells[i].btn.disabled=true;
+  var b=cells.map(function(c){return c.mark;});
+  var w=lines(b);
+  if(w){
+    over=true;
+    if(w==="draw"){ovBox.className="box draw";ovTitle.textContent="Remiza!";ovText.textContent="Nikdo nevyhral";st.textContent="Remiza";}
+    else if(w==="X"){ovBox.className="box winx";ovTitle.textContent="X vyhral!";ovText.textContent=vsBot?"Vyhral jsi!":"Hrac X";st.textContent="X vyhral!";}
+    else{ovBox.className="box wino";ovTitle.textContent="O vyhral!";ovText.textContent=vsBot?"Bot vyhral":"Hrac O";st.textContent="O vyhral!";}
+    ov.classList.add("show");return;
+  }
+  turn=turn==="X"?"O":"X";
+  if(vsBot){
+    st.textContent=turn==="X"?"Ty (X)":"Bot mysli...";
+    if(turn==="O")botPlay();
+  }else st.textContent="Hraje: "+turn;
+}
+function render(){
+  boardEl.innerHTML="";cells=[];
+  for(var i=0;i<9;i++){
+    var btn=document.createElement("button");btn.className="cell";btn.type="button";
+    (function(idx){btn.onclick=function(){
+      if(!started||over)return;
+      if(vsBot&&turn!=="X")return;
+      place(idx,turn);
+    };})(i);
+    boardEl.appendChild(btn);
+    cells.push({btn:btn,mark:null});
+  }
+}
+function start(bot){
+  vsBot=!!bot;started=true;over=false;turn="X";
+  modeEl.classList.remove("show");ov.classList.remove("show");
+  st.textContent=vsBot?"Ty (X)":"Hraje: X";
+  render();
+}
+document.getElementById("modeFriend").onclick=function(){start(false);};
+document.getElementById("modeBot").onclick=function(){start(true);};
+document.getElementById("rst").onclick=function(){if(started)start(vsBot);else modeEl.classList.add("show");};
+document.getElementById("ovBtn").onclick=function(){start(vsBot);};
+document.getElementById("ovMode").onclick=function(){ov.classList.remove("show");modeEl.classList.add("show");started=false;};
+render();
+})();
 </script></body></html>
