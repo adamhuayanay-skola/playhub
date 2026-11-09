@@ -5,130 +5,147 @@
 <title>Connect 4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:linear-gradient(180deg,#1e3a5f,#0f172a);font-family:system-ui,sans-serif;color:#fff;user-select:none;
-}
-.leave{
-  position:fixed;top:14px;left:14px;z-index:60;width:44px;height:44px;border-radius:12px;
-  border:none;background:rgba(255,255,255,.15);color:#fff;font-size:1.4rem;font-weight:800;cursor:pointer;
-  backdrop-filter:blur(8px);
-}
-.leave:active{background:#ef4444}
-h1{font-weight:800;margin-bottom:6px;font-size:1.4rem}
-#st{margin-bottom:12px;font-weight:700;min-height:28px;font-size:1.1rem}
-canvas{border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.45);max-width:96vw;cursor:pointer;touch-action:none}
-button.rst{margin-top:14px;padding:12px 24px;border:none;border-radius:12px;font-weight:800;cursor:pointer;background:#fff;color:#1e3a5f}
-.hint{margin-top:10px;color:#93c5fd;font-size:.8rem}
-.overlay,.mode{
-  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.7);z-index:50;padding:16px;
-}
-.overlay.show,.mode.show{display:flex}
-.box{
-  background:#fff;color:#0f172a;border-radius:24px;padding:32px 24px;text-align:center;
-  box-shadow:0 25px 60px rgba(0,0,0,.5);width:min(360px,100%);animation:pop .3s ease;
-}
-@keyframes pop{from{transform:scale(.75);opacity:0}to{transform:scale(1);opacity:1}}
-.box h2{font-size:clamp(1.6rem,6vw,2.3rem);font-weight:900;margin-bottom:10px;line-height:1.15}
-.box.red h2{color:#dc2626}.box.yellow h2{color:#ca8a04}.box.draw h2{color:#334155}
-.box p{color:#64748b;margin-bottom:16px}
-.box button{
-  display:block;width:100%;border:none;margin:8px 0;padding:14px;border-radius:14px;
-  font-weight:800;font-size:1rem;cursor:pointer;
-}
-.box button.primary{background:#1d4ed8;color:#fff}
-.box button.secondary{background:#e2e8f0;color:#0f172a}
-.box button.bot{background:#7c3aed;color:#fff}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#1e3a5f,#0f172a);font-family:system-ui,sans-serif;color:#fff;user-select:none}
+#leave{position:fixed;top:12px;left:12px;z-index:200;width:48px;height:48px;border:none;border-radius:12px;background:#ef4444;color:#fff;font-size:28px;font-weight:900;cursor:pointer}
+h1{font-weight:800;margin-bottom:6px}
+#st{margin-bottom:12px;font-weight:700;min-height:28px}
+canvas{border-radius:16px;max-width:96vw;cursor:pointer;touch-action:none;box-shadow:0 12px 36px rgba(0,0,0,.4)}
+#rst{margin-top:14px;padding:12px 22px;border:none;border-radius:12px;font-weight:800;cursor:pointer;background:#fff;color:#1e3a5f}
+.modal{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);padding:16px}
+.modal[hidden]{display:none!important}
+.panel{background:#fff;color:#0f172a;border-radius:20px;padding:28px 22px;width:min(340px,100%);text-align:center}
+.panel h2{font-size:1.7rem;font-weight:900;margin-bottom:10px;line-height:1.2}
+.panel.red h2{color:#dc2626}.panel.yellow h2{color:#ca8a04}.panel.draw h2{color:#475569}
+.panel p{color:#64748b;margin-bottom:14px}
+.panel button{display:block;width:100%;margin:8px 0;padding:14px;border:none;border-radius:12px;font-weight:800;font-size:1rem;cursor:pointer}
+.btn-blue{background:#1d4ed8;color:#fff}
+.btn-gray{background:#e2e8f0;color:#0f172a}
+.btn-purple{background:#7c3aed;color:#fff}
 </style></head><body>
-<button type="button" class="leave" id="leave" title="Zpet">\u00d7</button>
+<button type="button" id="leave">&times;</button>
 <h1>Connect 4</h1>
 <div id="st">Vyber rezim</div>
 <canvas id="c" width="420" height="380"></canvas>
-<button class="rst" id="rst">Nova hra</button>
-<p class="hint">Klikni na sloupec</p>
+<button type="button" id="rst">Nova hra</button>
 
-<div class="mode show" id="mode">
-  <div class="box">
+<div class="modal" id="modeModal">
+  <div class="panel">
     <h2>Jak chces hrat?</h2>
     <p>Vyber souperu</p>
-    <button type="button" class="secondary" id="modeFriend">Proti kamaradovi</button>
-    <button type="button" class="bot" id="modeBot">Proti botovi</button>
+    <button type="button" class="btn-gray" id="btnFriend">Proti kamaradovi</button>
+    <button type="button" class="btn-purple" id="btnBot">Proti botovi</button>
   </div>
 </div>
 
-<div class="overlay" id="ov">
-  <div class="box" id="ovBox">
-    <h2 id="ovTitle">Vyhra</h2>
-    <p id="ovText"></p>
-    <button type="button" class="primary" id="ovBtn">Hrat znovu</button>
-    <button type="button" class="secondary" id="ovMode">Zmenit rezim</button>
+<div class="modal" id="winModal" hidden>
+  <div class="panel" id="winPanel">
+    <h2 id="winTitle">Vyhra</h2>
+    <p id="winText"></p>
+    <button type="button" class="btn-blue" id="btnAgain">Hrat znovu</button>
+    <button type="button" class="btn-gray" id="btnMode">Zmenit rezim</button>
   </div>
 </div>
 
 <script>
 (function(){
-const cv=document.getElementById("c"),ctx=cv.getContext("2d");
-const R=6,C=7,GAP=8;
-const cell=Math.floor((420-32-GAP*(C-1))/C);
-const boardH=R*cell+(R-1)*GAP,boardW=C*cell+(C-1)*GAP;
-const ox=(420-boardW)/2,oy=(380-boardH)/2;
-let grid,turn,over,busy,anim,hoverCol,vsBot=false,started=false;
-const st=document.getElementById("st");
-const ov=document.getElementById("ov"),ovBox=document.getElementById("ovBox");
-const ovTitle=document.getElementById("ovTitle"),ovText=document.getElementById("ovText");
-const modeEl=document.getElementById("mode");
+var cv=document.getElementById("c");
+var ctx=cv.getContext("2d");
+var R=6,C=7,GAP=8;
+var cell=Math.floor((420-32-GAP*(C-1))/C);
+var boardH=R*cell+(R-1)*GAP;
+var boardW=C*cell+(C-1)*GAP;
+var ox=(420-boardW)/2, oy=(380-boardH)/2;
+var grid=emptyGrid();
+var turn=1, over=false, busy=false, anim=null, hoverCol=-1;
+var vsBot=false, started=false;
+
+function emptyGrid(){
+  var g=[],r,c;
+  for(r=0;r<R;r++){g[r]=[];for(c=0;c<C;c++)g[r][c]=0;}
+  return g;
+}
+function colX(c){return ox+c*(cell+GAP);}
+function rowY(r){return oy+r*(cell+GAP);}
 
 document.getElementById("leave").onclick=function(){
-  if(history.length>1)history.back();else location.href="../index.html";
+  location.href="../index.html";
 };
 
-function colX(c){return ox+c*(cell+GAP);}function rowY(r){return oy+r*(cell+GAP);}
-
-function newGrid(){return Array.from({length:R},function(){return Array(C).fill(0);});}
-
 function start(bot){
-  vsBot=!!bot;started=true;
-  grid=newGrid();turn=1;over=false;busy=false;anim=null;
-  modeEl.classList.remove("show");ov.classList.remove("show");
-  st.textContent=vsBot?"Ty (cervena) vs Bot":"Hraje: Cervena";
+  vsBot=!!bot;
+  started=true;
+  grid=emptyGrid();
+  turn=1;over=false;busy=false;anim=null;
+  document.getElementById("modeModal").hidden=true;
+  document.getElementById("winModal").hidden=true;
+  document.getElementById("st").textContent=vsBot?"Ty (cervena) vs Bot":"Hraje: Cervena";
 }
+
+document.getElementById("btnFriend").onclick=function(){start(false);};
+document.getElementById("btnBot").onclick=function(){start(true);};
+document.getElementById("btnAgain").onclick=function(){start(vsBot);};
+document.getElementById("btnMode").onclick=function(){
+  document.getElementById("winModal").hidden=true;
+  document.getElementById("modeModal").hidden=false;
+  started=false;
+  document.getElementById("st").textContent="Vyber rezim";
+};
+document.getElementById("rst").onclick=function(){
+  if(started)start(vsBot);
+  else document.getElementById("modeModal").hidden=false;
+};
 
 function showWin(color){
   over=true;
-  if(color===0){ovBox.className="box draw";ovTitle.textContent="Remiza!";ovText.textContent="Deska je plna";st.textContent="Remiza";}
-  else if(color===1){ovBox.className="box red";ovTitle.textContent="Cervena vyhrala!";ovText.textContent=vsBot&&turn===2?"Vyhral jsi!":"4 v rade";st.textContent="Cervena vyhrala!";}
-  else{ovBox.className="box yellow";ovTitle.textContent="Zluta vyhrala!";ovText.textContent=vsBot?"Bot vyhral":"4 v rade";st.textContent="Zluta vyhrala!";}
-  ov.classList.add("show");
+  var panel=document.getElementById("winPanel");
+  var title=document.getElementById("winTitle");
+  var text=document.getElementById("winText");
+  panel.className="panel";
+  if(color===0){panel.className="panel draw";title.textContent="Remiza!";text.textContent="Deska je plna";}
+  else if(color===1){panel.className="panel red";title.textContent="Cervena vyhrala!";text.textContent=vsBot?"Vyhral jsi!":"4 v rade";}
+  else{panel.className="panel yellow";title.textContent="Zluta vyhrala!";text.textContent=vsBot?"Bot vyhral":"4 v rade";}
+  document.getElementById("st").textContent=title.textContent;
+  document.getElementById("winModal").hidden=false;
 }
 
 function validCols(g){
-  var cols=[];for(var c=0;c<C;c++)if(g[0][c]===0)cols.push(c);return cols;
+  var cols=[],c;for(c=0;c<C;c++)if(g[0][c]===0)cols.push(c);return cols;
 }
-function dropRow(g,c){for(var r=R-1;r>=0;r--)if(g[r][c]===0)return r;return -1;}
+function dropRow(g,c){
+  var r;for(r=R-1;r>=0;r--)if(g[r][c]===0)return r;return -1;
+}
 function clone(g){return g.map(function(row){return row.slice();});}
 function winnerAt(g,r,c){
   var t=g[r][c];if(!t)return false;
-  function cnt(dr,dc){var n=0,rr=r+dr,cc=c+dc;while(rr>=0&&rr<R&&cc>=0&&cc<C&&g[rr][cc]===t){n++;rr+=dr;cc+=dc;}return n;}
-  return [[0,1],[1,0],[1,1],[1,-1]].some(function(d){return 1+cnt(d[0],d[1])+cnt(-d[0],-d[1])>=4;});
+  function cnt(dr,dc){
+    var n=0,rr=r+dr,cc=c+dc;
+    while(rr>=0&&rr<R&&cc>=0&&cc<C&&g[rr][cc]===t){n++;rr+=dr;cc+=dc;}
+    return n;
+  }
+  var dirs=[[0,1],[1,0],[1,1],[1,-1]],i;
+  for(i=0;i<dirs.length;i++){
+    if(1+cnt(dirs[i][0],dirs[i][1])+cnt(-dirs[i][0],-dirs[i][1])>=4)return true;
+  }
+  return false;
+}
+function shuffle(a){
+  a=a.slice();var i,j,t;
+  for(i=a.length-1;i>0;i--){j=(Math.random()*(i+1))|0;t=a[i];a[i]=a[j];a[j]=t;}
+  return a;
 }
 function scoreWindow(arr,player){
-  var opp=player===1?2:1,p=0,o=0,e=0;
-  for(var i=0;i<4;i++){if(arr[i]===player)p++;else if(arr[i]===opp)o++;else e++;}
-  if(p===4)return 100000;if(p===3&&e===1)return 100;if(p===2&&e===2)return 10;
-  if(o===3&&e===1)return -80;if(o===2&&e===2)return -8;
+  var opp=player===1?2:1,p=0,o=0,e=0,i;
+  for(i=0;i<4;i++){if(arr[i]===player)p++;else if(arr[i]===opp)o++;else e++;}
+  if(p===4)return 100000;if(p===3&&e===1)return 120;if(p===2&&e===2)return 12;
+  if(o===3&&e===1)return -90;if(o===2&&e===2)return -8;
   return 0;
 }
 function evaluate(g,player){
-  var score=0;
-  // center preference
-  for(var r=0;r<R;r++)if(g[r][3]===player)score+=6;else if(g[r][3]&&g[r][3]!==player)score-=4;
-  // horizontal
-  for(var r=0;r<R;r++)for(var c=0;c<C-3;c++)score+=scoreWindow([g[r][c],g[r][c+1],g[r][c+2],g[r][c+3]],player);
-  // vertical
-  for(var c=0;c<C;c++)for(var r=0;r<R-3;r++)score+=scoreWindow([g[r][c],g[r+1][c],g[r+2][c],g[r+3][c]],player);
-  // diag
-  for(var r=0;r<R-3;r++)for(var c=0;c<C-3;c++){
+  var score=0,r,c;
+  for(r=0;r<R;r++){if(g[r][3]===player)score+=8;else if(g[r][3])score-=5;}
+  for(r=0;r<R;r++)for(c=0;c<C-3;c++)score+=scoreWindow([g[r][c],g[r][c+1],g[r][c+2],g[r][c+3]],player);
+  for(c=0;c<C;c++)for(r=0;r<R-3;r++)score+=scoreWindow([g[r][c],g[r+1][c],g[r+2][c],g[r+3][c]],player);
+  for(r=0;r<R-3;r++)for(c=0;c<C-3;c++){
     score+=scoreWindow([g[r][c],g[r+1][c+1],g[r+2][c+2],g[r+3][c+3]],player);
     score+=scoreWindow([g[r+3][c],g[r+2][c+1],g[r+1][c+2],g[r][c+3]],player);
   }
@@ -136,58 +153,41 @@ function evaluate(g,player){
 }
 function minimax(g,depth,alpha,beta,maximizing,player){
   var cols=validCols(g);
-  // terminal checks via last move not tracked - use eval only at leaf / no moves
   if(depth===0||!cols.length)return {score:evaluate(g,player),col:cols[0]};
+  cols=shuffle(cols);
+  var i,c,r,ng,res,best;
   if(maximizing){
-    var best={score:-1e15,col:cols[Math.floor(Math.random()*cols.length)]};
-    // shuffle cols for variety when equal
-    cols=shuffle(cols);
-    for(var i=0;i<cols.length;i++){
-      var c=cols[i],r=dropRow(g,c),ng=clone(g);ng[r][c]=player;
+    best={score:-1e15,col:cols[0]};
+    for(i=0;i<cols.length;i++){
+      c=cols[i];r=dropRow(g,c);ng=clone(g);ng[r][c]=player;
       if(winnerAt(ng,r,c))return {score:1e14-depth,col:c};
-      var res=minimax(ng,depth-1,alpha,beta,false,player);
-      if(res.score>best.score){best={score:res.score,col:c};}
+      res=minimax(ng,depth-1,alpha,beta,false,player);
+      if(res.score>best.score)best={score:res.score,col:c};
       alpha=Math.max(alpha,best.score);if(alpha>=beta)break;
     }
     return best;
-  }else{
-    var opp=player===1?2:1;
-    var best={score:1e15,col:cols[Math.floor(Math.random()*cols.length)]};
-    cols=shuffle(cols);
-    for(var i=0;i<cols.length;i++){
-      var c=cols[i],r=dropRow(g,c),ng=clone(g);ng[r][c]=opp;
-      if(winnerAt(ng,r,c))return {score:-1e14+depth,col:c};
-      var res=minimax(ng,depth-1,alpha,beta,true,player);
-      if(res.score<best.score){best={score:res.score,col:c};}
-      beta=Math.min(beta,best.score);if(alpha>=beta)break;
-    }
-    return best;
   }
+  var opp=player===1?2:1;
+  best={score:1e15,col:cols[0]};
+  for(i=0;i<cols.length;i++){
+    c=cols[i];r=dropRow(g,c);ng=clone(g);ng[r][c]=opp;
+    if(winnerAt(ng,r,c))return {score:-1e14+depth,col:c};
+    res=minimax(ng,depth-1,alpha,beta,true,player);
+    if(res.score<best.score)best={score:res.score,col:c};
+    beta=Math.min(beta,best.score);if(alpha>=beta)break;
+  }
+  return best;
 }
-function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=(Math.random()*(i+1))|0;var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function botMove(){
-  if(over||!vsBot)return;
-  // depth 4 + random among near-best for variety
-  var cols=validCols(grid);if(!cols.length)return;
-  // immediate win / block
-  for(var i=0;i<cols.length;i++){
-    var c=cols[i],r=dropRow(grid,c),ng=clone(grid);ng[r][c]=2;
-    if(winnerAt(ng,r,c)){drop(c);return;}
-  }
-  for(var i=0;i<cols.length;i++){
-    var c=cols[i],r=dropRow(grid,c),ng=clone(grid);ng[r][c]=1;
-    if(winnerAt(ng,r,c)){drop(c);return;}
-  }
-  var best=minimax(grid,4,-1e15,1e15,true,2);
-  // sometimes pick 2nd best-ish random valid near center for variety (15%)
-  var col=best.col;
-  if(Math.random()<0.12){
-    var alt=shuffle(cols).filter(function(c){return Math.abs(c-3)<=2;});
-    if(alt.length)col=alt[0];
-  }
+  if(over||!vsBot||turn!==2)return;
+  var cols=validCols(grid),i,c,r,ng,col;
+  if(!cols.length)return;
+  for(i=0;i<cols.length;i++){c=cols[i];r=dropRow(grid,c);ng=clone(grid);ng[r][c]=2;if(winnerAt(ng,r,c)){drop(c);return;}}
+  for(i=0;i<cols.length;i++){c=cols[i];r=dropRow(grid,c);ng=clone(grid);ng[r][c]=1;if(winnerAt(ng,r,c)){drop(c);return;}}
+  col=minimax(grid,4,-1e15,1e15,true,2).col;
+  if(Math.random()<0.1){var alt=shuffle(cols);col=alt[0];}
   drop(col);
 }
-
 function drop(col){
   if(!started||over||busy)return;
   if(grid[0][col]!==0)return;
@@ -197,68 +197,64 @@ function drop(col){
 }
 function finishDrop(){
   if(!anim)return;
-  grid[anim.row][anim.col]=anim.color;
   var r=anim.row,c=anim.col,color=anim.color;
+  grid[r][c]=color;
   anim=null;busy=false;
   if(winnerAt(grid,r,c)){showWin(color);return;}
   if(!validCols(grid).length){showWin(0);return;}
   turn=turn===1?2:1;
   if(vsBot){
-    if(turn===1)st.textContent="Ty (cervena)";
-    else{st.textContent="Bot mysli...";setTimeout(botMove,280+Math.random()*220);}
-  }else st.textContent="Hraje: "+(turn===1?"Cervena":"Zluta");
+    if(turn===1)document.getElementById("st").textContent="Ty (cervena)";
+    else{document.getElementById("st").textContent="Bot mysli...";setTimeout(botMove,250+Math.random()*300);}
+  }else document.getElementById("st").textContent="Hraje: "+(turn===1?"Cervena":"Zluta");
 }
-
 function drawDisc(x,y,color,scale){
-  scale=scale||1;var rad=(cell/2-3)*scale,cx=x+cell/2,cy=y+cell/2;
+  scale=scale||1;
+  var rad=(cell/2-3)*scale,cx=x+cell/2,cy=y+cell/2;
   ctx.beginPath();ctx.arc(cx+2,cy+3,rad,0,Math.PI*2);ctx.fillStyle="rgba(0,0,0,.25)";ctx.fill();
   var g=ctx.createRadialGradient(cx-rad*0.3,cy-rad*0.3,2,cx,cy,rad);
-  if(color===1){g.addColorStop(0,"#fca5a5");g.addColorStop(.5,"#ef4444");g.addColorStop(1,"#b91c1c");}
-  else if(color===2){g.addColorStop(0,"#fde68a");g.addColorStop(.5,"#eab308");g.addColorStop(1,"#a16207");}
+  if(color===1){g.addColorStop(0,"#fca5a5");g.addColorStop(0.5,"#ef4444");g.addColorStop(1,"#b91c1c");}
+  else if(color===2){g.addColorStop(0,"#fde68a");g.addColorStop(0.5,"#eab308");g.addColorStop(1,"#a16207");}
   else{g.addColorStop(0,"#1e293b");g.addColorStop(1,"#020617");}
   ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-  if(color){ctx.beginPath();ctx.ellipse(cx-rad*.25,cy-rad*.3,rad*.35,rad*.2,-.4,0,Math.PI*2);ctx.fillStyle="rgba(255,255,255,.35)";ctx.fill();}
 }
-function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function rr(x,y,w,h,rad){
+  ctx.beginPath();ctx.moveTo(x+rad,y);ctx.arcTo(x+w,y,x+w,y+h,rad);ctx.arcTo(x+w,y+h,x,y+h,rad);ctx.arcTo(x,y+h,x,y,rad);ctx.arcTo(x,y,x+w,y,rad);ctx.closePath();
+}
+function colFromEvent(e){
+  var rect=cv.getBoundingClientRect();
+  var x=(e.clientX-rect.left)*(cv.width/rect.width);
+  var c;
+  for(c=0;c<C;c++){var cx=colX(c);if(x>=cx&&x<=cx+cell)return c;}
+  return Math.max(0,Math.min(C-1,Math.floor((x-ox)/(cell+GAP))));
+}
 function loop(){
-  if(anim){anim.vy+=0.85;anim.y+=anim.vy;if(anim.y>=anim.targetY){anim.y=anim.targetY;if(anim.vy>3)anim.vy*=-0.28;else finishDrop();}}
+  if(anim){
+    anim.vy+=0.85;anim.y+=anim.vy;
+    if(anim.y>=anim.targetY){anim.y=anim.targetY;if(anim.vy>3)anim.vy*=-0.28;else finishDrop();}
+  }
   ctx.clearRect(0,0,420,380);
-  roundRect(ctx,ox-12,oy-12,boardW+24,boardH+24,16);ctx.fillStyle="#1d4ed8";ctx.fill();
-  roundRect(ctx,ox-8,oy-8,boardW+16,boardH+16,14);ctx.fillStyle="#2563eb";ctx.fill();
-  if(grid)for(var r=0;r<R;r++)for(var c=0;c<C;c++){
-    var x=colX(c),y=rowY(r);
+  rr(ox-12,oy-12,boardW+24,boardH+24,16);ctx.fillStyle="#1d4ed8";ctx.fill();
+  var r,c,x,y,free;
+  for(r=0;r<R;r++)for(c=0;c<C;c++){
+    x=colX(c);y=rowY(r);
     ctx.beginPath();ctx.arc(x+cell/2,y+cell/2,cell/2-2,0,Math.PI*2);ctx.fillStyle="#0f172a";ctx.fill();
     if(grid[r][c])drawDisc(x,y,grid[r][c]);
   }
-  if(started&&!busy&&!over&&hoverCol>=0&&hoverCol<C&&!(vsBot&&turn===2)){
-    var free=dropRow(grid,hoverCol);
-    if(free>=0){ctx.globalAlpha=.35;drawDisc(colX(hoverCol),rowY(free),turn);ctx.globalAlpha=1;drawDisc(colX(hoverCol),oy-cell-4,turn,.7);}
+  if(started&&!busy&&!over&&hoverCol>=0&&!(vsBot&&turn===2)){
+    free=dropRow(grid,hoverCol);
+    if(free>=0){ctx.globalAlpha=0.35;drawDisc(colX(hoverCol),rowY(free),turn);ctx.globalAlpha=1;}
   }
   if(anim)drawDisc(colX(anim.col),anim.y,anim.color);
   requestAnimationFrame(loop);
 }
-function colFromEvent(e){var rect=cv.getBoundingClientRect();var x=(e.clientX-rect.left)*(cv.width/rect.width);for(var c=0;c<C;c++){var cx=colX(c);if(x>=cx&&x<=cx+cell)return c;}return Math.max(0,Math.min(C-1,Math.floor((x-ox)/(cell+GAP)));)}
-
-// fix paren
-function colFromEvent(e){
-  var rect=cv.getBoundingClientRect();
-  var x=(e.clientX-rect.left)*(cv.width/rect.width);
-  for(var c=0;c<C;c++){var cx=colX(c);if(x>=cx&&x<=cx+cell)return c;}
-  return Math.max(0,Math.min(C-1,Math.floor((x-ox)/(cell+GAP))));
-}
-
 cv.addEventListener("pointermove",function(e){hoverCol=colFromEvent(e);});
 cv.addEventListener("pointerleave",function(){hoverCol=-1;});
 cv.addEventListener("pointerdown",function(e){
   if(!started||(vsBot&&turn===2))return;
   drop(colFromEvent(e));
 });
-document.getElementById("rst").onclick=function(){if(started)start(vsBot);else modeEl.classList.add("show");};
-document.getElementById("ovBtn").onclick=function(){start(vsBot);};
-document.getElementById("ovMode").onclick=function(){ov.classList.remove("show");modeEl.classList.add("show");started=false;};
-document.getElementById("modeFriend").onclick=function(){start(false);};
-document.getElementById("modeBot").onclick=function(){start(true);};
-grid=newGrid();
 requestAnimationFrame(loop);
 })();
-</script></body></html>
+</script>
+</body></html>
